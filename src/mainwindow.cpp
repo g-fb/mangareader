@@ -45,12 +45,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_view, &View::doubleClicked,
             this, &MainWindow::toggleFullScreen);
+    connect(m_view, &View::mouseMoved,
+            this, &MainWindow::onMouseMoved);
+
+    showToolBars();
+    showDockWidgets();
+    menuBar()->show();
+    statusBar()->show();
 }
 
 MainWindow::~MainWindow()
 {
     m_thread->quit();
     m_thread->wait();
+}
+
+Qt::ToolBarArea MainWindow::mainToolBarArea()
+{
+    return m_mainToolBarArea;
 }
 
 void MainWindow::init()
@@ -194,23 +206,67 @@ bool MainWindow::isFullScreen()
             || (windowState() == Qt::WindowFullScreen);
 }
 
-void MainWindow::hideDockWidgets()
+void MainWindow::hideDockWidgets(Qt::DockWidgetAreas area)
 {
     QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
     for (QDockWidget *dockWidget : dockWidgets) {
-        if (!dockWidget->isFloating()) {
+        if ((dockWidgetArea(dockWidget) == area || area == Qt::AllDockWidgetAreas) && !dockWidget->isFloating()) {
             dockWidget->hide();
         }
     }
 }
 
-void MainWindow::showDockWidgets()
+void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
 {
     QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
     for (int i = dockWidgets.size(); i > 0; i--) {
-        if (!dockWidgets.at(i-1)->isFloating()) {
+        if ((dockWidgetArea(dockWidgets.at(i-1)) == area || area == Qt::AllDockWidgetAreas)
+                && !dockWidgets.at(i-1)->isFloating()) {
             dockWidgets.at(i-1)->show();
         }
+    }
+}
+
+void MainWindow::hideToolBars(Qt::ToolBarAreas area)
+{
+    QList<QToolBar *> toolBars = findChildren<QToolBar *>();
+    for (QToolBar *toolBar : toolBars) {
+        if ((toolBarArea(toolBar) == area || area == Qt::AllToolBarAreas) && !toolBar->isFloating()) {
+            toolBar->hide();
+        }
+    }
+}
+
+void MainWindow::showToolBars(Qt::ToolBarAreas area)
+{
+    QList<QToolBar *> toolBars = findChildren<QToolBar *>();
+    for (QToolBar *toolBar : toolBars) {
+        if ((toolBarArea(toolBar) == area || area == Qt::AllToolBarAreas) && !toolBar->isFloating()) {
+            toolBar->show();
+        }
+    }
+}
+
+void MainWindow::onMouseMoved(QMouseEvent *event)
+{
+    if(!isFullScreen()) {
+        return;
+    }
+    if (event->y() < 50) {
+        showDockWidgets(Qt::TopDockWidgetArea);
+        showToolBars(Qt::TopToolBarArea);
+    } else if (event->y() > m_view->height() - 50) {
+        showDockWidgets(Qt::BottomDockWidgetArea);
+        showToolBars(Qt::BottomToolBarArea);
+    } else if (event->x() < 50) {
+        showDockWidgets(Qt::LeftDockWidgetArea);
+        showToolBars(Qt::LeftToolBarArea);
+    } else if (event->x() > m_view->width() - 50) {
+        showDockWidgets(Qt::RightDockWidgetArea);
+        showToolBars(Qt::RightToolBarArea);
+    } else {
+        hideDockWidgets();
+        hideToolBars();
     }
 }
 
@@ -219,16 +275,16 @@ void MainWindow::toggleFullScreen()
     if (isFullScreen()) {
         setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
         setWindowState(windowState() & ~Qt::WindowFullScreen);
+        showToolBars();
         showDockWidgets();
         menuBar()->show();
         statusBar()->show();
-        toolBar("mainToolBar")->show();
     } else {
         setWindowState(windowState() | Qt::WindowFullScreen);
+        hideToolBars();
         hideDockWidgets();
         menuBar()->hide();
         statusBar()->hide();
-        toolBar("mainToolBar")->hide();
     }
 }
 

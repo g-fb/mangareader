@@ -15,10 +15,14 @@
  */
 
 #include "_debug.h"
-#include "view.h"
+#include "mainwindow.h"
 #include "page.h"
+#include "view.h"
 #include "worker.h"
 
+#include <KToolBar>
+
+#include <QMouseEvent>
 #include <QScrollBar>
 
 View::View(QWidget *parent)
@@ -228,6 +232,11 @@ void View::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
     emit doubleClicked();
+}
+
+void View::mouseMoveEvent(QMouseEvent *event)
+{
+    emit mouseMoved(event);
 }
 
 void View::scrollContentsBy(int dx, int dy)

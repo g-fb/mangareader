@@ -29,6 +29,7 @@ class MainWindow : public KXmlGuiWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    Qt::ToolBarArea mainToolBarArea();
 
 private:
     void init();
@@ -37,8 +38,11 @@ private:
     void loadImages(const QModelIndex &index);
     void toggleFullScreen();
     bool isFullScreen();
-    void hideDockWidgets();
-    void showDockWidgets();
+    void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
+    void showDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
+    void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
+    void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
+    void onMouseMoved(QMouseEvent *event);
 
     QProgressBar *m_progressBar;
     KSharedConfig::Ptr m_config;
@@ -47,6 +51,7 @@ private:
     View *m_view;
     Worker *m_worker;
     QThread *m_thread;
+    Qt::ToolBarArea m_mainToolBarArea;
 };
 
 #endif // MAINWINDOW_H
