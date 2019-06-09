@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_S
 
 set(CMAKE_AUTOMOC ON)
 
+include(KDEInstallDirs)
+
 find_package(Qt5 REQUIRED COMPONENTS
     Core
     Widgets
@@ -19,11 +21,11 @@ find_package(KF5 REQUIRED COMPONENTS
 )
 
 set(mangareader_SRC
-  src/main.cpp
-  src/mainwindow.cpp
-  src/view.cpp
-  src/page.cpp
-  src/worker.cpp
+    src/main.cpp
+    src/mainwindow.cpp
+    src/view.cpp
+    src/page.cpp
+    src/worker.cpp
 )
 add_executable(${PROJECT_NAME} ${mangareader_SRC})
 
@@ -34,3 +36,6 @@ target_link_libraries(mangareader
     KF5::XmlGui
     KF5::ConfigCore
 )
+
+install(TARGETS ${PROJECT_NAME} DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(FILES mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)

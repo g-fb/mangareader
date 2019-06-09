@@ -35,6 +35,10 @@ private:
     void setupActions();
     void addMangaFolder();
     void loadImages(const QModelIndex &index);
+    void toggleFullScreen();
+    bool isFullScreen();
+    void hideDockWidgets();
+    void showDockWidgets();
 
     QProgressBar *m_progressBar;
     KSharedConfig::Ptr m_config;

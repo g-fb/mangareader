@@ -42,6 +42,15 @@ MainWindow::MainWindow(QWidget *parent)
     init();
     setupActions();
     setupGUI(Default, "mangareaderui.rc");
+
+    connect(m_view, &View::doubleClicked,
+            this, &MainWindow::toggleFullScreen);
+}
+
+MainWindow::~MainWindow()
+{
+    m_thread->quit();
+    m_thread->wait();
 }
 
 void MainWindow::init()
@@ -96,12 +105,6 @@ void MainWindow::init()
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
 }
 
-MainWindow::~MainWindow()
-{
-    m_thread->quit();
-    m_thread->wait();
-}
-
 void MainWindow::addMangaFolder()
 {
     QString path = QFileDialog::getExistingDirectory(this, i18n("Choose a directory"), "");
@@ -127,7 +130,7 @@ void MainWindow::loadImages(const QModelIndex &index)
     m_images.clear();
 
     // get images from path
-    QDirIterator *it = new QDirIterator(fileInfo.absoluteFilePath(), QDir::Files, QDirIterator::NoIteratorFlags);
+    auto it = new QDirIterator(fileInfo.absoluteFilePath(), QDir::Files, QDirIterator::NoIteratorFlags);
 //    if (recursive) {
 //      it = new QDirIterator(path, QDir::Files, QDirIterator::Subdirectories);
 //    }
@@ -158,11 +161,74 @@ void MainWindow::loadImages(const QModelIndex &index)
 
 void MainWindow::setupActions()
 {
-    QAction *addMangaFolder = new QAction(this);
+    auto addMangaFolder = new QAction(this);
     addMangaFolder->setText(i18n("&Add Manga Folder"));
     addMangaFolder->setIcon(QIcon::fromTheme("folder-open"));
     actionCollection()->addAction("addMangaFolder", addMangaFolder);
     actionCollection()->setDefaultShortcut(addMangaFolder, Qt::CTRL + Qt::Key_A);
     connect(addMangaFolder, &QAction::triggered,
             this, &MainWindow::addMangaFolder);
+
+    KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
+
+    auto spacer = new QWidget(this);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    spacer->setVisible(true);
+    auto spacerAction = new QWidgetAction(this);
+    spacerAction->setDefaultWidget(spacer);
+    spacerAction->setText(i18n("Spacer"));
+    actionCollection()->addAction("spacer", spacerAction);
+
+    auto fullScreen = new QAction(this);
+    fullScreen->setText(i18n("FullScreen"));
+    fullScreen->setIcon(QIcon::fromTheme("view-fullscreen"));
+    actionCollection()->addAction("fullscreen", fullScreen);
+    actionCollection()->setDefaultShortcut(fullScreen, Qt::Key_F11);
+    connect(fullScreen, &QAction::triggered,
+            this, &MainWindow::toggleFullScreen);
 }
+
+bool MainWindow::isFullScreen()
+{
+    return (windowState() == (Qt::WindowFullScreen | Qt::WindowMaximized))
+            || (windowState() == Qt::WindowFullScreen);
+}
+
+void MainWindow::hideDockWidgets()
+{
+    QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
+    for (QDockWidget *dockWidget : dockWidgets) {
+        if (!dockWidget->isFloating()) {
+            dockWidget->hide();
+        }
+    }
+}
+
+void MainWindow::showDockWidgets()
+{
+    QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
+    for (int i = dockWidgets.size(); i > 0; i--) {
+        if (!dockWidgets.at(i-1)->isFloating()) {
+            dockWidgets.at(i-1)->show();
+        }
+    }
+}
+
+void MainWindow::toggleFullScreen()
+{
+    if (isFullScreen()) {
+        setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        setWindowState(windowState() & ~Qt::WindowFullScreen);
+        showDockWidgets();
+        menuBar()->show();
+        statusBar()->show();
+        toolBar("mainToolBar")->show();
+    } else {
+        setWindowState(windowState() | Qt::WindowFullScreen);
+        hideDockWidgets();
+        menuBar()->hide();
+        statusBar()->hide();
+        toolBar("mainToolBar")->hide();
+    }
+}
+

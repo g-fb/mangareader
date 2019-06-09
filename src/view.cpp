@@ -24,6 +24,9 @@
 View::View(QWidget *parent)
     : QGraphicsView(parent)
 {
+    setMouseTracking(true);
+    setFrameShape(QFrame::NoFrame);
+
     m_scene = new QGraphicsScene(this);
     setScene(m_scene);
 
@@ -219,6 +222,12 @@ void View::resizeEvent(QResizeEvent *e)
     }
     calculatePageSizes();
     QGraphicsView::resizeEvent(e);
+}
+
+void View::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    emit doubleClicked();
 }
 
 void View::scrollContentsBy(int dx, int dy)

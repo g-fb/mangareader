@@ -37,6 +37,7 @@ public:
 
 signals:
     void requestPage(int number);
+    void doubleClicked();
 
 public slots:
     void onImageReady(QImage image, int number);
@@ -45,6 +46,7 @@ public slots:
 
 private:
     void resizeEvent(QResizeEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
     void createPages();
     void calculatePageSizes();
     void setPagesVisibility();
