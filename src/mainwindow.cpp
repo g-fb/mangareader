@@ -93,7 +93,7 @@ void MainWindow::init()
     // tree widget
     auto treeDock = new QDockWidget(mangaDirInfo.baseName(), this);
     auto treeModel = new QFileSystemModel(this);
-    auto treeView = new QTreeView(this);
+    m_treeView = new QTreeView(this);
 
     treeDock->setObjectName("treeDock");
 
@@ -103,17 +103,22 @@ void MainWindow::init()
     treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz");
     treeModel->setNameFilterDisables(false);
 
-    treeView->setModel(treeModel);
-    treeView->setRootIndex(treeModel->index(mangaDirInfo.absoluteFilePath()));
-    treeView->setColumnHidden(1, true);
-    treeView->setColumnHidden(2, true);
-    treeView->setColumnHidden(3, true);
-    treeView->header()->hide();
+    m_treeView->setModel(treeModel);
+    m_treeView->setRootIndex(treeModel->index(mangaDirInfo.absoluteFilePath()));
+    m_treeView->setColumnHidden(1, true);
+    m_treeView->setColumnHidden(2, true);
+    m_treeView->setColumnHidden(3, true);
+    m_treeView->header()->hide();
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(treeView, &QTreeView::doubleClicked,
-            this, &MainWindow::loadImages);
+    connect(m_treeView, &QTreeView::doubleClicked,
+            this, [ = ](const QModelIndex &index) {
+                loadImages(index);
+            });
+    connect(m_treeView, &QTreeView::customContextMenuRequested,
+            this, &MainWindow::treeViewContextMenu);
 
-    treeDock->setWidget(treeView);
+    treeDock->setWidget(m_treeView);
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
 }
 
@@ -129,7 +134,7 @@ void MainWindow::addMangaFolder()
     rootGroup.config()->sync();
 }
 
-void MainWindow::loadImages(const QModelIndex &index)
+void MainWindow::loadImages(const QModelIndex &index, bool recursive)
 {
     // get path from index
     const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
@@ -143,9 +148,9 @@ void MainWindow::loadImages(const QModelIndex &index)
 
     // get images from path
     auto it = new QDirIterator(fileInfo.absoluteFilePath(), QDir::Files, QDirIterator::NoIteratorFlags);
-//    if (recursive) {
-//      it = new QDirIterator(path, QDir::Files, QDirIterator::Subdirectories);
-//    }
+    if (recursive) {
+      it = new QDirIterator(fileInfo.absoluteFilePath(), QDir::Files, QDirIterator::Subdirectories);
+    }
     while (it->hasNext()) {
         QString file = it->next();
         QMimeDatabase db;
@@ -204,6 +209,57 @@ bool MainWindow::isFullScreen()
 {
     return (windowState() == (Qt::WindowFullScreen | Qt::WindowMaximized))
             || (windowState() == Qt::WindowFullScreen);
+}
+
+void MainWindow::treeViewContextMenu(QPoint point)
+{
+    QModelIndex index = m_treeView->indexAt(point);
+    QFileSystemModel *model = static_cast<QFileSystemModel *>(m_treeView->model());
+    QString path = model->filePath(index);
+    QFileInfo pathInfo(path);
+
+    QMenu *menu = new QMenu();
+    menu->setMinimumWidth(200);
+
+    QAction *load = new QAction(QIcon::fromTheme("arrow-down"), i18n("Load"));
+    m_treeView->addAction(load);
+
+    QAction *loadRecursive = new QAction(QIcon::fromTheme("arrow-down-double"), i18n("Load recursive"));
+    m_treeView->addAction(loadRecursive);
+
+    QAction *openPath = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
+    m_treeView->addAction(openPath);
+
+    QAction *openContainingFolder = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
+    m_treeView->addAction(openContainingFolder);
+
+    menu->addAction(load);
+    menu->addAction(loadRecursive);
+    menu->addSeparator();
+    menu->addAction(openPath);
+    menu->addAction(openContainingFolder);
+
+    connect(load, &QAction::triggered,
+            this, [ = ]() {
+                loadImages(index);
+            });
+    connect(loadRecursive, &QAction::triggered,
+            this, [ = ]() {
+                loadImages(index, true);
+            });
+
+    connect(openPath, &QAction::triggered,
+            this, [ = ]() {
+                QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
+                QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+            });
+
+    connect(openContainingFolder, &QAction::triggered,
+            this, [ = ]() {
+                QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
+                QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+            });
+    menu->exec(QCursor::pos());
 }
 
 void MainWindow::hideDockWidgets(Qt::DockWidgetAreas area)

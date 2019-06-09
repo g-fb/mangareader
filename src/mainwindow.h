@@ -21,6 +21,7 @@
 #include <KXmlGuiWindow>
 
 class QProgressBar;
+class QTreeView;
 class View;
 class Worker;
 
@@ -35,9 +36,10 @@ private:
     void init();
     void setupActions();
     void addMangaFolder();
-    void loadImages(const QModelIndex &index);
+    void loadImages(const QModelIndex &index, bool recursive = false);
     void toggleFullScreen();
     bool isFullScreen();
+    void treeViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
     void showDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
     void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
@@ -52,6 +54,7 @@ private:
     Worker *m_worker;
     QThread *m_thread;
     Qt::ToolBarArea m_mainToolBarArea;
+    QTreeView *m_treeView;
 };
 
 #endif // MAINWINDOW_H
