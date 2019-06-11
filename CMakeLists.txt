@@ -20,6 +20,8 @@ find_package(KF5 REQUIRED COMPONENTS
     Config
 )
 
+add_subdirectory(QArchive/)
+
 set(mangareader_SRC
     src/main.cpp
     src/mainwindow.cpp
@@ -35,6 +37,7 @@ target_link_libraries(mangareader
     KF5::I18n
     KF5::XmlGui
     KF5::ConfigCore
+    QArchive
 )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

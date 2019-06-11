@@ -26,7 +26,8 @@
 
 #include <QtWidgets>
 #include <QThread>
-#include <QDebug>
+
+#include <QArchive>
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
@@ -113,7 +114,10 @@ void MainWindow::init()
 
     connect(m_treeView, &QTreeView::doubleClicked,
             this, [ = ](const QModelIndex &index) {
-                loadImages(index);
+                // get path from index
+                const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
+                QString path = model->filePath(index);
+                loadImages(path);
             });
     connect(m_treeView, &QTreeView::customContextMenuRequested,
             this, &MainWindow::treeViewContextMenu);
@@ -134,22 +138,21 @@ void MainWindow::addMangaFolder()
     rootGroup.config()->sync();
 }
 
-void MainWindow::loadImages(const QModelIndex &index, bool recursive)
+void MainWindow::loadImages(QString path, bool recursive)
 {
-    // get path from index
-    const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-    QString pathToLoad = model->filePath(index);
-    const QFileInfo fileInfo(pathToLoad);
-    if (!fileInfo.isDir()) {
+    const QFileInfo fileInfo(path);
+    QString mangaPath = fileInfo.absoluteFilePath();
+    if (fileInfo.isFile()) {
+        extractArchive(fileInfo.absoluteFilePath());
         return;
     }
 
     m_images.clear();
 
     // get images from path
-    auto it = new QDirIterator(fileInfo.absoluteFilePath(), QDir::Files, QDirIterator::NoIteratorFlags);
+    auto it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::NoIteratorFlags);
     if (recursive) {
-      it = new QDirIterator(fileInfo.absoluteFilePath(), QDir::Files, QDirIterator::Subdirectories);
+      it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::Subdirectories);
     }
     while (it->hasNext()) {
         QString file = it->next();
@@ -168,7 +171,7 @@ void MainWindow::loadImages(const QModelIndex &index, bool recursive)
     if (m_images.count() < 1) {
         return;
     }
-    m_currentManga = fileInfo.absoluteFilePath();
+    m_currentManga = mangaPath;
     m_worker->setImages(m_images);
     m_view->reset();
     m_view->setManga(m_currentManga);
@@ -211,6 +214,46 @@ bool MainWindow::isFullScreen()
             || (windowState() == Qt::WindowFullScreen);
 }
 
+void MainWindow::extractArchive(QString archivePath)
+{
+    KConfigGroup rootGroup = m_config->group("");
+    QFileInfo mangaDirInfo(rootGroup.readEntry("Manga Folder"));
+    QFileInfo archivePathInfo(archivePath);
+    if (!mangaDirInfo.exists()) {
+        return;
+    }
+    // delete previous extracted folder
+    QFileInfo file(m_tmpFolder);
+    if (file.exists() && file.isDir() && file.isWritable()) {
+        QDir dir(m_tmpFolder);
+        dir.removeRecursively();
+    }
+    m_tmpFolder = mangaDirInfo.absoluteFilePath() + "/tmp/" + archivePathInfo.baseName().toLatin1();
+    QDir dir(m_tmpFolder);
+    if (!dir.exists()) {
+        dir.mkdir(m_tmpFolder);
+    }
+
+    auto extractor = new QArchive::DiskExtractor(this);
+    extractor->setArchive(archivePathInfo.absoluteFilePath());
+    extractor->setOutputDirectory(m_tmpFolder);
+    extractor->start();
+
+    m_progressBar->setVisible(true);
+    m_progressBar->setValue(0);
+    connect(extractor, &QArchive::DiskExtractor::finished,
+            this, [ = ]() {
+                m_progressBar->setVisible(false);
+                loadImages(m_tmpFolder, true);
+            });
+
+    connect(extractor, &QArchive::DiskExtractor::progress,
+            this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
+                statusBar()->showMessage(QString::number(percent) + "% " + file);
+                m_progressBar->setValue(percent);
+            });
+}
+
 void MainWindow::treeViewContextMenu(QPoint point)
 {
     QModelIndex index = m_treeView->indexAt(point);
@@ -218,19 +261,19 @@ void MainWindow::treeViewContextMenu(QPoint point)
     QString path = model->filePath(index);
     QFileInfo pathInfo(path);
 
-    QMenu *menu = new QMenu();
+    auto menu = new QMenu();
     menu->setMinimumWidth(200);
 
-    QAction *load = new QAction(QIcon::fromTheme("arrow-down"), i18n("Load"));
+    auto load = new QAction(QIcon::fromTheme("arrow-down"), i18n("Load"));
     m_treeView->addAction(load);
 
-    QAction *loadRecursive = new QAction(QIcon::fromTheme("arrow-down-double"), i18n("Load recursive"));
+    auto loadRecursive = new QAction(QIcon::fromTheme("arrow-down-double"), i18n("Load recursive"));
     m_treeView->addAction(loadRecursive);
 
-    QAction *openPath = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
+    auto openPath = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
     m_treeView->addAction(openPath);
 
-    QAction *openContainingFolder = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
+    auto openContainingFolder = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
     m_treeView->addAction(openContainingFolder);
 
     menu->addAction(load);
@@ -241,11 +284,17 @@ void MainWindow::treeViewContextMenu(QPoint point)
 
     connect(load, &QAction::triggered,
             this, [ = ]() {
-                loadImages(index);
+                // get path from index
+                const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
+                QString path = model->filePath(index);
+                loadImages(path);
             });
     connect(loadRecursive, &QAction::triggered,
             this, [ = ]() {
-                loadImages(index, true);
+                // get path from index
+                const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
+                QString path = model->filePath(index);
+                loadImages(path, true);
             });
 
     connect(openPath, &QAction::triggered,

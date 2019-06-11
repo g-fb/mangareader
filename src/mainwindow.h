@@ -36,9 +36,10 @@ private:
     void init();
     void setupActions();
     void addMangaFolder();
-    void loadImages(const QModelIndex &index, bool recursive = false);
+    void loadImages(QString path, bool recursive = false);
     void toggleFullScreen();
     bool isFullScreen();
+    void extractArchive(QString archivePath);
     void treeViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
     void showDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
@@ -46,15 +47,16 @@ private:
     void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void onMouseMoved(QMouseEvent *event);
 
-    QProgressBar *m_progressBar;
-    KSharedConfig::Ptr m_config;
-    QStringList m_images;
-    QString m_currentManga;
-    View *m_view;
-    Worker *m_worker;
-    QThread *m_thread;
-    Qt::ToolBarArea m_mainToolBarArea;
-    QTreeView *m_treeView;
+    QProgressBar       *m_progressBar;
+    KSharedConfig::Ptr  m_config;
+    QStringList         m_images;
+    QString             m_currentManga;
+    View               *m_view;
+    Worker             *m_worker;
+    QThread            *m_thread;
+    Qt::ToolBarArea     m_mainToolBarArea;
+    QTreeView          *m_treeView;
+    QString             m_tmpFolder;
 };
 
 #endif // MAINWINDOW_H
