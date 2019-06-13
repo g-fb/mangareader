@@ -4,6 +4,7 @@ project(mangareader)
 find_package(ECM 1.0.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 
 include(KDEInstallDirs)
@@ -12,7 +13,6 @@ find_package(Qt5 REQUIRED COMPONENTS
     Core
     Widgets
 )
-
 find_package(KF5 REQUIRED COMPONENTS
     CoreAddons
     I18n
@@ -29,7 +29,15 @@ set(mangareader_SRC
     src/page.cpp
     src/worker.cpp
 )
+
+ki18n_wrap_ui(mangareader_SRC
+   settings.ui
+)
+
+kconfig_add_kcfg_files(mangareader_SRC GENERATE_MOC settings.kcfgc)
 add_executable(${PROJECT_NAME} ${mangareader_SRC})
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(mangareader
     Qt5::Widgets
@@ -42,3 +50,4 @@ target_link_libraries(mangareader
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
+install(FILES mangareader.kcfg DESTINATION ${KCFG_INSTALL_DIR})

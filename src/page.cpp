@@ -15,6 +15,7 @@
  */
 
 #include "_debug.h"
+#include "settings.h"
 #include "page.h"
 #include "view.h"
 #include "worker.h"
@@ -103,7 +104,7 @@ void Page::calculateSourceSize()
 
 void Page::calculateScaledSize()
 {
-    int maxWidth = m_maxWidth;
+    int maxWidth = MangaReaderSettings::maxWidth();
     int viewWidth = m_view->width() - (m_view->verticalScrollBar()->width() + 10);
     int imageWidth = m_sourceSize.width();
     int imageHeight = m_sourceSize.height();

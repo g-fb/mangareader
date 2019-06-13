@@ -20,10 +20,22 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+#include "ui_settings.h"
+
 class QProgressBar;
 class QTreeView;
 class View;
 class Worker;
+
+class SettingsWidget: public QWidget, public Ui::SettingsWidget
+{
+    Q_OBJECT
+public:
+    explicit SettingsWidget(QWidget *parent) : QWidget(parent) {
+        setupUi(this);
+    }
+};
+
 
 class MainWindow : public KXmlGuiWindow
 {
@@ -38,7 +50,6 @@ private:
     void addMangaFolder();
     void loadImages(QString path, bool recursive = false);
     void toggleFullScreen();
-    bool isFullScreen();
     void extractArchive(QString archivePath);
     void treeViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
@@ -46,6 +57,8 @@ private:
     void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void onMouseMoved(QMouseEvent *event);
+    void openSettings();
+    bool isFullScreen();
 
     QProgressBar       *m_progressBar;
     KSharedConfig::Ptr  m_config;

@@ -18,8 +18,10 @@
 #include "mainwindow.h"
 #include "view.h"
 #include "worker.h"
+#include "settings.h"
 
 #include <KActionCollection>
+#include <KConfigDialog>
 #include <KConfigGroup>
 #include <KToolBar>
 #include <KLocalizedString>
@@ -143,6 +145,8 @@ void MainWindow::loadImages(QString path, bool recursive)
     const QFileInfo fileInfo(path);
     QString mangaPath = fileInfo.absoluteFilePath();
     if (fileInfo.isFile()) {
+        // extract files to a temporary location
+        // when finished call this function with the temporary location and recursive = true
         extractArchive(fileInfo.absoluteFilePath());
         return;
     }
@@ -206,6 +210,14 @@ void MainWindow::setupActions()
     actionCollection()->setDefaultShortcut(fullScreen, Qt::Key_F11);
     connect(fullScreen, &QAction::triggered,
             this, &MainWindow::toggleFullScreen);
+
+    auto settings = new QAction(this);
+    settings->setText(i18n("Settings"));
+    settings->setIcon(QIcon::fromTheme("settings"));
+    actionCollection()->addAction("settings", settings);
+    actionCollection()->setDefaultShortcut(settings, Qt::Key_F12);
+    connect(settings, &QAction::triggered,
+            this, &MainWindow::openSettings);
 }
 
 bool MainWindow::isFullScreen()
@@ -216,10 +228,9 @@ bool MainWindow::isFullScreen()
 
 void MainWindow::extractArchive(QString archivePath)
 {
-    KConfigGroup rootGroup = m_config->group("");
-    QFileInfo mangaDirInfo(rootGroup.readEntry("Manga Folder"));
+    QFileInfo extractionFolder(MangaReaderSettings::extractionFolder());
     QFileInfo archivePathInfo(archivePath);
-    if (!mangaDirInfo.exists()) {
+    if (!extractionFolder.exists() || !extractionFolder.isWritable()) {
         return;
     }
     // delete previous extracted folder
@@ -228,7 +239,7 @@ void MainWindow::extractArchive(QString archivePath)
         QDir dir(m_tmpFolder);
         dir.removeRecursively();
     }
-    m_tmpFolder = mangaDirInfo.absoluteFilePath() + "/tmp/" + archivePathInfo.baseName().toLatin1();
+    m_tmpFolder = extractionFolder.absoluteFilePath() + "/" + archivePathInfo.baseName().toLatin1();
     QDir dir(m_tmpFolder);
     if (!dir.exists()) {
         dir.mkdir(m_tmpFolder);
@@ -373,6 +384,32 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
         hideDockWidgets();
         hideToolBars();
     }
+}
+
+void MainWindow::openSettings()
+{
+    if ( KConfigDialog::showDialog( "settings" ) ) {
+        return;
+    }
+    auto settingsWidget = new SettingsWidget(this);
+    auto dialog = new KConfigDialog(
+             this, "settings", MangaReaderSettings::self() );
+    dialog->setFaceType(KPageDialog::Plain);
+    dialog->addPage(settingsWidget, i18n("Settings"));
+    dialog->show();
+    connect(dialog, &KConfigDialog::settingsChanged,
+            m_view, &View::onSettingsChanged);
+    connect(settingsWidget->selectExtractionFolder, &QPushButton::clicked, this, [ = ]() {
+        QString path = QFileDialog::getExistingDirectory(
+                    this,
+                    i18n("Select extraction folder"),
+                    MangaReaderSettings::extractionFolder());
+        if (path.isEmpty()) {
+            return;
+        }
+
+        settingsWidget->kcfg_ExtractionFolder->setText(path);
+    });
 }
 
 void MainWindow::toggleFullScreen()

@@ -19,6 +19,7 @@
 #include "page.h"
 #include "view.h"
 #include "worker.h"
+#include "settings.h"
 
 #include <KToolBar>
 
@@ -30,6 +31,9 @@ View::View(QWidget *parent)
 {
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
+
+    setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
+    setCacheMode(QGraphicsView::CacheBackground);
 
     m_scene = new QGraphicsScene(this);
     setScene(m_scene);
@@ -49,11 +53,7 @@ View::View(QWidget *parent)
 
 void View::reset()
 {
-    m_scene->clear();
-    m_pages.clear();
     m_requestedPages.clear();
-    m_start.clear();
-    m_end.clear();
     verticalScrollBar()->setValue(0);
 }
 
@@ -66,6 +66,12 @@ void View::loadImages()
 
 void View::createPages()
 {
+    for (Page *page : m_pages) {
+        delete page;
+    }
+    m_pages.clear();
+    m_start.clear();
+    m_end.clear();
     m_start.resize(m_images.count());
     m_end.resize(m_images.count());
     int w = viewport()->width() - 10;
@@ -75,7 +81,6 @@ void View::createPages()
         int y = 0;
         for (int i = 0; i < m_images.count(); i++) {
             Page *p = new Page(w, h, i);
-            p->setMaxWidth(1200);
             p->setView(this);
             m_pages.append(p);
             m_scene->addItem(p);
@@ -92,6 +97,7 @@ void View::calculatePageSizes()
         for (int i = 0; i < m_pages.count(); i++) {
             // find loaded pages
             Page *p = m_pages.at(i);
+            p->setMaxWidth(MangaReaderSettings::maxWidth());
             if (p->scaledSize().width() > 0) {
                 const QSize s(p->scaledSize());
                 avgw += s.width();
@@ -119,7 +125,7 @@ void View::calculatePageSizes()
             int height = p->scaledSize().height() > 0 ? p->scaledSize().height() : viewport()->height() - 20;
             m_start[i] = y;
             m_end[i] = y + height;
-            y += height + 50;
+            y += height + MangaReaderSettings::pageSpacing();
         }
     }
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
@@ -210,6 +216,23 @@ void View::onScrollBarRangeChanged(int x, int y)
         int offset = m_start[m_firstVisible] + static_cast<int>(m_firstVisibleOffset * pageHeight);
         verticalScrollBar()->setValue(offset);
     }
+}
+
+void View::onSettingsChanged()
+{
+    // clear requested pages so they are resized too
+    m_requestedPages.clear();
+    setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
+
+    if (maximumWidth() != MangaReaderSettings::maxWidth()) {
+        for (Page *page: m_pages) {
+            if (!page->isImageDeleted()) {
+                page->deleteImage();
+            }
+        }
+    }
+    calculatePageSizes();
+    setPagesVisibility();
 }
 
 bool View::isInView(int imgTop, int imgBot)

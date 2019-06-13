@@ -44,6 +44,7 @@ public slots:
     void onImageReady(QImage image, int number);
     void onImageResized(QImage image, int number);
     void onScrollBarRangeChanged(int x, int y);
+    void onSettingsChanged();
 
 private:
     void resizeEvent(QResizeEvent *e) override;

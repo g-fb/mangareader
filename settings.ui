@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsWidget</class>
+ <widget class="QWidget" name="SettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>261</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="1" column="0">
+      <widget class="QLabel" name="maxWidthLabel">
+       <property name="text">
+        <string>Max Page Width</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="kcfg_MaxWidth">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="pageSpacingLabel">
+       <property name="text">
+        <string>Page Spacing</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="kcfg_PageSpacing"/>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="backgrounColorLabel">
+       <property name="text">
+        <string>Background Color</string>
+       </property>
+       <property name="buddy">
+        <cstring>kcfg_BackgroundColor</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="KColorButton" name="kcfg_BackgroundColor"/>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="borderColorLabel">
+       <property name="text">
+        <string>Border Color</string>
+       </property>
+       <property name="buddy">
+        <cstring>kcfg_BorderColor</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="KColorButton" name="kcfg_BorderColor"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="tmpFolderLabel">
+       <property name="text">
+        <string>Extraction Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="kcfg_ExtractionFolder"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="selectExtractionFolder">
+         <property name="text">
+          <string>Select folder</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KColorButton</class>
+   <extends>QPushButton</extends>
+   <header>kcolorbutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
