@@ -39,6 +39,7 @@ signals:
     void requestPage(int number);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
+    void addBookmark(int number);
 
 public slots:
     void onImageReady(QImage image, int number);
@@ -50,6 +51,7 @@ private:
     void resizeEvent(QResizeEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     void createPages();
     void calculatePageSizes();
     void setPagesVisibility();

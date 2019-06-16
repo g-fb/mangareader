@@ -23,6 +23,7 @@
 
 #include <KToolBar>
 
+#include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
 
@@ -260,6 +261,20 @@ void View::mouseDoubleClickEvent(QMouseEvent *event)
 void View::mouseMoveEvent(QMouseEvent *event)
 {
     emit mouseMoved(event);
+}
+
+void View::contextMenuEvent(QContextMenuEvent *event)
+{
+    QPoint position = mapFromGlobal(event->globalPos());
+    Page *page;
+    if (QGraphicsItem *item = itemAt(position)) {
+        page = qgraphicsitem_cast<Page *>(item);
+        QMenu *menu = new QMenu();
+        menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [ = ] {
+            emit addBookmark(page->number());
+        });
+        menu->popup(event->globalPos());
+    }
 }
 
 void View::scrollContentsBy(int dx, int dy)

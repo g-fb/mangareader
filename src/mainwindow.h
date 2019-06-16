@@ -23,6 +23,8 @@
 #include "ui_settings.h"
 
 class QProgressBar;
+class QStandardItemModel;
+class QTableView;
 class QTreeView;
 class View;
 class Worker;
@@ -57,6 +59,8 @@ private:
     void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void onMouseMoved(QMouseEvent *event);
+    void onAddBookmark(int pageNumber);
+    void deleteBookmarks(QTableView *tableView, QString name);
     void openSettings();
     bool isFullScreen();
 
@@ -70,6 +74,8 @@ private:
     Qt::ToolBarArea     m_mainToolBarArea;
     QTreeView          *m_treeView;
     QString             m_tmpFolder;
+    QStandardItemModel *m_bookmarksModel;
+    QTableView         *m_bookmarksView;
 };
 
 #endif // MAINWINDOW_H
