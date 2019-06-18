@@ -22,5 +22,8 @@
         <entry name="BorderColor" type="Color">
             <label>Page border color.</label>
         </entry>
+        <entry name="MangaFolders" type="StringList">
+            <label>Manga folders.</label>
+        </entry>
     </group>
 </kcfg>

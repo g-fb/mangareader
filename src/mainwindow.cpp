@@ -276,6 +276,23 @@ void MainWindow::setupActions()
     connect(addMangaFolder, &QAction::triggered,
             this, &MainWindow::addMangaFolder);
 
+    auto mangaFoldersMenu = new QMenu();
+    for (QString mangaFolder : MangaReaderSettings::mangaFolders()) {
+       QAction *action = mangaFoldersMenu->addAction(mangaFolder, [ = ]() {
+            static_cast<QFileSystemModel*>(m_treeView->model())->setRootPath(mangaFolder);
+            m_treeView->setRootIndex(static_cast<QFileSystemModel*>(m_treeView->model())->index(mangaFolder));
+        });
+    }
+    auto selectMangaFolder = new QAction(this);
+    selectMangaFolder->setMenu(mangaFoldersMenu);
+    selectMangaFolder->setText(i18n("Select Manga Folder"));
+    actionCollection()->addAction("selectMangaFolder", selectMangaFolder);
+    connect(selectMangaFolder, &QAction::triggered, this, [ = ]() {
+        QWidget *widget = toolBar("mainToolBar")->widgetForAction(selectMangaFolder);
+        QToolButton *button = qobject_cast<QToolButton*>(widget);
+        button->showMenu();
+    });
+
     KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
 
     auto spacer = new QWidget(this);
@@ -556,17 +573,21 @@ void MainWindow::deleteBookmarks(QTableView *tableView, QString name)
 
 void MainWindow::openSettings()
 {
-    if ( KConfigDialog::showDialog( "settings" ) ) {
+    if (KConfigDialog::showDialog("settings")) {
         return;
     }
     auto settingsWidget = new SettingsWidget(this);
+    settingsWidget->mangaFolders->addItems(MangaReaderSettings::mangaFolders());
     auto dialog = new KConfigDialog(
-             this, "settings", MangaReaderSettings::self() );
+             this, "settings", MangaReaderSettings::self());
+    dialog->setMinimumSize(700, 600);
     dialog->setFaceType(KPageDialog::Plain);
     dialog->addPage(settingsWidget, i18n("Settings"));
     dialog->show();
+
     connect(dialog, &KConfigDialog::settingsChanged,
             m_view, &View::onSettingsChanged);
+
     connect(settingsWidget->selectExtractionFolder, &QPushButton::clicked, this, [ = ]() {
         QString path = QFileDialog::getExistingDirectory(
                     this,
@@ -575,9 +596,38 @@ void MainWindow::openSettings()
         if (path.isEmpty()) {
             return;
         }
-
         settingsWidget->kcfg_ExtractionFolder->setText(path);
     });
+
+    // add manga folder
+    connect(settingsWidget->addMangaFolder, &QPushButton::clicked, this, [ = ]() {
+        QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"), "");
+        if (path.isEmpty()) {
+            return;
+        }
+        settingsWidget->mangaFolders->addItem(path);
+        dialog->button(QDialogButtonBox::Apply)->setEnabled(true);
+    });
+
+    // delete manga folder
+    connect(settingsWidget->deleteMangaFolder, &QPushButton::clicked, this, [ = ]() {
+        // delete selected item from list widget
+        QList<QListWidgetItem*> selectedItems = settingsWidget->mangaFolders->selectedItems();
+        for (QListWidgetItem *item : selectedItems) {
+            delete item;
+        }
+        dialog->button(QDialogButtonBox::Apply)->setEnabled(true);
+    });
+
+    connect(dialog->button(QDialogButtonBox::Apply), &QPushButton::clicked, m_view, [ = ]() {
+        QStringList mangaFolders;
+        for(int i = 0; i < settingsWidget->mangaFolders->count(); ++i) {
+            mangaFolders << settingsWidget->mangaFolders->item(i)->text();
+        }
+        MangaReaderSettings::setMangaFolders(mangaFolders);
+        MangaReaderSettings::self()->save();
+    });
+
 }
 
 void MainWindow::toggleFullScreen()
