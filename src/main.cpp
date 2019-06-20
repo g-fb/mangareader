@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     KAboutData::setApplicationData(aboutData);
 
     MainWindow *w = new MainWindow();
+    w->setWindowIcon(QIcon::fromTheme("mangareader"));
     w->show();
 
     return app.exec();

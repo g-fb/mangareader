@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Manga Reader
+Exec=mangareader
+Icon=mangareader
+Type=Application
+Categories=Qt;KDE;Graphics;
+Terminal=false

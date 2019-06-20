@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 
 include(KDEInstallDirs)
+include(ECMInstallIcons)
 
 find_package(Qt5 REQUIRED COMPONENTS
     Core
@@ -48,6 +49,9 @@ target_link_libraries(mangareader
     QArchive
 )
 
+ecm_install_icons(ICONS data/512-apps-mangareader.svg DESTINATION ${KDE_INSTALL_ICONDIR})
+
 install(TARGETS ${PROJECT_NAME} DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
 install(FILES mangareader.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+install(PROGRAMS data/com.georgefb.mangareader.desktop DESTINATION ${KDE_INSTALL_APPDIR})
