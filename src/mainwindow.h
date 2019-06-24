@@ -63,6 +63,7 @@ private:
     void onAddBookmark(int pageNumber);
     void deleteBookmarks(QTableView *tableView, QString name);
     void openSettings();
+    void toggleMenubar();
     bool isFullScreen();
     QMenu *mangaFoldersMenu();
 

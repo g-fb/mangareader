@@ -25,6 +25,7 @@
 #include <KConfigGroup>
 #include <KToolBar>
 #include <KLocalizedString>
+#include <KStandardAction>
 
 #include <QtWidgets>
 #include <QThread>
@@ -312,6 +313,13 @@ void MainWindow::setupActions()
     actionCollection()->setDefaultShortcut(settings, Qt::Key_F12);
     connect(settings, &QAction::triggered,
             this, &MainWindow::openSettings);
+
+    KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
+}
+
+void MainWindow::toggleMenubar()
+{
+    menuBar()->isHidden() ? menuBar()->show() : menuBar()->hide();
 }
 
 bool MainWindow::isFullScreen()
