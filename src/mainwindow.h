@@ -50,6 +50,7 @@ private:
     void init();
     void setupActions();
     void addMangaFolder();
+    void saveMangaFolders();
     void loadImages(QString path, bool recursive = false);
     void toggleFullScreen();
     void extractArchive(QString archivePath);
@@ -63,6 +64,7 @@ private:
     void deleteBookmarks(QTableView *tableView, QString name);
     void openSettings();
     bool isFullScreen();
+    QMenu *mangaFoldersMenu();
 
     QProgressBar       *m_progressBar;
     KSharedConfig::Ptr  m_config;
@@ -76,6 +78,8 @@ private:
     QString             m_tmpFolder;
     QStandardItemModel *m_bookmarksModel;
     QTableView         *m_bookmarksView;
+    QAction            *m_selectMangaFolder;
+    SettingsWidget     *m_settingsWidget = nullptr;
 };
 
 #endif // MAINWINDOW_H
