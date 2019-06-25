@@ -25,7 +25,6 @@
 #include <KConfigGroup>
 #include <KToolBar>
 #include <KLocalizedString>
-#include <KStandardAction>
 
 #include <QtWidgets>
 #include <QThread>
@@ -47,8 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     setupGUI(Default, "mangareaderui.rc");
 
-    connect(m_view, &View::doubleClicked,
-            this, &MainWindow::toggleFullScreen);
     connect(m_view, &View::mouseMoved,
             this, &MainWindow::onMouseMoved);
 
@@ -288,8 +285,6 @@ void MainWindow::setupActions()
         button->showMenu();
     });
 
-    KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
-
     auto spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     spacer->setVisible(true);
@@ -298,23 +293,13 @@ void MainWindow::setupActions()
     spacerAction->setText(i18n("Spacer"));
     actionCollection()->addAction("spacer", spacerAction);
 
-    auto fullScreen = new QAction(this);
-    fullScreen->setText(i18n("FullScreen"));
-    fullScreen->setIcon(QIcon::fromTheme("view-fullscreen"));
-    actionCollection()->addAction("fullscreen", fullScreen);
-    actionCollection()->setDefaultShortcut(fullScreen, Qt::Key_F11);
-    connect(fullScreen, &QAction::triggered,
-            this, &MainWindow::toggleFullScreen);
-
-    auto settings = new QAction(this);
-    settings->setText(i18n("Settings"));
-    settings->setIcon(QIcon::fromTheme("settings"));
-    actionCollection()->addAction("settings", settings);
-    actionCollection()->setDefaultShortcut(settings, Qt::Key_F12);
-    connect(settings, &QAction::triggered,
-            this, &MainWindow::openSettings);
-
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
+    KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
+    KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
+
+    QAction *action = KStandardAction::fullScreen(this, [ = ]() {toggleFullScreen();}, this, actionCollection());
+    connect(m_view, &View::doubleClicked,
+            action, &QAction::trigger);
 }
 
 void MainWindow::toggleMenubar()

@@ -16,7 +16,9 @@
   <ToolBar name="mainToolBar" >
     <text>Main Toolbar</text>
     <Action name="addMangaFolder" />
+    <Action name="selectMangaFolder" />
     <Action name="spacer" />
+    <Action name="fullscreen" />
     <Action name="file_quit" />
   </ToolBar>
 </gui>
