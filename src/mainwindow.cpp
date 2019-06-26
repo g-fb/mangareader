@@ -195,7 +195,7 @@ void MainWindow::init()
         QModelIndex pathIndex = m_bookmarksModel->index(index.row(), 0);
         QModelIndex pageNumberIndex = m_bookmarksModel->index(index.row(), 1);
         QString path = m_bookmarksModel->data(pathIndex, Qt::ToolTipRole).toString();
-//        m_startPageNumber = model->data(pageNumberIndex, Qt::DisplayRole).toInt();
+        m_startPage = m_bookmarksModel->data(pageNumberIndex, Qt::DisplayRole).toInt();
         m_currentManga = path;
         loadImages(path);
     });
@@ -265,6 +265,8 @@ void MainWindow::loadImages(QString path, bool recursive)
     }
     m_worker->setImages(m_images);
     m_view->reset();
+    DEBUG << m_startPage;
+    m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);
     m_view->setImages(m_images);
     m_view->loadImages();

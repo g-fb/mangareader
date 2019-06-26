@@ -65,6 +65,16 @@ void View::loadImages()
     setPagesVisibility();
 }
 
+void View::goToPage(int number)
+{
+    verticalScrollBar()->setValue(m_start[number]);
+}
+
+void View::setStartPage(int number)
+{
+    m_startPage = number;
+}
+
 void View::createPages()
 {
     for (Page *page : m_pages) {
@@ -200,6 +210,10 @@ void View::onImageReady(QImage image, int number)
 {
     m_pages.at(number)->setImage(image);
     calculatePageSizes();
+    if (m_startPage > 0) {
+        goToPage(m_startPage);
+        m_startPage = 0;
+    }
     setPagesVisibility();
 }
 
@@ -245,6 +259,7 @@ bool View::isInView(int imgTop, int imgBot)
 
 void View::resizeEvent(QResizeEvent *e)
 {
+    DEBUG << m_scene->height();
     for (Page *p : m_pages) {
         p->redrawImage();
     }

@@ -82,6 +82,7 @@ private:
     QTableView         *m_bookmarksView;
     QAction            *m_selectMangaFolder;
     SettingsWidget     *m_settingsWidget = nullptr;
+    int                 m_startPage = 0;
 };
 
 #endif // MAINWINDOW_H

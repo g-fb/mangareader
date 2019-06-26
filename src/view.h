@@ -34,6 +34,8 @@ public:
     void setManga(QString manga);
     void setImages(QStringList images);
     void loadImages();
+    void goToPage(int number);
+    void setStartPage(int number);
 
 signals:
     void requestPage(int number);
@@ -70,6 +72,7 @@ private:
     QVector<int>     m_requestedPages;
     int              m_firstVisible = -1;
     double           m_firstVisibleOffset = 0.0f;
+    int              m_startPage = 0;
 };
 
 #endif // VIEW_H
