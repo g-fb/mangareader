@@ -45,6 +45,9 @@ MainWindow::MainWindow(QWidget *parent)
     init();
     setupActions();
     setupGUI(Default, "mangareaderui.rc");
+    if (MangaReaderSettings::mangaFolders().count() < 2) {
+        m_selectMangaFolder->setVisible(false);
+    }
 
     connect(m_view, &View::mouseMoved,
             this, &MainWindow::onMouseMoved);
@@ -52,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     showToolBars();
     showDockWidgets();
     menuBar()->show();
-    statusBar()->show();
+    statusBar()->hide();
 }
 
 MainWindow::~MainWindow()
@@ -219,7 +222,10 @@ void MainWindow::addMangaFolder()
     MangaReaderSettings::setMangaFolders(QStringList() << MangaReaderSettings::mangaFolders() << path);
     MangaReaderSettings::self()->save();
     // update the manga folder selection menu
-    m_selectMangaFolder->setMenu(mangaFoldersMenu());
+    m_selectMangaFolder->setMenu(populateMangaFoldersMenu());
+    if (MangaReaderSettings::mangaFolders().count() > 1) {
+        m_selectMangaFolder->setVisible(true);
+    }
 }
 
 void MainWindow::loadImages(QString path, bool recursive)
@@ -274,9 +280,10 @@ void MainWindow::setupActions()
     connect(addMangaFolder, &QAction::triggered,
             this, &MainWindow::addMangaFolder);
 
-    QMenu *menu = mangaFoldersMenu();
+    m_mangaFoldersMenu = new QMenu();
+    populateMangaFoldersMenu();
     m_selectMangaFolder = new QAction(this);
-    m_selectMangaFolder->setMenu(menu);
+    m_selectMangaFolder->setMenu(m_mangaFoldersMenu);
     m_selectMangaFolder->setText(i18n("Select Manga Folder"));
     actionCollection()->addAction("selectMangaFolder", m_selectMangaFolder);
     connect(m_selectMangaFolder, &QAction::triggered, this, [ = ]() {
@@ -313,11 +320,11 @@ bool MainWindow::isFullScreen()
             || (windowState() == Qt::WindowFullScreen);
 }
 
-QMenu *MainWindow::mangaFoldersMenu()
+QMenu *MainWindow::populateMangaFoldersMenu()
 {
-    auto menu = new QMenu();
+    m_mangaFoldersMenu->clear();
     for (QString mangaFolder : MangaReaderSettings::mangaFolders()) {
-       QAction *action = menu->addAction(mangaFolder);
+       QAction *action = m_mangaFoldersMenu->addAction(mangaFolder);
        connect(action, &QAction::triggered, this, [ = ]() {
            QFileSystemModel *treeModel = static_cast<QFileSystemModel*>(m_treeView->model());
            treeModel->setRootPath(mangaFolder);
@@ -327,7 +334,7 @@ QMenu *MainWindow::mangaFoldersMenu()
            m_config->sync();
         });
     }
-    return menu;
+    return m_mangaFoldersMenu;
 }
 
 void MainWindow::extractArchive(QString archivePath)
@@ -614,6 +621,9 @@ void MainWindow::openSettings()
         }
         m_settingsWidget->mangaFolders->addItem(path);
         dialog->button(QDialogButtonBox::Apply)->setEnabled(true);
+        if (MangaReaderSettings::mangaFolders().count() > 1) {
+            m_selectMangaFolder->setVisible(true);
+        }
     });
 
     // delete manga folder
@@ -643,7 +653,10 @@ void MainWindow::saveMangaFolders()
     MangaReaderSettings::setMangaFolders(mangaFolders);
     MangaReaderSettings::self()->save();
     // update the manga folder selection menu
-    m_selectMangaFolder->setMenu(mangaFoldersMenu());
+    m_selectMangaFolder->setMenu(populateMangaFoldersMenu());
+    if (MangaReaderSettings::mangaFolders().count() < 2) {
+        m_selectMangaFolder->setVisible(false);
+    }
 }
 
 void MainWindow::toggleFullScreen()
@@ -654,13 +667,10 @@ void MainWindow::toggleFullScreen()
         showToolBars();
         showDockWidgets();
         menuBar()->show();
-        statusBar()->show();
     } else {
         setWindowState(windowState() | Qt::WindowFullScreen);
         hideToolBars();
         hideDockWidgets();
         menuBar()->hide();
-        statusBar()->hide();
     }
 }
-

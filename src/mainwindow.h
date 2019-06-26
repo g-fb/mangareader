@@ -65,8 +65,9 @@ private:
     void openSettings();
     void toggleMenubar();
     bool isFullScreen();
-    QMenu *mangaFoldersMenu();
+    QMenu *populateMangaFoldersMenu();
 
+    QMenu              *m_mangaFoldersMenu = nullptr;
     QProgressBar       *m_progressBar;
     KSharedConfig::Ptr  m_config;
     QStringList         m_images;
