@@ -51,6 +51,8 @@ private:
     void init();
     void setupActions();
     void addMangaFolder();
+    void openMangaFolder();
+    void openMangaArchive();
     void saveMangaFolders();
     void loadImages(QString path, bool recursive = false);
     void toggleFullScreen();

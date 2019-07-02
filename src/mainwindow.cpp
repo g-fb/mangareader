@@ -238,6 +238,28 @@ void MainWindow::addMangaFolder()
     }
 }
 
+void MainWindow::openMangaArchive()
+{
+    QString file = QFileDialog::getOpenFileName(
+                this,
+                i18n("Open Archive"),
+                QDir::homePath(),
+                i18n("Archives (*.zip *.rar *.cbz *.7z *.cbt *.cbr)"));
+    if (file.isEmpty()) {
+        return;
+    }
+    loadImages(file, true);
+}
+
+void MainWindow::openMangaFolder()
+{
+    QString path = QFileDialog::getExistingDirectory(this, i18n("Choose a directory"), QDir::homePath());
+    if (path.isEmpty()) {
+        return;
+    }
+    loadImages(path, true);
+}
+
 void MainWindow::loadImages(QString path, bool recursive)
 {
     m_isLoadedRecursive = recursive;
@@ -287,11 +309,27 @@ void MainWindow::setupActions()
 {
     auto addMangaFolder = new QAction(this);
     addMangaFolder->setText(i18n("&Add Manga Folder"));
-    addMangaFolder->setIcon(QIcon::fromTheme("folder-open"));
+    addMangaFolder->setIcon(QIcon::fromTheme("folder-add"));
     actionCollection()->addAction("addMangaFolder", addMangaFolder);
     actionCollection()->setDefaultShortcut(addMangaFolder, Qt::CTRL + Qt::Key_A);
     connect(addMangaFolder, &QAction::triggered,
             this, &MainWindow::addMangaFolder);
+
+    auto openMangaFolder = new QAction(this);
+    openMangaFolder->setText(i18n("&Open Manga Folder"));
+    openMangaFolder->setIcon(QIcon::fromTheme("folder-open"));
+    actionCollection()->addAction("openMangaFolder", openMangaFolder);
+    actionCollection()->setDefaultShortcut(openMangaFolder, Qt::CTRL + Qt::Key_O);
+    connect(openMangaFolder, &QAction::triggered,
+            this, &MainWindow::openMangaFolder);
+
+    auto openMangaArchive = new QAction(this);
+    openMangaArchive->setText(i18n("&Open Manga Archive"));
+    openMangaArchive->setIcon(QIcon::fromTheme("application-zip"));
+    actionCollection()->addAction("openMangaArchive", openMangaArchive);
+    actionCollection()->setDefaultShortcut(openMangaArchive, Qt::CTRL + Qt::SHIFT + Qt::Key_O);
+    connect(openMangaArchive, &QAction::triggered,
+            this, &MainWindow::openMangaArchive);
 
     m_mangaFoldersMenu = new QMenu();
     populateMangaFoldersMenu();

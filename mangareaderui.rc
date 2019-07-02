@@ -6,19 +6,21 @@
      xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
                          http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
 
-  <MenuBar>
-    <Menu name="file" >
-      <Action name="addMangaFolder" />
-      <Action name="file_quit" />
-    </Menu>
-  </MenuBar>
+    <MenuBar>
+        <Menu name="file" >
+            <Action name="openMangaFolder" />
+            <Action name="openMangaArchive" />
+            <Action name="addMangaFolder" />
+            <Action name="file_quit" />
+        </Menu>
+    </MenuBar>
 
-  <ToolBar name="mainToolBar" >
-    <text>Main Toolbar</text>
-    <Action name="addMangaFolder" />
-    <Action name="selectMangaFolder" />
-    <Action name="spacer" />
-    <Action name="fullscreen" />
-    <Action name="file_quit" />
-  </ToolBar>
+    <ToolBar name="mainToolBar" >
+        <text>Main Toolbar</text>
+        <Action name="addMangaFolder" />
+        <Action name="selectMangaFolder" />
+        <Action name="spacer" />
+        <Action name="fullscreen" />
+        <Action name="file_quit" />
+    </ToolBar>
 </gui>
