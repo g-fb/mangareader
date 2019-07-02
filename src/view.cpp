@@ -259,7 +259,6 @@ bool View::isInView(int imgTop, int imgBot)
 
 void View::resizeEvent(QResizeEvent *e)
 {
-    DEBUG << m_scene->height();
     for (Page *p : m_pages) {
         p->redrawImage();
     }

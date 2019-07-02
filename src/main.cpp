@@ -29,29 +29,29 @@ int main(int argc, char *argv[])
         // The program name used internally. (componentName)
         QStringLiteral("mangareader"),
         // A displayable program name string. (displayName)
-        i18n("App Name"),
+        i18n("Manga Reader"),
         // The program version string. (version)
         QStringLiteral("1.0.0"),
         // Short description of what the app does. (shortDescription)
-        i18n("App short description"),
+        i18n("Manga reader for local files."),
         // The license this code is released under
-        KAboutLicense::GPL,
+        KAboutLicense::GPL_V3,
         // Copyright Statement (copyrightStatement = QString())
         i18n("(c) 2019"),
         // Optional text shown in the About box.
         // Can contain any information desired. (otherText)
-        i18n("About text..."),
+        QStringLiteral(),
         // The program homepage string. (homePageAddress = QString())
-        QStringLiteral("http://example.com"),
+        QStringLiteral("https://gitlab.com/g-fb/manga-reader"),
         // The bug report email address
         // (bugsEmailAddress = QLatin1String("submit@bugs.kde.org")
-        QStringLiteral("bugs@example.com"));
+        QStringLiteral("https://gitlab.com/g-fb/manga-reader/issues"));
 
     aboutData.addAuthor(
-        i18n("Author Name"),
+        i18n("George Florea Bănuș"),
         i18n("Developer"),
-        QStringLiteral("name@example.org"),
-        QStringLiteral("http://example.com")
+        QStringLiteral("georgefb899@gmail.org"),
+        QStringLiteral("http://georgefb.com")
     );
     KAboutData::setApplicationData(aboutData);
 

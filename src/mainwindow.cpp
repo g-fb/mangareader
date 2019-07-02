@@ -265,7 +265,6 @@ void MainWindow::loadImages(QString path, bool recursive)
     }
     m_worker->setImages(m_images);
     m_view->reset();
-    DEBUG << m_startPage;
     m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);
     m_view->setImages(m_images);
