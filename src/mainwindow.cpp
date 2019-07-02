@@ -244,7 +244,7 @@ void MainWindow::openMangaArchive()
                 this,
                 i18n("Open Archive"),
                 QDir::homePath(),
-                i18n("Archives (*.zip *.rar *.cbz *.7z *.cbt *.cbr)"));
+                i18n("Archives (*.zip *.rar *.7z *.cbz *.cbt *.cbr)"));
     if (file.isEmpty()) {
         return;
     }
@@ -253,7 +253,7 @@ void MainWindow::openMangaArchive()
 
 void MainWindow::openMangaFolder()
 {
-    QString path = QFileDialog::getExistingDirectory(this, i18n("Choose a directory"), QDir::homePath());
+    QString path = QFileDialog::getExistingDirectory(this, i18n("Open folder"), QDir::homePath());
     if (path.isEmpty()) {
         return;
     }
