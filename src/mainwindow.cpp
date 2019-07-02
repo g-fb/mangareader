@@ -159,9 +159,13 @@ void MainWindow::init()
     m_bookmarksModel->setHorizontalHeaderItem(1, new QStandardItem(i18n("Page")));
 
     KConfigGroup bookmarks = m_config->group("Bookmarks");
-    for (QString path : bookmarks.keyList()) {
+    for (const QString key : bookmarks.keyList()) {
+        QString value = bookmarks.readEntry(key);
+        QString path = key;
+        if (path.startsWith(RECURSIVE_KEY_PREFIX)) {
+            path = path.remove(0, RECURSIVE_KEY_PREFIX.length());
+        }
         QFileInfo pathInfo(path);
-        auto value = bookmarks.readEntry(pathInfo.absoluteFilePath());
         QList<QStandardItem *> rowData;
         QMimeDatabase db;
         QMimeType type = db.mimeTypeForFile(pathInfo.absoluteFilePath());
@@ -169,14 +173,14 @@ void MainWindow::init()
         if (type.name().startsWith("application/")) {
             icon = QIcon::fromTheme("application-zip");
         }
-        auto col1 = new QStandardItem(pathInfo.baseName());
+        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QStringLiteral();
+        auto col1 = new QStandardItem(displayPrefix + pathInfo.fileName());
         col1->setData(icon, Qt::DecorationRole);
+        col1->setData(key, Qt::UserRole);
         col1->setData(pathInfo.absoluteFilePath(), Qt::ToolTipRole);
         col1->setEditable(false);
-
         auto col2 = new QStandardItem(value);
         col2->setEditable(false);
-
         m_bookmarksModel->appendRow(rowData << col1 << col2);
     }
     m_bookmarksView = new QTableView();
@@ -195,10 +199,15 @@ void MainWindow::init()
         // get path from index
         QModelIndex pathIndex = m_bookmarksModel->index(index.row(), 0);
         QModelIndex pageNumberIndex = m_bookmarksModel->index(index.row(), 1);
+        m_startPage  = m_bookmarksModel->data(pageNumberIndex, Qt::DisplayRole).toInt();
         QString path = m_bookmarksModel->data(pathIndex, Qt::ToolTipRole).toString();
-        m_startPage = m_bookmarksModel->data(pageNumberIndex, Qt::DisplayRole).toInt();
+        QString key  = m_bookmarksModel->data(pathIndex, Qt::UserRole).toString();
         m_currentManga = path;
-        loadImages(path);
+        if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
+            loadImages(path, true);
+        } else {
+            loadImages(path);
+        }
     });
 
     auto deleteButton = new QPushButton();
@@ -231,6 +240,7 @@ void MainWindow::addMangaFolder()
 
 void MainWindow::loadImages(QString path, bool recursive)
 {
+    m_isLoadedRecursive = recursive;
     const QFileInfo fileInfo(path);
     QString mangaPath = fileInfo.absoluteFilePath();
     if (fileInfo.isFile()) {
@@ -245,7 +255,7 @@ void MainWindow::loadImages(QString path, bool recursive)
     // get images from path
     auto it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::NoIteratorFlags);
     if (recursive) {
-      it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::Subdirectories);
+        it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::Subdirectories);
     }
     while (it->hasNext()) {
         QString file = it->next();
@@ -270,6 +280,7 @@ void MainWindow::loadImages(QString path, bool recursive)
     m_view->setManga(mangaPath);
     m_view->setImages(m_images);
     m_view->loadImages();
+    m_startPage = 0;
 }
 
 void MainWindow::setupActions()
@@ -410,6 +421,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
                 // get path from index
                 const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
                 QString path = model->filePath(index);
+                m_currentManga = path;
                 loadImages(path);
             });
     connect(loadRecursive, &QAction::triggered,
@@ -417,6 +429,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
                 // get path from index
                 const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
                 QString path = model->filePath(index);
+                m_currentManga = path;
                 loadImages(path, true);
             });
 
@@ -500,25 +513,27 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
 
 void MainWindow::onAddBookmark(int pageNumber)
 {
+    QFileInfo mangaInfo(m_currentManga);
+    QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QStringLiteral();
+    QString key = keyPrefix + mangaInfo.absoluteFilePath();
     // get the bookmark from the config file
     m_config->reparseConfiguration();
     KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
-    QString bookmark = bookmarksGroup.readEntry(m_currentManga);
+    QString bookmark = bookmarksGroup.readEntry(key);
     // if the bookmark from the config is the same
     // as the one to be saved return
     if (QString::number(pageNumber) == bookmark) {
         return;
     }
 
-    bookmarksGroup.writeEntry(m_currentManga, QString::number(pageNumber));
+    bookmarksGroup.writeEntry(key, QString::number(pageNumber));
     bookmarksGroup.config()->sync();
 
     // check if there is a bookmark for this manga in the bookmarks tableView
     // if found update the page number
     for (int i = 0; i < m_bookmarksModel->rowCount(); i++) {
         QStandardItem *itemPath = m_bookmarksModel->item(i);
-        if (m_currentManga == itemPath->data(Qt::ToolTipRole)) {
-//            m_bookmarksModel->removeRow(i);
+        if (key == itemPath->data(Qt::UserRole)) {
             QStandardItem *itemNumber = m_bookmarksModel->item(i, 1);
             m_bookmarksView->model()->setData(itemNumber->index(), pageNumber);
             return;
@@ -527,23 +542,22 @@ void MainWindow::onAddBookmark(int pageNumber)
 
     // determine icon for bookmark (folder or archive)
     QMimeDatabase db;
-    QMimeType type = db.mimeTypeForFile(m_currentManga);
+    QMimeType type = db.mimeTypeForFile(mangaInfo.absoluteFilePath());
     QIcon icon = QIcon::fromTheme("folder");
     if (type.name().startsWith("application/")) {
         icon = QIcon::fromTheme("application-zip");
     }
 
-    // add favorite to favorites tableView
+    // add bookmark to tableView
     QList<QStandardItem *> rowData;
-
-    QStandardItem *col1 = new QStandardItem(m_currentManga.split("/").takeLast());
+    QString displayPrefix = (m_isLoadedRecursive) ? "(r) " : "";
+    auto *col1 = new QStandardItem(displayPrefix + mangaInfo.fileName());
     col1->setData(icon, Qt::DecorationRole);
-    col1->setData(m_currentManga, Qt::ToolTipRole);
+    col1->setData(key, Qt::UserRole);
+    col1->setData(mangaInfo.absoluteFilePath(), Qt::ToolTipRole);
     col1->setEditable(false);
-
-    QStandardItem *col2 = new QStandardItem(QString::number(pageNumber));
+    auto *col2 = new QStandardItem(QString::number(pageNumber));
     col2->setEditable(false);
-
     m_bookmarksModel->appendRow(rowData << col1 << col2);
 }
 

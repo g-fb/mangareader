@@ -84,6 +84,8 @@ private:
     QAction            *m_selectMangaFolder;
     SettingsWidget     *m_settingsWidget = nullptr;
     int                 m_startPage = 0;
+    bool                m_isLoadedRecursive = false;
+    const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
 };
 
 #endif // MAINWINDOW_H
