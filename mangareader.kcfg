@@ -2,7 +2,8 @@
 <kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
-    <kcfgfile name="fbg/mangareader.conf" />
+    <include>KColorScheme</include>
+    <kcfgfile name="mangareader/mangareader.conf" />
     <group name="General">
         <entry name="MaxWidth" type="Int">
             <label>Maximum page width.</label>
@@ -18,6 +19,9 @@
         </entry>
         <entry name="BackgroundColor" type="Color">
             <label>Background color.</label>
+            <code>KColorScheme schemeView(QPalette::Active, KColorScheme::View);
+                        QColor defaultColor = schemeView.background().color();</code>
+            <default code="true">defaultColor</default>
         </entry>
         <entry name="BorderColor" type="Color">
             <label>Page border color.</label>

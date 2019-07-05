@@ -29,6 +29,7 @@ class QTableView;
 class QTreeView;
 class View;
 class Worker;
+class QFileInfo;
 
 class SettingsWidget: public QWidget, public Ui::SettingsWidget
 {
@@ -49,6 +50,7 @@ public:
 
 private:
     void init();
+    void createMangaFoldersTree(QFileInfo mangaDirInfo);
     void setupActions();
     void addMangaFolder();
     void openMangaFolder();
@@ -88,6 +90,7 @@ private:
     int                 m_startPage = 0;
     bool                m_isLoadedRecursive = false;
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
+    void createBookmarksWidget();
 };
 
 #endif // MAINWINDOW_H
