@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     init();
     setupActions();
-    setupGUI(Default, "mangareaderui.rc");
+    setupGUI(QSize(1280, 720), Default, "mangareaderui.rc");
     if (MangaReaderSettings::mangaFolders().count() < 2) {
         m_selectMangaFolder->setVisible(false);
     }
@@ -158,6 +158,7 @@ void MainWindow::createMangaFoldersTree(QFileInfo mangaDirInfo)
 
     treeDock->setWidget(m_treeView);
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
+    resizeDocks({treeDock}, {400}, Qt::Horizontal);
 }
 
 void MainWindow::createBookmarksWidget()
@@ -678,7 +679,7 @@ void MainWindow::openSettings()
 
     // add manga folder
     connect(m_settingsWidget->addMangaFolder, &QPushButton::clicked, this, [ = ]() {
-        QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"), "");
+        QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"), QDir::homePath());
         if (path.isEmpty() || MangaReaderSettings::mangaFolders().contains(path)) {
             return;
         }
@@ -718,18 +719,21 @@ void MainWindow::saveMangaFolders()
 
     // update the manga folder selection menu
     m_selectMangaFolder->setMenu(populateMangaFoldersMenu());
-    if (MangaReaderSettings::mangaFolders().count() > 1) {
-        m_selectMangaFolder->setVisible(true);
-    } else {
-        m_selectMangaFolder->setVisible(false);
-    }
-    if (MangaReaderSettings::mangaFolders().count() > 0) {
+    QDockWidget *treeWidget = findChild<QDockWidget *>("treeDock");
+    if (MangaReaderSettings::mangaFolders().count() == 0) {
+        m_config->group(QStringLiteral()).writeEntry("Manga Folder", QStringLiteral());
+        m_config->sync();
+        delete treeWidget;
+    } else if (MangaReaderSettings::mangaFolders().count() > 0) {
+        delete treeWidget;
+        createMangaFoldersTree(MangaReaderSettings::mangaFolders().at(0));
         m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
         m_config->sync();
-    }
-    QDockWidget *treeWidget = findChild<QDockWidget *>("treeDock");
-    if (!treeWidget) {
-        createMangaFoldersTree(MangaReaderSettings::mangaFolders().at(0));
+
+        m_selectMangaFolder->setVisible(false);
+        if (MangaReaderSettings::mangaFolders().count() > 1) {
+            m_selectMangaFolder->setVisible(true);
+        }
     }
 }
 
