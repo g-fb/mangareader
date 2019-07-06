@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop">
+    <name>Manga Reader</name>
+    <id>com.georgefb.mangareader</id>
+    <launchable type="desktop-id">com.georgefb.mangareader.desktop</launchable>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0+</project_license>
+    <url type="homepage">https://gitlab.com/g-fb/manga-reader</url>
+    <summary>Manga Reader for local files</summary>
+    <description>
+        <p>Manga reader for local files.</p>
+    </description>
+    <releases>
+        <release version="1.0.0" date="2019-07-07">
+            <description>
+                <p>First release.</p>
+            </description>
+        </release>
+    </releases>
+    <screenshots>
+        <screenshot type="default">
+            <caption>Manga Reader</caption>
+            <image>https://s.put.re/ZpRVkeAL.png</image>
+        </screenshot>
+        <screenshot type="default">
+            <caption>Manga Reader settings dialog</caption>
+            <image>https://s.put.re/AhFTFbmj.png</image>
+        </screenshot>
+        <screenshot type="default">
+            <caption>Manga Reader with images</caption>
+            <image>https://s.put.re/8Frink97.png</image>
+        </screenshot>
+    </screenshots>
+    <content_rating type="oars-1.0" />
+</component>
