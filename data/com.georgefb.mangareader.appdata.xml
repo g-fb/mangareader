@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component type="desktop">
+<!-- Copyright 2019 George Florea Bănuș -->
+<component type="desktop-application">
     <name>Manga Reader</name>
     <id>com.georgefb.mangareader</id>
     <launchable type="desktop-id">com.georgefb.mangareader.desktop</launchable>
@@ -29,6 +30,10 @@
         <screenshot type="default">
             <caption>Manga Reader with images</caption>
             <image>https://s.put.re/8Frink97.png</image>
+        </screenshot>
+        <screenshot type="default">
+            <caption>Manga Reader light theme</caption>
+            <image>https://s.put.re/FUCVw2pw.png</image>
         </screenshot>
     </screenshots>
     <content_rating type="oars-1.0" />
