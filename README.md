@@ -8,8 +8,8 @@ Easiest way to install is through [flatpak](https://flathub.org/apps/details/com
 
 [Flatpak setup guide](https://flatpak.org/setup/)
 ```
-flatpak install flathub com.georgefb.quickaccess
-flatpak run com.georgefb.quickaccess
+flatpak install flathub com.georgefb.mangareader
+flatpak run com.georgefb.mangareader
 ```
 
 If you don't like flatpak you can build from source or ask the your distro to provide a package.
