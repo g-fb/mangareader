@@ -134,7 +134,7 @@ void MainWindow::createMangaFoldersTree(QFileInfo mangaDirInfo)
     treeModel->setObjectName("mangaTree");
     treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
     treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
-    treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz");
+    treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.rar");
     treeModel->setNameFilterDisables(false);
 
     m_treeView->setModel(treeModel);
