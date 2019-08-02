@@ -57,12 +57,21 @@ MainWindow::MainWindow(QWidget *parent)
     showDockWidgets();
     menuBar()->show();
     statusBar()->hide();
+    connect(qApp, &QApplication::aboutToQuit, this, [ = ]() {
+        this->~MainWindow();
+    });
 }
 
 MainWindow::~MainWindow()
 {
     m_thread->quit();
     m_thread->wait();
+
+    QFileInfo file(m_tmpFolder);
+    if (file.exists() && file.isDir() && file.isWritable()) {
+        QDir dir(m_tmpFolder);
+        dir.removeRecursively();
+    }
 }
 
 Qt::ToolBarArea MainWindow::mainToolBarArea()
@@ -430,6 +439,18 @@ void MainWindow::extractArchive(QString archivePath)
     connect(extractor, &QArchive::DiskExtractor::progress,
             this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
                 m_progressBar->setValue(percent);
+            });
+    connect(extractor, &QArchive::DiskExtractor::error,
+            this, [ = ](short error) {
+                QMessageBox errorWindow;
+                errorWindow.setWindowTitle(i18n("Archive error"));
+                errorWindow.setText(i18n("Error %0: Could not open the archive.").arg(QString::number(error)));
+
+                QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+                QGridLayout* layout = (QGridLayout*)errorWindow.layout();
+                layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
+                errorWindow.exec();
+                m_progressBar->hide();
             });
 }
 
