@@ -185,7 +185,8 @@ void MainWindow::createBookmarksWidget()
 
     KConfigGroup bookmarks = m_config->group("Bookmarks");
     for (const QString key : bookmarks.keyList()) {
-        QString value = bookmarks.readEntry(key);
+        QString pageIndex = bookmarks.readEntry(key);
+        QString pageNumber = QString::number(pageIndex.toInt() + 1);
         QString path = key;
         if (path.startsWith(RECURSIVE_KEY_PREFIX)) {
             path = path.remove(0, RECURSIVE_KEY_PREFIX.length());
@@ -199,13 +200,18 @@ void MainWindow::createBookmarksWidget()
             icon = QIcon::fromTheme("application-zip");
         }
         QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QStringLiteral();
+
         auto col1 = new QStandardItem(displayPrefix + pathInfo.fileName());
         col1->setData(icon, Qt::DecorationRole);
-        col1->setData(key, Qt::UserRole);
         col1->setData(pathInfo.absoluteFilePath(), Qt::ToolTipRole);
         col1->setEditable(false);
-        auto col2 = new QStandardItem(value);
+
+        auto col2 = new QStandardItem(pageNumber);
+        col2->setData(key, KeyRole);
+        col2->setData(pageIndex, IndexRole);
+        col2->setData(pathInfo.absoluteFilePath(), PathRole);
         col2->setEditable(false);
+
         m_bookmarksModel->appendRow(rowData << col1 << col2);
     }
     m_bookmarksView = new QTableView();
@@ -222,11 +228,11 @@ void MainWindow::createBookmarksWidget()
 
     connect(m_bookmarksView, &QTableView::doubleClicked, this, [ = ](const QModelIndex &index) {
         // get path from index
-        QModelIndex pathIndex = m_bookmarksModel->index(index.row(), 0);
-        QModelIndex pageNumberIndex = m_bookmarksModel->index(index.row(), 1);
-        m_startPage  = m_bookmarksModel->data(pageNumberIndex, Qt::DisplayRole).toInt();
-        QString path = m_bookmarksModel->data(pathIndex, Qt::ToolTipRole).toString();
-        QString key  = m_bookmarksModel->data(pathIndex, Qt::UserRole).toString();
+        QModelIndex cellIndex = m_bookmarksModel->index(index.row(), 1);
+
+        m_startPage  = m_bookmarksModel->data(cellIndex, IndexRole).toInt();
+        QString path = m_bookmarksModel->data(cellIndex, PathRole).toString();
+        QString key  = m_bookmarksModel->data(cellIndex, KeyRole).toString();
         m_currentManga = path;
         if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
             loadImages(path, true);
@@ -577,8 +583,9 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
     }
 }
 
-void MainWindow::onAddBookmark(int pageNumber)
+void MainWindow::onAddBookmark(int pageIndex)
 {
+    int pageNumber = pageIndex + 1;
     QDockWidget *bookmarksWidget = findChild<QDockWidget *>("bookmarksDockWidget");
     if (!bookmarksWidget) {
         createBookmarksWidget();
@@ -592,20 +599,21 @@ void MainWindow::onAddBookmark(int pageNumber)
     QString bookmark = bookmarksGroup.readEntry(key);
     // if the bookmark from the config is the same
     // as the one to be saved return
-    if (QString::number(pageNumber) == bookmark) {
+    if (QString::number(pageIndex) == bookmark) {
         return;
     }
 
-    bookmarksGroup.writeEntry(key, QString::number(pageNumber));
+    bookmarksGroup.writeEntry(key, QString::number(pageIndex));
     bookmarksGroup.config()->sync();
 
     // check if there is a bookmark for this manga in the bookmarks tableView
     // if found update the page number
     for (int i = 0; i < m_bookmarksModel->rowCount(); i++) {
-        QStandardItem *itemPath = m_bookmarksModel->item(i);
-        if (key == itemPath->data(Qt::UserRole)) {
-            QStandardItem *itemNumber = m_bookmarksModel->item(i, 1);
-            m_bookmarksView->model()->setData(itemNumber->index(), pageNumber);
+        QStandardItem *item = m_bookmarksModel->item(i, 1);
+        if (key == item->data(KeyRole).toString()) {
+            m_bookmarksView->model()->setData(item->index(), pageIndex, IndexRole);
+            m_bookmarksView->model()->setData(item->index(), pageNumber);
+
             return;
         }
     }
@@ -621,13 +629,18 @@ void MainWindow::onAddBookmark(int pageNumber)
     // add bookmark to tableView
     QList<QStandardItem *> rowData;
     QString displayPrefix = (m_isLoadedRecursive) ? "(r) " : "";
+
     auto *col1 = new QStandardItem(displayPrefix + mangaInfo.fileName());
     col1->setData(icon, Qt::DecorationRole);
-    col1->setData(key, Qt::UserRole);
     col1->setData(mangaInfo.absoluteFilePath(), Qt::ToolTipRole);
     col1->setEditable(false);
+
     auto *col2 = new QStandardItem(QString::number(pageNumber));
+    col2->setData(key, KeyRole);
+    col2->setData(pageIndex, IndexRole);
+    col2->setData(mangaInfo.absoluteFilePath(), PathRole);
     col2->setEditable(false);
+
     m_bookmarksModel->appendRow(rowData << col1 << col2);
 }
 

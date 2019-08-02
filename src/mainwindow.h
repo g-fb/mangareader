@@ -48,6 +48,12 @@ public:
     ~MainWindow();
     Qt::ToolBarArea mainToolBarArea();
 
+    enum {
+        IndexRole = Qt::UserRole,
+        KeyRole,
+        PathRole
+    };
+
 private:
     void init();
     void createMangaFoldersTree(QFileInfo mangaDirInfo);
