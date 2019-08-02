@@ -119,6 +119,8 @@ void MainWindow::init()
     // ==================================================
     KConfigGroup rootGroup = m_config->group("");
     QFileInfo mangaDirInfo(rootGroup.readEntry("Manga Folder"));
+    m_treeDock = new QDockWidget();
+    m_treeDock->setObjectName("treeDock");
     if (!mangaDirInfo.absoluteFilePath().isEmpty()) {
         createMangaFoldersTree(mangaDirInfo);
     }
@@ -134,11 +136,9 @@ void MainWindow::init()
 
 void MainWindow::createMangaFoldersTree(QFileInfo mangaDirInfo)
 {
-    auto treeDock = new QDockWidget(mangaDirInfo.baseName(), this);
     auto treeModel = new QFileSystemModel(this);
     m_treeView = new QTreeView(this);
-
-    treeDock->setObjectName("treeDock");
+    m_treeDock->setWindowTitle(mangaDirInfo.baseName());
 
     treeModel->setObjectName("mangaTree");
     treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
@@ -165,9 +165,9 @@ void MainWindow::createMangaFoldersTree(QFileInfo mangaDirInfo)
     connect(m_treeView, &QTreeView::customContextMenuRequested,
             this, &MainWindow::treeViewContextMenu);
 
-    treeDock->setWidget(m_treeView);
-    addDockWidget(Qt::LeftDockWidgetArea, treeDock);
-    resizeDocks({treeDock}, {400}, Qt::Horizontal);
+    m_treeDock->setWidget(m_treeView);
+    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
+    resizeDocks({m_treeDock}, {400}, Qt::Horizontal);
 }
 
 void MainWindow::createBookmarksWidget()
@@ -753,16 +753,28 @@ void MainWindow::saveMangaFolders()
 
     // update the manga folder selection menu
     m_selectMangaFolder->setMenu(populateMangaFoldersMenu());
-    QDockWidget *treeWidget = findChild<QDockWidget *>("treeDock");
+
     if (MangaReaderSettings::mangaFolders().count() == 0) {
         m_config->group(QStringLiteral()).writeEntry("Manga Folder", QStringLiteral());
         m_config->sync();
-        delete treeWidget;
+        m_treeDock->hide();
     } else if (MangaReaderSettings::mangaFolders().count() > 0) {
-        delete treeWidget;
-        createMangaFoldersTree(MangaReaderSettings::mangaFolders().at(0));
-        m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
-        m_config->sync();
+        m_treeDock->show();
+        if (m_treeView == nullptr) {
+            createMangaFoldersTree(MangaReaderSettings::mangaFolders().at(0));
+            m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
+            m_config->sync();
+        }
+
+        QFileSystemModel *treeModel = static_cast<QFileSystemModel*>(m_treeView->model());
+        if (!mangaFolders.contains(treeModel->rootPath())) {
+            QString mangaFolder = m_settingsWidget->mangaFolders->itemAt(0, 0)->text();
+            treeModel->setRootPath(mangaFolder);
+            m_treeView->setRootIndex(treeModel->index(mangaFolder));
+            findChild<QDockWidget*>("treeDock")->setWindowTitle(QFileInfo(mangaFolder).baseName());
+            m_config->group("").writeEntry("Manga Folder", mangaFolder);
+            m_config->sync();
+        }
 
         m_selectMangaFolder->setVisible(false);
         if (MangaReaderSettings::mangaFolders().count() > 1) {

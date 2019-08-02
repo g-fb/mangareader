@@ -87,7 +87,8 @@ private:
     Worker             *m_worker;
     QThread            *m_thread;
     Qt::ToolBarArea     m_mainToolBarArea;
-    QTreeView          *m_treeView;
+    QDockWidget        *m_treeDock;
+    QTreeView          *m_treeView = nullptr;
     QString             m_tmpFolder;
     QStandardItemModel *m_bookmarksModel;
     QTableView         *m_bookmarksView;
