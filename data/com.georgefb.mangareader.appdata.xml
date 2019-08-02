@@ -12,6 +12,13 @@
         <p>Manga reader for local files.</p>
     </description>
     <releases>
+        <release version="1.0.1" date="2019-08-03">
+            <description>
+                <p>Show more archive types in the folder tree.</p>
+                <p>Show page numbers instead of the index in the bookmarks table.</p>
+                <p>Fixes to folder tree.</p>
+            </description>
+        </release>
         <release version="1.0.0" date="2019-07-07">
             <description>
                 <p>First release.</p>
