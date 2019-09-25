@@ -12,6 +12,11 @@
         <p>Manga reader for local files.</p>
     </description>
     <releases>
+        <release version="1.0.2" date="2019-09-25">
+            <description>
+                <p>Improved the adding and removing of manga folders.</p>
+            </description>
+        </release>
         <release version="1.0.1" date="2019-08-03">
             <description>
                 <p>Show more archive types in the folder tree.</p>

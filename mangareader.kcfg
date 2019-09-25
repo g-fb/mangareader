@@ -26,7 +26,7 @@
         <entry name="BorderColor" type="Color">
             <label>Page border color.</label>
         </entry>
-        <entry name="MangaFolders" type="StringList">
+        <entry name="MangaFolders" type="PathList">
             <label>Manga folders.</label>
         </entry>
     </group>

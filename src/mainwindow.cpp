@@ -256,8 +256,14 @@ void MainWindow::createBookmarksWidget()
 
 void MainWindow::addMangaFolder()
 {
-    openSettings();
-    m_settingsWidget->addMangaFolder->click();
+    QString path = QFileDialog::getExistingDirectory(
+                this,
+                i18n("Select manga folder"));
+    if (path.isEmpty()) {
+        return;
+    }
+    m_settingsWidget->kcfg_MangaFolders->insertItem(path);
+    emit m_settingsWidget->kcfg_MangaFolders->changed();
 }
 
 void MainWindow::openMangaArchive()
@@ -329,13 +335,15 @@ void MainWindow::loadImages(QString path, bool recursive)
 
 void MainWindow::setupActions()
 {
-    auto addMangaFolder = new QAction(this);
-    addMangaFolder->setText(i18n("&Add Manga Folder"));
-    addMangaFolder->setIcon(QIcon::fromTheme("folder-add"));
-    actionCollection()->addAction("addMangaFolder", addMangaFolder);
-    actionCollection()->setDefaultShortcut(addMangaFolder, Qt::CTRL + Qt::Key_A);
-    connect(addMangaFolder, &QAction::triggered,
-            this, &MainWindow::addMangaFolder);
+    auto addMangaFolderAction = new QAction(this);
+    addMangaFolderAction->setText(i18n("&Add Manga Folder"));
+    addMangaFolderAction->setIcon(QIcon::fromTheme("folder-add"));
+    actionCollection()->addAction("addMangaFolder", addMangaFolderAction);
+    actionCollection()->setDefaultShortcut(addMangaFolderAction, Qt::CTRL + Qt::Key_A);
+    connect(addMangaFolderAction, &QAction::triggered, this, [=]() {
+        openSettings();
+        addMangaFolder();
+    });
 
     auto openMangaFolder = new QAction(this);
     openMangaFolder->setText(i18n("&Open Manga Folder"));
@@ -354,10 +362,10 @@ void MainWindow::setupActions()
             this, &MainWindow::openMangaArchive);
 
     m_mangaFoldersMenu = new QMenu();
-    populateMangaFoldersMenu();
     m_selectMangaFolder = new QAction(this);
     m_selectMangaFolder->setMenu(m_mangaFoldersMenu);
     m_selectMangaFolder->setText(i18n("Select Manga Folder"));
+    populateMangaFoldersMenu();
     actionCollection()->addAction("selectMangaFolder", m_selectMangaFolder);
     connect(m_selectMangaFolder, &QAction::triggered, this, [ = ]() {
         QWidget *widget = toolBar("mainToolBar")->widgetForAction(m_selectMangaFolder);
@@ -406,6 +414,10 @@ QMenu *MainWindow::populateMangaFoldersMenu()
            m_config->group("").writeEntry("Manga Folder", mangaFolder);
            m_config->sync();
         });
+    }
+    m_selectMangaFolder->setVisible(false);
+    if (MangaReaderSettings::mangaFolders().count() > 1) {
+        m_selectMangaFolder->setVisible(true);
     }
     return m_mangaFoldersMenu;
 }
@@ -684,9 +696,6 @@ void MainWindow::openSettings()
     if (m_settingsWidget == nullptr) {
         m_settingsWidget = new SettingsWidget(nullptr);
     }
-    m_settingsWidget->mangaFolders->clear();
-    m_settingsWidget->mangaFolders->addItems(MangaReaderSettings::mangaFolders());
-
     if (KConfigDialog::showDialog("settings")) {
         return;
     }
@@ -696,6 +705,19 @@ void MainWindow::openSettings()
     dialog->setFaceType(KPageDialog::Plain);
     dialog->addPage(m_settingsWidget, i18n("Settings"));
     dialog->show();
+
+    // add button to open file dialog to select a folder
+    // and add it to the manga folders list
+    auto addMangaFolderButton = new QPushButton(i18n("Select and Add Manga Folder"));
+    addMangaFolderButton->setIcon(QIcon::fromTheme("folder-add"));
+    connect(addMangaFolderButton, &QPushButton::clicked, this, &MainWindow::addMangaFolder);
+    auto widget = new QWidget();
+    auto hLayout = new QHBoxLayout(widget);
+    hLayout->setMargin(0);
+    hLayout->addWidget(addMangaFolderButton);
+    hLayout->addStretch(1);
+    // add wisget to the keditlistwidget's layout
+    m_settingsWidget->kcfg_MangaFolders->layout()->addWidget(widget);
 
     connect(dialog, &KConfigDialog::settingsChanged,
             m_view, &View::onSettingsChanged);
@@ -711,77 +733,12 @@ void MainWindow::openSettings()
         m_settingsWidget->kcfg_ExtractionFolder->setText(path);
     });
 
-    // add manga folder
-    connect(m_settingsWidget->addMangaFolder, &QPushButton::clicked, this, [ = ]() {
-        QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"), QDir::homePath());
-        if (path.isEmpty() || MangaReaderSettings::mangaFolders().contains(path)) {
-            return;
-        }
-        m_settingsWidget->mangaFolders->addItem(path);
-        dialog->button(QDialogButtonBox::Apply)->setEnabled(true);
-        if (MangaReaderSettings::mangaFolders().count() > 1) {
-            m_selectMangaFolder->setVisible(true);
-        }
-    });
-
-    // delete manga folder
-    connect(m_settingsWidget->deleteMangaFolder, &QPushButton::clicked, this, [ = ]() {
-        // delete selected item from list widget
-        QList<QListWidgetItem*> selectedItems = m_settingsWidget->mangaFolders->selectedItems();
-        for (QListWidgetItem *item : selectedItems) {
-            delete item;
-        }
-        dialog->button(QDialogButtonBox::Apply)->setEnabled(true);
-    });
-
     connect(dialog->button(QDialogButtonBox::Apply), &QPushButton::clicked,
-            this, &MainWindow::saveMangaFolders);
-    connect(dialog->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, [ = ]() {
-        saveMangaFolders();
-        dialog->button(QDialogButtonBox::Apply)->setDisabled(true);
-    });
+            this, &MainWindow::populateMangaFoldersMenu);
+    connect(dialog->button(QDialogButtonBox::Ok), &QPushButton::clicked,
+            this, &MainWindow::populateMangaFoldersMenu);
 }
 
-void MainWindow::saveMangaFolders()
-{
-    QStringList mangaFolders;
-    for(int i = 0; i < m_settingsWidget->mangaFolders->count(); ++i) {
-        mangaFolders << m_settingsWidget->mangaFolders->item(i)->text();
-    }
-    MangaReaderSettings::setMangaFolders(mangaFolders);
-    MangaReaderSettings::self()->save();
-
-    // update the manga folder selection menu
-    m_selectMangaFolder->setMenu(populateMangaFoldersMenu());
-
-    if (MangaReaderSettings::mangaFolders().count() == 0) {
-        m_config->group(QStringLiteral()).writeEntry("Manga Folder", QStringLiteral());
-        m_config->sync();
-        m_treeDock->hide();
-    } else if (MangaReaderSettings::mangaFolders().count() > 0) {
-        m_treeDock->show();
-        if (m_treeView == nullptr) {
-            createMangaFoldersTree(MangaReaderSettings::mangaFolders().at(0));
-            m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
-            m_config->sync();
-        }
-
-        QFileSystemModel *treeModel = static_cast<QFileSystemModel*>(m_treeView->model());
-        if (!mangaFolders.contains(treeModel->rootPath())) {
-            QString mangaFolder = m_settingsWidget->mangaFolders->itemAt(0, 0)->text();
-            treeModel->setRootPath(mangaFolder);
-            m_treeView->setRootIndex(treeModel->index(mangaFolder));
-            findChild<QDockWidget*>("treeDock")->setWindowTitle(QFileInfo(mangaFolder).baseName());
-            m_config->group("").writeEntry("Manga Folder", mangaFolder);
-            m_config->sync();
-        }
-
-        m_selectMangaFolder->setVisible(false);
-        if (MangaReaderSettings::mangaFolders().count() > 1) {
-            m_selectMangaFolder->setVisible(true);
-        }
-    }
-}
 
 void MainWindow::toggleFullScreen()
 {

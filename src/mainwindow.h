@@ -43,6 +43,7 @@ public:
 
 class MainWindow : public KXmlGuiWindow
 {
+    Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -61,7 +62,6 @@ private:
     void addMangaFolder();
     void openMangaFolder();
     void openMangaArchive();
-    void saveMangaFolders();
     void loadImages(QString path, bool recursive = false);
     void toggleFullScreen();
     void extractArchive(QString archivePath);
