@@ -90,7 +90,6 @@ void View::createPages()
     int h = viewport()->height() - 10;
     // create page for each image
     if (m_images.count() > 0) {
-        int y = 0;
         for (int i = 0; i < m_images.count(); i++) {
             Page *p = new Page(w, h, i);
             p->setView(this);
@@ -125,7 +124,7 @@ void View::calculatePageSizes()
 
         for (int i = 0; i < m_pages.count(); i++) {
             Page *p = m_pages.at(i);
-            if (n > 0 && !p->scaledSize().width() > 0) {
+            if (n > 0 && !(p->scaledSize().width() > 0)) {
                 p->setEstimatedSize(QSize(avgw, avgh));
                 p->redrawImage();
             }
@@ -146,13 +145,14 @@ void View::calculatePageSizes()
 void View::setPagesVisibility()
 {
     const int vy1 = verticalScrollBar()->value();
-    const int vy2 = vy1 + viewport()->height();
+//    const int vy2 = vy1 + viewport()->height();
 
     m_firstVisible = -1;
     m_firstVisibleOffset = 0.0f;
 
-    for (Page *page : m_pages) {
+    for (int i = 0; i < m_pages.count(); i++) {
         // page is visible on the screen but its image not loaded
+        auto page = m_pages.at(i);
         int pageNumber = page->number();
         if (isInView(m_start[pageNumber], m_end[pageNumber])) {
             if (page->isImageDeleted()) {
@@ -161,12 +161,19 @@ void View::setPagesVisibility()
             if (m_firstVisible < 0) {
                 m_firstVisible = pageNumber;
                 // hidden portion (%) of page
-                m_firstVisibleOffset = static_cast<double>(vy1 - m_start[pageNumber]) / page->scaledSize().height();
+                m_firstVisibleOffset = static_cast<float>(vy1 - m_start[pageNumber]) / page->scaledSize().height();
             }
         } else {
             // page is not visible but its image is loaded
-            bool isPrevPageInView = isInView(m_start[pageNumber - 1], m_end[pageNumber - 1]);
-            bool isNextPageInView = isInView(m_start[pageNumber + 1], m_end[pageNumber + 1]);
+            bool isPrevPageInView = false;
+            if (i > 0) {
+                isPrevPageInView = isInView(m_start.at(i - 1), m_end.at(i - 1));
+            }
+            bool isNextPageInView = false;
+            if (m_start.at(i) != m_start.last()) {
+                isNextPageInView = isInView(m_start.at(i + 1), m_end.at(i + 1));
+            }
+
             if (!page->isImageDeleted()) {
                 // delete page image unless it is before or after a page that is in view
                 if (!(isPrevPageInView || isNextPageInView)) {
@@ -226,6 +233,8 @@ void View::onImageResized(QImage image, int number)
 
 void View::onScrollBarRangeChanged(int x, int y)
 {
+    Q_UNUSED(x)
+    Q_UNUSED(y)
     if (m_firstVisible >= 0)
     {
         int pageHeight = (m_end[m_firstVisible] - m_start[m_firstVisible]);
@@ -269,7 +278,7 @@ void View::resizeEvent(QResizeEvent *e)
 
 void View::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     emit doubleClicked();
 }
 

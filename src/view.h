@@ -72,7 +72,7 @@ private:
     QVector<int>     m_end;
     QVector<int>     m_requestedPages;
     int              m_firstVisible = -1;
-    double           m_firstVisibleOffset = 0.0f;
+    float            m_firstVisibleOffset = 0.0f;
     int              m_startPage = 0;
 };
 
