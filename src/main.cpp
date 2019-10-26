@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     KAboutData aboutData(
         QStringLiteral("mangareader"),
         i18n("Manga Reader"),
-        QStringLiteral("1.0.2"),
+        QStringLiteral("1.0.3"),
         i18n("Manga reader for local files."),
         KAboutLicense::GPL_V3,
         i18n("(c) 2019"),

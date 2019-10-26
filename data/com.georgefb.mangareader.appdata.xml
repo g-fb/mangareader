@@ -12,6 +12,11 @@
         <p>Manga reader for local files.</p>
     </description>
     <releases>
+        <release version="1.0.3" date="2019-10-26">
+            <description>
+                <p>Fix index out of range error when checking if previous and next pages are in view.</p>
+            </description>
+        </release>
         <release version="1.0.2" date="2019-09-25">
             <description>
                 <p>Improved the adding and removing of manga folders.</p>
