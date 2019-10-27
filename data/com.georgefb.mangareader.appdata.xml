@@ -12,6 +12,13 @@
         <p>Manga reader for local files.</p>
     </description>
     <releases>
+        <release version="1.0.4" date="2019-10-27">
+            <description>
+                <p>Fix tree not being setup when first adding a manga folder.</p>
+                <p>Fix not saving active manga folder after adding it.</p>
+                <p>Fix crash when switching active manga folder, caused by the manga tree not being setup.</p>
+            </description>
+        </release>
         <release version="1.0.3" date="2019-10-26">
             <description>
                 <p>Fix index out of range error when checking if previous and next pages are in view.</p>
