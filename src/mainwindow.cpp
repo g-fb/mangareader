@@ -34,6 +34,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
+    , m_treeView(new QTreeView())
+    , m_treeModel(new QFileSystemModel())
 {
     // setup central widget
     auto centralWidget = new QWidget(this);
@@ -122,7 +124,7 @@ void MainWindow::init()
     m_treeDock = new QDockWidget();
     m_treeDock->setObjectName("treeDock");
     if (!mangaDirInfo.absoluteFilePath().isEmpty()) {
-        createMangaFoldersTree(mangaDirInfo);
+        setupMangaFoldersTree(mangaDirInfo);
     }
 
     // ==================================================
@@ -134,20 +136,18 @@ void MainWindow::init()
     }
 }
 
-void MainWindow::createMangaFoldersTree(QFileInfo mangaDirInfo)
+void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
 {
-    auto treeModel = new QFileSystemModel(this);
-    m_treeView = new QTreeView(this);
     m_treeDock->setWindowTitle(mangaDirInfo.baseName());
 
-    treeModel->setObjectName("mangaTree");
-    treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
-    treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
-    treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.rar");
-    treeModel->setNameFilterDisables(false);
+    m_treeModel->setObjectName("mangaTree");
+    m_treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
+    m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
+    m_treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.rar");
+    m_treeModel->setNameFilterDisables(false);
 
-    m_treeView->setModel(treeModel);
-    m_treeView->setRootIndex(treeModel->index(mangaDirInfo.absoluteFilePath()));
+    m_treeView->setModel(m_treeModel);
+    m_treeView->setRootIndex(m_treeModel->index(mangaDirInfo.absoluteFilePath()));
     m_treeView->setColumnHidden(1, true);
     m_treeView->setColumnHidden(2, true);
     m_treeView->setColumnHidden(3, true);
@@ -184,7 +184,7 @@ void MainWindow::createBookmarksWidget()
     m_bookmarksModel->setHorizontalHeaderItem(1, new QStandardItem(i18n("Page")));
 
     KConfigGroup bookmarks = m_config->group("Bookmarks");
-    for (const QString key : bookmarks.keyList()) {
+    for (const QString &key : bookmarks.keyList()) {
         QString pageIndex = bookmarks.readEntry(key);
         QString pageNumber = QString::number(pageIndex.toInt() + 1);
         QString path = key;
@@ -405,17 +405,17 @@ QMenu *MainWindow::populateMangaFoldersMenu()
 {
     m_mangaFoldersMenu->clear();
     for (QString mangaFolder : MangaReaderSettings::mangaFolders()) {
-       QAction *action = m_mangaFoldersMenu->addAction(mangaFolder);
-       connect(action, &QAction::triggered, this, [ = ]() {
-           QFileSystemModel *treeModel = static_cast<QFileSystemModel*>(m_treeView->model());
-           treeModel->setRootPath(mangaFolder);
-           m_treeView->setRootIndex(treeModel->index(mangaFolder));
-           findChild<QDockWidget*>("treeDock")->setWindowTitle(QFileInfo(mangaFolder).baseName());
-           m_config->group("").writeEntry("Manga Folder", mangaFolder);
-           m_config->sync();
+        QAction *action = m_mangaFoldersMenu->addAction(mangaFolder);
+        connect(action, &QAction::triggered, this, [ = ]() {
+            m_treeModel->setRootPath(mangaFolder);
+            m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
+            m_treeDock->setWindowTitle(QFileInfo(mangaFolder).baseName());
+            m_config->group("").writeEntry("Manga Folder", mangaFolder);
+            m_config->sync();
         });
     }
     m_selectMangaFolder->setVisible(false);
+    // no point in showing if there's only one option
     if (MangaReaderSettings::mangaFolders().count() > 1) {
         m_selectMangaFolder->setVisible(true);
     }
@@ -454,10 +454,9 @@ void MainWindow::extractArchive(QString archivePath)
                 loadImages(m_tmpFolder, true);
             });
 
-    connect(extractor, &QArchive::DiskExtractor::progress,
-            this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
-                m_progressBar->setValue(percent);
-            });
+    connect(extractor, &QArchive::DiskExtractor::progress, this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
+        m_progressBar->setValue(percent);
+    });
     connect(extractor, &QArchive::DiskExtractor::error,
             this, [ = ](short error) {
                 QMessageBox errorWindow;
@@ -465,7 +464,7 @@ void MainWindow::extractArchive(QString archivePath)
                 errorWindow.setText(i18n("Error %0: Could not open the archive.").arg(QString::number(error)));
 
                 QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-                QGridLayout* layout = (QGridLayout*)errorWindow.layout();
+                QGridLayout* layout = qobject_cast<QGridLayout*>(errorWindow.layout());
                 layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
                 errorWindow.exec();
                 m_progressBar->hide();
@@ -733,10 +732,16 @@ void MainWindow::openSettings()
         m_settingsWidget->kcfg_ExtractionFolder->setText(path);
     });
 
-    connect(dialog->button(QDialogButtonBox::Apply), &QPushButton::clicked,
-            this, &MainWindow::populateMangaFoldersMenu);
-    connect(dialog->button(QDialogButtonBox::Ok), &QPushButton::clicked,
-            this, &MainWindow::populateMangaFoldersMenu);
+    connect(dialog, &KConfigDialog::settingsChanged, this, [ = ]() {
+        if (MangaReaderSettings::mangaFolders().count() > 0
+                && m_config->group("").readEntry("Manga Folder").isEmpty()) {
+            // "Manga Folder" key is empty so the tree not fully setup
+            setupMangaFoldersTree(QFileInfo(MangaReaderSettings::mangaFolders().at(0)));
+            m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
+            m_config->sync();
+        }
+        populateMangaFoldersMenu();
+    });
 }
 
 

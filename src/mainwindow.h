@@ -30,6 +30,7 @@ class QTreeView;
 class View;
 class Worker;
 class QFileInfo;
+class QFileSystemModel;
 
 class SettingsWidget: public QWidget, public Ui::SettingsWidget
 {
@@ -57,7 +58,7 @@ public:
 
 private:
     void init();
-    void createMangaFoldersTree(QFileInfo mangaDirInfo);
+    void setupMangaFoldersTree(QFileInfo mangaDirInfo);
     void setupActions();
     void addMangaFolder();
     void openMangaFolder();
@@ -89,6 +90,7 @@ private:
     Qt::ToolBarArea     m_mainToolBarArea;
     QDockWidget        *m_treeDock;
     QTreeView          *m_treeView = nullptr;
+    QFileSystemModel   *m_treeModel;
     QString             m_tmpFolder;
     QStandardItemModel *m_bookmarksModel;
     QTableView         *m_bookmarksView;
