@@ -78,6 +78,7 @@ private:
     void toggleMenubar();
     bool isFullScreen();
     QMenu *populateMangaFoldersMenu();
+    void showError(QString error);
 
     QMenu              *m_mangaFoldersMenu = nullptr;
     QProgressBar       *m_progressBar;

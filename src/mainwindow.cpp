@@ -154,14 +154,13 @@ void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
     m_treeView->header()->hide();
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(m_treeView, &QTreeView::doubleClicked,
-            this, [ = ](const QModelIndex &index) {
-                // get path from index
-                const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-                QString path = model->filePath(index);
-                m_currentManga = path;
-                loadImages(path);
-            });
+    connect(m_treeView, &QTreeView::doubleClicked, this, [ = ](const QModelIndex &index) {
+        // get path from index
+        const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
+        QString path = model->filePath(index);
+        m_currentManga = path;
+        loadImages(path);
+    });
     connect(m_treeView, &QTreeView::customContextMenuRequested,
             this, &MainWindow::treeViewContextMenu);
 
@@ -233,6 +232,11 @@ void MainWindow::createBookmarksWidget()
         m_startPage  = m_bookmarksModel->data(cellIndex, IndexRole).toInt();
         QString path = m_bookmarksModel->data(cellIndex, PathRole).toString();
         QString key  = m_bookmarksModel->data(cellIndex, KeyRole).toString();
+        QFileInfo pathInfo(path);
+        if (!pathInfo.exists()) {
+            showError(i18n("The file or folder does not exist.\n%1", path));
+            return;
+        }
         m_currentManga = path;
         if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
             loadImages(path, true);
@@ -422,11 +426,25 @@ QMenu *MainWindow::populateMangaFoldersMenu()
     return m_mangaFoldersMenu;
 }
 
+void MainWindow::showError(QString error)
+{
+    QMessageBox errorWindow;
+    errorWindow.setWindowTitle(i18n("Error"));
+    errorWindow.setText(error);
+
+    QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QGridLayout* layout = qobject_cast<QGridLayout*>(errorWindow.layout());
+    layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
+    errorWindow.exec();
+}
+
 void MainWindow::extractArchive(QString archivePath)
 {
     QFileInfo extractionFolder(MangaReaderSettings::extractionFolder());
     QFileInfo archivePathInfo(archivePath);
     if (!extractionFolder.exists() || !extractionFolder.isWritable()) {
+        showError(i18n("Extraction folder does not exist or is not writable.\n%1",
+                              MangaReaderSettings::extractionFolder()));
         return;
     }
     // delete previous extracted folder
@@ -448,27 +466,23 @@ void MainWindow::extractArchive(QString archivePath)
 
     m_progressBar->setVisible(true);
     m_progressBar->setValue(0);
-    connect(extractor, &QArchive::DiskExtractor::finished,
-            this, [ = ]() {
-                m_progressBar->setVisible(false);
-                loadImages(m_tmpFolder, true);
-            });
+    connect(extractor, &QArchive::DiskExtractor::finished, this, [ = ]() {
+        m_progressBar->setVisible(false);
+        loadImages(m_tmpFolder, true);
+    });
 
     connect(extractor, &QArchive::DiskExtractor::progress, this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
+        Q_UNUSED(file)
+        Q_UNUSED(processedFiles)
+        Q_UNUSED(totalFiles)
         m_progressBar->setValue(percent);
     });
-    connect(extractor, &QArchive::DiskExtractor::error,
-            this, [ = ](short error) {
-                QMessageBox errorWindow;
-                errorWindow.setWindowTitle(i18n("Archive error"));
-                errorWindow.setText(i18n("Error %0: Could not open the archive.").arg(QString::number(error)));
-
-                QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-                QGridLayout* layout = qobject_cast<QGridLayout*>(errorWindow.layout());
-                layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
-                errorWindow.exec();
-                m_progressBar->hide();
-            });
+    connect(extractor, &QArchive::DiskExtractor::error, this, [ = ](short error) {
+        showError(i18n("Error %1: Could not open the archive.\n%2",
+                              QString::number(error),
+                              QArchive::errorCodeToString(error)));
+        m_progressBar->hide();
+    });
 }
 
 void MainWindow::treeViewContextMenu(QPoint point)
@@ -499,34 +513,30 @@ void MainWindow::treeViewContextMenu(QPoint point)
     menu->addAction(openPath);
     menu->addAction(openContainingFolder);
 
-    connect(load, &QAction::triggered,
-            this, [ = ]() {
-                // get path from index
-                const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-                QString path = model->filePath(index);
-                m_currentManga = path;
-                loadImages(path);
-            });
-    connect(loadRecursive, &QAction::triggered,
-            this, [ = ]() {
-                // get path from index
-                const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-                QString path = model->filePath(index);
-                m_currentManga = path;
-                loadImages(path, true);
-            });
+    connect(load, &QAction::triggered, this, [ = ]() {
+        // get path from index
+        const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
+        QString path = model->filePath(index);
+        m_currentManga = path;
+        loadImages(path);
+    });
+    connect(loadRecursive, &QAction::triggered, this, [ = ]() {
+        // get path from index
+        const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
+        QString path = model->filePath(index);
+        m_currentManga = path;
+        loadImages(path, true);
+    });
 
-    connect(openPath, &QAction::triggered,
-            this, [ = ]() {
-                QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
-                QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
-            });
+    connect(openPath, &QAction::triggered, this, [ = ]() {
+        QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+    });
 
-    connect(openContainingFolder, &QAction::triggered,
-            this, [ = ]() {
-                QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
-                QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
-            });
+    connect(openContainingFolder, &QAction::triggered, this, [ = ]() {
+        QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+    });
     menu->exec(QCursor::pos());
 }
 
@@ -657,6 +667,7 @@ void MainWindow::onAddBookmark(int pageIndex)
 
 void MainWindow::deleteBookmarks(QTableView *tableView, QString name)
 {
+    Q_UNUSED(name)
     QItemSelection selection(tableView->selectionModel()->selection());
     QVector<int> rows;
     int prev = -1;
@@ -698,8 +709,7 @@ void MainWindow::openSettings()
     if (KConfigDialog::showDialog("settings")) {
         return;
     }
-    auto dialog = new KConfigDialog(
-             this, "settings", MangaReaderSettings::self());
+    auto dialog = new KConfigDialog(this, "settings", MangaReaderSettings::self());
     dialog->setMinimumSize(700, 600);
     dialog->setFaceType(KPageDialog::Plain);
     dialog->addPage(m_settingsWidget, i18n("Settings"));
