@@ -4,14 +4,21 @@
     <name>Manga Reader</name>
     <id>com.georgefb.mangareader</id>
     <launchable type="desktop-id">com.georgefb.mangareader.desktop</launchable>
-    <metadata_license>CC0-1.0</metadata_license>
-    <project_license>GPL-3.0+</project_license>
+    <metadata_license>CC-BY-4.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
     <url type="homepage">https://gitlab.com/g-fb/manga-reader</url>
+    <url type="bugtracker">https://gitlab.com/g-fb/manga-reader/-/issues</url>
+    <url type="donation">https://www.patreon.com/georgefb</url>
     <summary>Manga Reader for local files</summary>
     <description>
         <p>Manga reader for local files.</p>
     </description>
     <releases>
+        <release version="1.0.5" date="2020-03-17">
+            <description>
+                <p>Fix recursive bookmarks not being saved.</p>
+            </description>
+        </release>
         <release version="1.0.4" date="2019-10-27">
             <description>
                 <p>Fix tree not being setup when first adding a manga folder.</p>
