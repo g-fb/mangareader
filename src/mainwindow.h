@@ -53,7 +53,8 @@ public:
     enum {
         IndexRole = Qt::UserRole,
         KeyRole,
-        PathRole
+        PathRole,
+        RecursiveRole
     };
 
 private:

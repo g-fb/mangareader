@@ -200,9 +200,10 @@ void MainWindow::createBookmarksWidget()
         }
         QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QStringLiteral();
 
-        auto col1 = new QStandardItem(displayPrefix + pathInfo.fileName());
+        auto col1 = new QStandardItem(pathInfo.fileName().prepend(displayPrefix));
         col1->setData(icon, Qt::DecorationRole);
         col1->setData(pathInfo.absoluteFilePath(), Qt::ToolTipRole);
+        col1->setData(key.startsWith(RECURSIVE_KEY_PREFIX), RecursiveRole);
         col1->setEditable(false);
 
         auto col2 = new QStandardItem(pageNumber);
@@ -613,7 +614,7 @@ void MainWindow::onAddBookmark(int pageIndex)
     }
     QFileInfo mangaInfo(m_currentManga);
     QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QStringLiteral();
-    QString key = keyPrefix + mangaInfo.absoluteFilePath();
+    QString key = mangaInfo.absoluteFilePath().prepend(keyPrefix);
     // get the bookmark from the config file
     m_config->reparseConfiguration();
     KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
@@ -651,9 +652,10 @@ void MainWindow::onAddBookmark(int pageIndex)
     QList<QStandardItem *> rowData;
     QString displayPrefix = (m_isLoadedRecursive) ? "(r) " : "";
 
-    auto *col1 = new QStandardItem(displayPrefix + mangaInfo.fileName());
+    auto *col1 = new QStandardItem(mangaInfo.fileName().prepend(displayPrefix));
     col1->setData(icon, Qt::DecorationRole);
     col1->setData(mangaInfo.absoluteFilePath(), Qt::ToolTipRole);
+    col1->setData(m_isLoadedRecursive, RecursiveRole);
     col1->setEditable(false);
 
     auto *col2 = new QStandardItem(QString::number(pageNumber));
@@ -690,7 +692,11 @@ void MainWindow::deleteBookmarks(QTableView *tableView, QString name)
         // deleting from table view first causes problems with index change
         QModelIndex cell_0 = tableView->model()->index(rows.at(i), 0);
         QModelIndex cell_1 = tableView->model()->index(rows.at(i), 1);
+        bool isRecursive = tableView->model()->data(cell_0, RecursiveRole).toBool();
         QString key   = tableView->model()->data(cell_0, Qt::ToolTipRole).toString();
+        if (isRecursive) {
+            key = key.prepend(RECURSIVE_KEY_PREFIX);
+        }
         QString value = tableView->model()->data(cell_1).toString();
         m_config->reparseConfiguration();
         KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
