@@ -3,5 +3,6 @@ Name=Manga Reader
 Exec=mangareader
 Icon=mangareader
 Type=Application
+MimeType=application/vnd.comicbook+zip;application/vnd.comicbook-rar;application/x-cbt;application/x-cb7
 Categories=Qt;KDE;Graphics;
 Terminal=false

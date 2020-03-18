@@ -16,7 +16,7 @@
     <releases>
         <release version="1.0.5" date="2020-03-17">
             <description>
-                <p>Fix recursive bookmarks not being saved.</p>
+                <p>Fix recursive bookmarks not being deleted.</p>
             </description>
         </release>
         <release version="1.0.4" date="2019-10-27">

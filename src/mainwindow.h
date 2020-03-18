@@ -57,6 +57,8 @@ public:
         RecursiveRole
     };
 
+    void loadImages(QString path, bool recursive = false);
+
 private:
     void init();
     void setupMangaFoldersTree(QFileInfo mangaDirInfo);
@@ -64,7 +66,6 @@ private:
     void addMangaFolder();
     void openMangaFolder();
     void openMangaArchive();
-    void loadImages(QString path, bool recursive = false);
     void toggleFullScreen();
     void extractArchive(QString archivePath);
     void treeViewContextMenu(QPoint point);

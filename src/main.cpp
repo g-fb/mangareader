@@ -15,11 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "_debug.h"
 #include "mainwindow.h"
 
 #include <KAboutData>
 #include <KLocalizedString>
 #include <QApplication>
+#include <QCommandLineParser>
+#include <QDir>
+#include <QUrl>
 
 int main(int argc, char *argv[])
 {
@@ -45,9 +49,22 @@ int main(int argc, char *argv[])
     );
     KAboutData::setApplicationData(aboutData);
 
+    QCommandLineParser parser;
+    parser.addPositionalArgument(QStringLiteral("file"), i18n("File or folder to open"));
+    parser.process(app);
+    aboutData.setupCommandLine(&parser);
+    aboutData.processCommandLine(&parser);
+
+    const QStringList args = parser.positionalArguments();
+
     MainWindow *w = new MainWindow();
     w->setWindowIcon(QIcon::fromTheme("mangareader"));
     w->show();
+
+    if (args.count() > 0 && !args.at(0).isEmpty()) {
+        QUrl url = QUrl::fromUserInput(args.at(0), QDir::currentPath());
+        w->loadImages(url.toLocalFile());
+    }
 
     return app.exec();
 }

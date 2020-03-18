@@ -143,7 +143,7 @@ void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
     m_treeModel->setObjectName("mangaTree");
     m_treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
     m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
-    m_treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.rar");
+    m_treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.cb7" << "*.rar");
     m_treeModel->setNameFilterDisables(false);
 
     m_treeView->setModel(m_treeModel);
@@ -158,7 +158,6 @@ void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
         // get path from index
         const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
         QString path = model->filePath(index);
-        m_currentManga = path;
         loadImages(path);
     });
     connect(m_treeView, &QTreeView::customContextMenuRequested,
@@ -238,7 +237,6 @@ void MainWindow::createBookmarksWidget()
             showError(i18n("The file or folder does not exist.\n%1", path));
             return;
         }
-        m_currentManga = path;
         if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
             loadImages(path, true);
         } else {
@@ -295,6 +293,7 @@ void MainWindow::openMangaFolder()
 
 void MainWindow::loadImages(QString path, bool recursive)
 {
+    m_currentManga = path;
     m_isLoadedRecursive = recursive;
     const QFileInfo fileInfo(path);
     QString mangaPath = fileInfo.absoluteFilePath();
@@ -518,14 +517,12 @@ void MainWindow::treeViewContextMenu(QPoint point)
         // get path from index
         const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
         QString path = model->filePath(index);
-        m_currentManga = path;
         loadImages(path);
     });
     connect(loadRecursive, &QAction::triggered, this, [ = ]() {
         // get path from index
         const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
         QString path = model->filePath(index);
-        m_currentManga = path;
         loadImages(path, true);
     });
 

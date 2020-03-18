@@ -22,6 +22,7 @@
 #include "worker.h"
 #include "settings.h"
 
+#include <KActionCollection>
 #include <KToolBar>
 
 #include <QMenu>
@@ -31,6 +32,25 @@
 View::View(QWidget *parent)
     : QGraphicsView(parent)
 {
+    MainWindow* p = qobject_cast<MainWindow *>(parent);
+    auto scrollUp = new QAction();
+    connect(scrollUp, &QAction::triggered, this, [=]() {
+        for (int i = 0; i < 3; ++i) {
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+        }
+    });
+    p->actionCollection()->addAction("Scroll Up", scrollUp);
+    p->actionCollection()->setDefaultShortcut(scrollUp, Qt::Key_Up);
+
+    auto scrollDown = new QAction();
+    connect(scrollDown, &QAction::triggered, this, [=]() {
+        for (int i = 0; i < 3; ++i) {
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+        }
+    });
+    p->actionCollection()->addAction("Scroll Down", scrollDown);
+    p->actionCollection()->setDefaultShortcut(scrollDown, Qt::Key_Down);
+
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
 
