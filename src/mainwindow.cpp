@@ -291,9 +291,11 @@ void MainWindow::openMangaFolder()
     loadImages(path, true);
 }
 
-void MainWindow::loadImages(QString path, bool recursive)
+void MainWindow::loadImages(QString path, bool recursive, bool updateCurrentPath)
 {
-    m_currentManga = path;
+    if (updateCurrentPath)
+        m_currentPath = path;
+
     m_isLoadedRecursive = recursive;
     const QFileInfo fileInfo(path);
     QString mangaPath = fileInfo.absoluteFilePath();
@@ -468,7 +470,7 @@ void MainWindow::extractArchive(QString archivePath)
     m_progressBar->setValue(0);
     connect(extractor, &QArchive::DiskExtractor::finished, this, [ = ]() {
         m_progressBar->setVisible(false);
-        loadImages(m_tmpFolder, true);
+        loadImages(m_tmpFolder, true, false);
     });
 
     connect(extractor, &QArchive::DiskExtractor::progress, this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
@@ -609,7 +611,7 @@ void MainWindow::onAddBookmark(int pageIndex)
     if (!bookmarksWidget) {
         createBookmarksWidget();
     }
-    QFileInfo mangaInfo(m_currentManga);
+    QFileInfo mangaInfo(m_currentPath);
     QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QStringLiteral();
     QString key = mangaInfo.absoluteFilePath().prepend(keyPrefix);
     // get the bookmark from the config file

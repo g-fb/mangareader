@@ -57,7 +57,7 @@ public:
         RecursiveRole
     };
 
-    void loadImages(QString path, bool recursive = false);
+    void loadImages(QString path, bool recursive = false, bool updateCurrentPath = true);
 
 private:
     void init();
@@ -86,7 +86,7 @@ private:
     QProgressBar       *m_progressBar;
     KSharedConfig::Ptr  m_config;
     QStringList         m_images;
-    QString             m_currentManga;
+    QString             m_currentPath;
     View               *m_view;
     Worker             *m_worker;
     QThread            *m_thread;
