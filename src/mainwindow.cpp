@@ -444,12 +444,16 @@ void MainWindow::setupActions()
     goTowidget->setLayout(goToLayout);
     auto goToLabel = new QLabel(i18n("Go to page"));
     auto goToSpinBox = new QSpinBox();
+    connect(goToSpinBox, &QSpinBox::editingFinished, this, [=]() {
+        m_view->goToPage(goToSpinBox->value() - 1);
+        m_view->setFocus();
+    });
     connect(m_view, &View::imagesLoaded, this, [=]() {
         goToSpinBox->setRange(1, m_view->imageCount());
     });
     auto goToButton = new QPushButton(i18n("Go"));
     connect(goToButton, &QPushButton::clicked, this, [=]() {
-        m_view->goToPage(goToSpinBox->text().toInt() - 1);
+        m_view->goToPage(goToSpinBox->value() - 1);
     });
     goToLayout->addWidget(goToLabel);
     goToLayout->addWidget(goToSpinBox);
@@ -472,12 +476,6 @@ void MainWindow::setupActions()
 void MainWindow::toggleMenubar()
 {
     menuBar()->isHidden() ? menuBar()->show() : menuBar()->hide();
-}
-
-bool MainWindow::isFullScreen()
-{
-    return (windowState() == (Qt::WindowFullScreen | Qt::WindowMaximized))
-            || (windowState() == Qt::WindowFullScreen);
 }
 
 QMenu *MainWindow::populateMangaFoldersMenu()
@@ -952,4 +950,10 @@ void MainWindow::toggleFullScreen()
         hideDockWidgets();
         menuBar()->hide();
     }
+}
+
+bool MainWindow::isFullScreen()
+{
+    return (windowState() == (Qt::WindowFullScreen | Qt::WindowMaximized))
+            || (windowState() == Qt::WindowFullScreen);
 }
