@@ -77,7 +77,7 @@ private:
     void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void onMouseMoved(QMouseEvent *event);
     void onAddBookmark(int pageNumber);
-    void deleteBookmarks(QTableView *tableView, QString name);
+    void deleteBookmarks(QTableView *tableView);
     void openSettings();
     void toggleMenubar();
     bool isFullScreen();

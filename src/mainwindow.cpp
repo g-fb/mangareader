@@ -260,7 +260,7 @@ void MainWindow::createBookmarksWidget()
     auto deleteButton = new QPushButton();
     deleteButton->setText(i18n("Delete Selected Bookmarks"));
     connect(deleteButton, &QPushButton::clicked, this, [ = ]() {
-        deleteBookmarks(m_bookmarksView, "Bookmarks");
+        deleteBookmarks(m_bookmarksView);
     });
 
     bookmarksLayout->addWidget(m_bookmarksView);
@@ -697,7 +697,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
     action = new QAction(QIcon::fromTheme("delete"), i18n("Delete Selected Bookmark(s)"));
     contextMenu->addAction(action);
     connect(action, &QAction::triggered, this, [=]() {
-        deleteBookmarks(m_bookmarksView, "Bookmarks");
+        deleteBookmarks(m_bookmarksView);
     });
     contextMenu->popup(QCursor::pos());
 }
@@ -831,9 +831,8 @@ void MainWindow::onAddBookmark(int pageIndex)
     m_bookmarksModel->appendRow(rowData << col1 << col2);
 }
 
-void MainWindow::deleteBookmarks(QTableView *tableView, QString name)
+void MainWindow::deleteBookmarks(QTableView *tableView)
 {
-    Q_UNUSED(name)
     QItemSelection selection(tableView->selectionModel()->selection());
     QVector<int> rows;
     int prev = -1;
@@ -845,6 +844,8 @@ void MainWindow::deleteBookmarks(QTableView *tableView, QString name)
             prev = current;
         }
     }
+
+    std::sort(rows.begin(), rows.end());
 
     // starting from beginning causes the index of the following items to change
     // removing item at index 0 will cause item at index 1 to become item at index 0
