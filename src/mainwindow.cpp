@@ -29,6 +29,7 @@
 
 #include <QtWidgets>
 #include <QThread>
+#include <QProcess>
 
 #include <QArchive>
 
@@ -530,6 +531,63 @@ void MainWindow::extractArchive(QString archivePath)
     QDir dir(m_tmpFolder);
     if (!dir.exists()) {
         dir.mkdir(m_tmpFolder);
+    }
+
+    // Extract rar archives with unrar
+    QMimeDatabase mimeDB;
+    QMimeType type = mimeDB.mimeTypeForFile(archivePathInfo.absoluteFilePath());
+    if (type.name() == "application/vnd.comicbook-rar"
+            || type.name() == "application/vnd.rar") {
+
+        if (system("unrar -v") != 0) {
+            return;
+        }
+
+        QString processName = "unrar";
+        QStringList args;
+        args << "e" << archivePathInfo.absoluteFilePath() << m_tmpFolder << "-o+";
+        auto process = new QProcess();
+        process->setProgram(processName);
+        process->setArguments(args);
+        process->start();
+
+        connect(process, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished,
+                this, [=]() {
+            m_progressBar->setVisible(false);
+            loadImages(m_tmpFolder, true);
+        });
+
+        connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
+            QRegularExpression re("[0-9]+[%]");
+            QRegularExpressionMatch match = re.match(process->readAllStandardOutput());
+            if (match.hasMatch()) {
+                QString matched = match.captured(0);
+                m_progressBar->setVisible(true);
+                m_progressBar->setValue(matched.remove("%").toInt());
+            }
+        });
+
+        connect(process, &QProcess::errorOccurred,
+                this, [=](QProcess::ProcessError error) {
+            QString errorMessage;
+            switch (error) {
+            case QProcess::FailedToStart:
+                errorMessage = "FailedToStart";
+            case QProcess::Crashed:
+                errorMessage = "Crashed";
+            case QProcess::Timedout:
+                errorMessage = "Timedout";
+            case QProcess::WriteError:
+                errorMessage = "WriteError";
+            case QProcess::ReadError:
+                errorMessage = "ReadError";
+            default:
+                errorMessage = "UnknownError";
+            }
+            showError(i18n("Error: Could not open the archive. %1", errorMessage));
+        });
+
+        return;
     }
 
     auto extractor = new QArchive::DiskExtractor(this);
