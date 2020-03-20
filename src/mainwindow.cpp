@@ -62,6 +62,44 @@ MainWindow::MainWindow(QWidget *parent)
     connect(qApp, &QApplication::aboutToQuit, this, [ = ]() {
         this->~MainWindow();
     });
+
+    // rename dialog
+    m_renameDialog = new QDialog(this, Qt::Dialog);
+    m_renameDialog->setWindowTitle(i18n("Rename"));
+    m_renameDialog->setMinimumWidth(600);
+
+    auto vLayout = new QVBoxLayout();
+    auto hLayout = new QHBoxLayout();
+    hLayout->setObjectName("hLayout");
+    hLayout->setMargin(0);
+    auto widget = new QWidget();
+    widget->setLayout(hLayout);
+    auto label = new QLabel(i18n("New name:"));
+    auto infoLabel = new QLabel();
+    infoLabel->setObjectName("infoLabel");
+    auto renameLineEdit = new QLineEdit();
+    renameLineEdit->setObjectName("renameLineEdit");
+    auto spacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    auto okButton = new QPushButton(i18n("OK"));
+    okButton->setObjectName("okButton");
+    auto cancelButton = new QPushButton(i18n("Cancel"));
+    cancelButton->setObjectName("cancelButton");
+
+    vLayout->addWidget(label);
+    vLayout->addWidget(renameLineEdit);
+    vLayout->addWidget(infoLabel);
+    vLayout->addWidget(widget);
+
+    hLayout->addItem(spacer);
+    hLayout->addWidget(okButton);
+    hLayout->addWidget(cancelButton);
+
+    m_renameDialog->setLayout(vLayout);
+
+    connect(okButton, &QPushButton::clicked,
+            this, &MainWindow::renameFile);
+    connect(cancelButton, &QPushButton::clicked,
+            m_renameDialog, &QDialog::reject);
 }
 
 MainWindow::~MainWindow()
@@ -181,44 +219,15 @@ void MainWindow::createBookmarksWidget()
     m_bookmarksModel->setHorizontalHeaderItem(0, new QStandardItem(i18n("Manga")));
     m_bookmarksModel->setHorizontalHeaderItem(1, new QStandardItem(i18n("Page")));
 
-    KConfigGroup bookmarks = m_config->group("Bookmarks");
-    for (const QString &key : bookmarks.keyList()) {
-        QString pageIndex = bookmarks.readEntry(key);
-        QString pageNumber = QString::number(pageIndex.toInt() + 1);
-        QString path = key;
-        if (path.startsWith(RECURSIVE_KEY_PREFIX)) {
-            path = path.remove(0, RECURSIVE_KEY_PREFIX.length());
-        }
-        QFileInfo pathInfo(path);
-        QList<QStandardItem *> rowData;
-        QMimeDatabase db;
-        QMimeType type = db.mimeTypeForFile(pathInfo.absoluteFilePath());
-        QIcon icon = QIcon::fromTheme("folder");
-        if (type.name().startsWith("application/")) {
-            icon = QIcon::fromTheme("application-zip");
-        }
-        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QStringLiteral();
+    populateBookmarkModel();
 
-        auto col1 = new QStandardItem(pathInfo.fileName().prepend(displayPrefix));
-        col1->setData(icon, Qt::DecorationRole);
-        col1->setData(pathInfo.absoluteFilePath(), Qt::ToolTipRole);
-        col1->setData(key.startsWith(RECURSIVE_KEY_PREFIX), RecursiveRole);
-        col1->setEditable(false);
-
-        auto col2 = new QStandardItem(pageNumber);
-        col2->setData(key, KeyRole);
-        col2->setData(pageIndex, IndexRole);
-        col2->setData(pathInfo.absoluteFilePath(), PathRole);
-        col2->setEditable(false);
-
-        m_bookmarksModel->appendRow(rowData << col1 << col2);
-    }
     m_bookmarksView = new QTableView();
     m_bookmarksView->setObjectName("bookmarksTableView");
     m_bookmarksView->setModel(m_bookmarksModel);
-    m_bookmarksView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_bookmarksView->setWordWrap(false);
     m_bookmarksView->setTextElideMode(Qt::ElideRight);
+    m_bookmarksView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_bookmarksView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_bookmarksView->verticalHeader()->hide();
 
     auto tableHeader = m_bookmarksView->horizontalHeader();
@@ -244,6 +253,9 @@ void MainWindow::createBookmarksWidget()
         }
     });
 
+    connect(m_bookmarksView, &QTableView::customContextMenuRequested,
+            this, &MainWindow::bookmarksViewContextMenu);
+
     auto deleteButton = new QPushButton();
     deleteButton->setText(i18n("Delete Selected Bookmarks"));
     connect(deleteButton, &QPushButton::clicked, this, [ = ]() {
@@ -255,6 +267,45 @@ void MainWindow::createBookmarksWidget()
     bookmarksWidget->setLayout(bookmarksLayout);
     dockWidget->setWidget(bookmarksWidget);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
+}
+
+void MainWindow::populateBookmarkModel()
+{
+    KConfigGroup bookmarks = m_config->group("Bookmarks");
+    for (const QString &key : bookmarks.keyList()) {
+        QString pageIndex = bookmarks.readEntry(key);
+        QString pageNumber = QString::number(pageIndex.toInt() + 1);
+        QString path = key;
+        if (path.startsWith(RECURSIVE_KEY_PREFIX)) {
+            path = path.remove(0, RECURSIVE_KEY_PREFIX.length());
+        }
+        QFileInfo pathInfo(path);
+        QList<QStandardItem *> rowData;
+        QMimeDatabase db;
+        QMimeType type = db.mimeTypeForFile(pathInfo.absoluteFilePath());
+        QIcon icon = QIcon::fromTheme("folder");
+        if (type.name().startsWith("application/")) {
+            icon = QIcon::fromTheme("application-zip");
+        }
+        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QStringLiteral();
+
+        auto col1 = new QStandardItem(pathInfo.fileName().prepend(displayPrefix));
+        col1->setData(icon, Qt::DecorationRole);
+        col1->setData(pathInfo.absoluteFilePath(), Qt::ToolTipRole);
+        col1->setData(key, KeyRole);
+        col1->setData(pathInfo.absoluteFilePath(), PathRole);
+        col1->setData(key.startsWith(RECURSIVE_KEY_PREFIX), RecursiveRole);
+        col1->setEditable(false);
+
+        auto col2 = new QStandardItem(pageNumber);
+        col2->setData(key, KeyRole);
+        col2->setData(pageIndex, IndexRole);
+        col2->setData(pathInfo.absoluteFilePath(), PathRole);
+        col2->setData(key.startsWith(RECURSIVE_KEY_PREFIX), RecursiveRole);
+        col2->setEditable(false);
+
+        m_bookmarksModel->appendRow(rowData << col1 << col2);
+    }
 }
 
 void MainWindow::addMangaFolder()
@@ -487,6 +538,58 @@ void MainWindow::extractArchive(QString archivePath)
     });
 }
 
+void MainWindow::renameFile()
+{
+    QWidget *w1 = m_renameDialog->layout()->itemAt(1)->widget();
+    QWidget *w2 = m_renameDialog->layout()->itemAt(2)->widget();
+    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(w1);
+    QLabel *infoLabel = qobject_cast<QLabel *>(w2);
+    QString path = m_renameDialog->property("path").toString();
+
+    QFileInfo pathInfo(path);
+    QFile file(path);
+    QString newName = pathInfo.absolutePath() + "/" + lineEdit->text();
+
+    if (m_currentPath == path && pathInfo.isDir()) {
+        infoLabel->setText(i18n("Can't rename open folder."));
+        return;
+    }
+    bool renameSuccessful = file.rename(newName);
+    if (renameSuccessful) {
+        if (m_currentPath == path && !pathInfo.isDir()) {
+            m_currentPath = newName;
+        }
+        // Delete bookmarks for old name
+        // and create new bookmarks for the new name
+        // keys for normal and recursive bookmarks
+        QString key = path;
+        QString recursiveKey = RECURSIVE_KEY_PREFIX + path;
+
+        // get the values for both bookmarks
+        KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+        QString bookmark = bookmarksGroup.readEntry(key);
+        QString recursiveBookmark = bookmarksGroup.readEntry(recursiveKey);
+
+        // delete and create new bookmarks
+        if (!bookmark.isEmpty()) {
+            bookmarksGroup.deleteEntry(key);
+            bookmarksGroup.writeEntry(newName, bookmark);
+        }
+        if (!recursiveBookmark.isEmpty()) {
+            bookmarksGroup.deleteEntry(recursiveKey);
+            bookmarksGroup.writeEntry(RECURSIVE_KEY_PREFIX + newName, recursiveBookmark);
+        }
+        bookmarksGroup.config()->sync();
+
+        m_bookmarksModel->removeRows(0, m_bookmarksModel->rowCount());
+        populateBookmarkModel();
+
+        m_renameDialog->accept();
+    } else {
+        infoLabel->setText(i18n("Renaming failed"));
+    }
+}
+
 void MainWindow::treeViewContextMenu(QPoint point)
 {
     QModelIndex index = m_treeView->indexAt(point);
@@ -503,6 +606,9 @@ void MainWindow::treeViewContextMenu(QPoint point)
     auto loadRecursive = new QAction(QIcon::fromTheme("arrow-down-double"), i18n("Load recursive"));
     m_treeView->addAction(loadRecursive);
 
+    auto rename = new QAction(QIcon::fromTheme("edit-rename"), i18n("Rename"));
+    m_treeView->addAction(rename);
+
     auto openPath = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
     m_treeView->addAction(openPath);
 
@@ -511,21 +617,25 @@ void MainWindow::treeViewContextMenu(QPoint point)
 
     menu->addAction(load);
     menu->addAction(loadRecursive);
+    menu->addAction(rename);
     menu->addSeparator();
     menu->addAction(openPath);
     menu->addAction(openContainingFolder);
 
     connect(load, &QAction::triggered, this, [ = ]() {
-        // get path from index
-        const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-        QString path = model->filePath(index);
         loadImages(path);
     });
     connect(loadRecursive, &QAction::triggered, this, [ = ]() {
-        // get path from index
-        const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-        QString path = model->filePath(index);
         loadImages(path, true);
+    });
+
+    connect(rename, &QAction::triggered, this, [ = ]() {
+        QWidget *w = m_renameDialog->layout()->itemAt(1)->widget();
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(w);
+        lineEdit->setText(pathInfo.fileName());
+        lineEdit->setFocus(Qt::ActiveWindowFocusReason);
+        m_renameDialog->setProperty("path", path);
+        m_renameDialog->exec();
     });
 
     connect(openPath, &QAction::triggered, this, [ = ]() {
@@ -538,6 +648,38 @@ void MainWindow::treeViewContextMenu(QPoint point)
         QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
     });
     menu->exec(QCursor::pos());
+}
+
+void MainWindow::bookmarksViewContextMenu(QPoint point)
+{
+    QModelIndex index = m_bookmarksView->indexAt(point);
+    QString path = m_bookmarksModel->data(index, PathRole).toString();
+
+    QFileInfo pathInfo(path);
+
+    auto contextMenu = new QMenu();
+    auto action = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
+    contextMenu->addAction(action);
+    connect(action, &QAction::triggered, this, [=]() {
+        QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+    });
+
+    action = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
+    contextMenu->addAction(action);
+    connect(action, &QAction::triggered, this, [=]() {
+        QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+    });
+
+    contextMenu->addSeparator();
+
+    action = new QAction(QIcon::fromTheme("delete"), i18n("Delete Selected Bookmark(s)"));
+    contextMenu->addAction(action);
+    connect(action, &QAction::triggered, this, [=]() {
+        deleteBookmarks(m_bookmarksView, "Bookmarks");
+    });
+    contextMenu->popup(QCursor::pos());
 }
 
 void MainWindow::hideDockWidgets(Qt::DockWidgetAreas area)
@@ -654,13 +796,16 @@ void MainWindow::onAddBookmark(int pageIndex)
     auto *col1 = new QStandardItem(mangaInfo.fileName().prepend(displayPrefix));
     col1->setData(icon, Qt::DecorationRole);
     col1->setData(mangaInfo.absoluteFilePath(), Qt::ToolTipRole);
+    col1->setData(key, KeyRole);
+    col1->setData(mangaInfo.absoluteFilePath(), PathRole);
     col1->setData(m_isLoadedRecursive, RecursiveRole);
     col1->setEditable(false);
 
     auto *col2 = new QStandardItem(QString::number(pageNumber));
-    col2->setData(key, KeyRole);
     col2->setData(pageIndex, IndexRole);
+    col2->setData(key, KeyRole);
     col2->setData(mangaInfo.absoluteFilePath(), PathRole);
+    col2->setData(m_isLoadedRecursive, RecursiveRole);
     col2->setEditable(false);
 
     m_bookmarksModel->appendRow(rowData << col1 << col2);

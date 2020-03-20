@@ -62,6 +62,7 @@ public:
 private:
     void init();
     void setupMangaFoldersTree(QFileInfo mangaDirInfo);
+    void createBookmarksWidget();
     void setupActions();
     void addMangaFolder();
     void openMangaFolder();
@@ -69,6 +70,7 @@ private:
     void toggleFullScreen();
     void extractArchive(QString archivePath);
     void treeViewContextMenu(QPoint point);
+    void bookmarksViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
     void showDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
     void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
@@ -79,7 +81,9 @@ private:
     void openSettings();
     void toggleMenubar();
     bool isFullScreen();
+    void renameFile();
     QMenu *populateMangaFoldersMenu();
+    void populateBookmarkModel();
     void showError(QString error);
 
     QMenu              *m_mangaFoldersMenu = nullptr;
@@ -99,10 +103,10 @@ private:
     QTableView         *m_bookmarksView;
     QAction            *m_selectMangaFolder;
     SettingsWidget     *m_settingsWidget = nullptr;
+    QDialog            *m_renameDialog;
     int                 m_startPage = 0;
     bool                m_isLoadedRecursive = false;
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
-    void createBookmarksWidget();
 };
 
 #endif // MAINWINDOW_H
