@@ -31,6 +31,7 @@ class View : public QGraphicsView
 public:
     View(QWidget *parent = nullptr);
     ~View() = default;
+    int imageCount();
     void reset();
     void setManga(QString manga);
     void setImages(QStringList images);
@@ -39,6 +40,7 @@ public:
     void setStartPage(int number);
 
 signals:
+    void imagesLoaded();
     void requestPage(int number);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);

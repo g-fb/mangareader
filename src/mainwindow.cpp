@@ -164,6 +164,7 @@ void MainWindow::init()
     if (!mangaDirInfo.absoluteFilePath().isEmpty()) {
         setupMangaFoldersTree(mangaDirInfo);
     }
+    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
 
     // ==================================================
     // bookmarks dock widget
@@ -177,6 +178,7 @@ void MainWindow::init()
 void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
 {
     m_treeDock->setWindowTitle(mangaDirInfo.baseName());
+    m_treeDock->show();
 
     m_treeModel->setObjectName("mangaTree");
     m_treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
@@ -202,7 +204,6 @@ void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
             this, &MainWindow::treeViewContextMenu);
 
     m_treeDock->setWidget(m_treeView);
-    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
     resizeDocks({m_treeDock}, {400}, Qt::Horizontal);
 }
 
@@ -437,6 +438,27 @@ void MainWindow::setupActions()
     spacerAction->setDefaultWidget(spacer);
     spacerAction->setText(i18n("Spacer"));
     actionCollection()->addAction("spacer", spacerAction);
+
+    auto goToLayout = new QHBoxLayout();
+    auto goTowidget = new QWidget();
+    goTowidget->setLayout(goToLayout);
+    auto goToLabel = new QLabel(i18n("Go to page"));
+    auto goToSpinBox = new QSpinBox();
+    connect(m_view, &View::imagesLoaded, this, [=]() {
+        goToSpinBox->setRange(1, m_view->imageCount());
+    });
+    auto goToButton = new QPushButton(i18n("Go"));
+    connect(goToButton, &QPushButton::clicked, this, [=]() {
+        m_view->goToPage(goToSpinBox->text().toInt() - 1);
+    });
+    goToLayout->addWidget(goToLabel);
+    goToLayout->addWidget(goToSpinBox);
+    goToLayout->addWidget(goToButton);
+
+    auto goToAction = new QWidgetAction(this);
+    goToAction->setDefaultWidget(goTowidget);
+    goToAction->setText(i18n("Go To Page"));
+    actionCollection()->addAction("goToPage", goToAction);
 
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
     KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
@@ -875,7 +897,7 @@ void MainWindow::openSettings()
     hLayout->setMargin(0);
     hLayout->addWidget(addMangaFolderButton);
     hLayout->addStretch(1);
-    // add wisget to the keditlistwidget's layout
+    // add widget to the keditlistwidget's layout
     m_settingsWidget->kcfg_MangaFolders->layout()->addWidget(widget);
 
     connect(dialog, &KConfigDialog::settingsChanged,
@@ -893,12 +915,23 @@ void MainWindow::openSettings()
     });
 
     connect(dialog, &KConfigDialog::settingsChanged, this, [ = ]() {
-        if (MangaReaderSettings::mangaFolders().count() > 0
-                && m_config->group("").readEntry("Manga Folder").isEmpty()) {
-            // "Manga Folder" key is empty so the tree not fully setup
-            setupMangaFoldersTree(QFileInfo(MangaReaderSettings::mangaFolders().at(0)));
-            m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
-            m_config->sync();
+        QString mangaFolder = m_config->group("").readEntry("Manga Folder");
+        if (MangaReaderSettings::mangaFolders().count() > 0) {
+            if (mangaFolder.isEmpty()) {
+                // "Manga Folder" key is empty so the tree not fully setup
+                setupMangaFoldersTree(QFileInfo(MangaReaderSettings::mangaFolders().at(0)));
+                m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
+                m_config->sync();
+            }
+            if (!MangaReaderSettings::mangaFolders().contains(mangaFolder)) {
+                setupMangaFoldersTree(QFileInfo(MangaReaderSettings::mangaFolders().at(0)));
+                m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
+                m_config->sync();
+            }
+        }
+        if (MangaReaderSettings::mangaFolders().count() == 0) {
+            m_treeDock->close();
+            m_config->group("").deleteEntry("Manga Folder");
         }
         populateMangaFoldersMenu();
     });

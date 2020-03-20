@@ -17,8 +17,11 @@
 
     <ToolBar name="mainToolBar" >
         <text>Main Toolbar</text>
+        <Action name="options_configure" />
         <Action name="addMangaFolder" />
         <Action name="selectMangaFolder" />
+        <Separator />
+        <Action name="goToPage" />
         <Action name="spacer" />
         <Action name="fullscreen" />
         <Action name="file_quit" />

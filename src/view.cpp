@@ -33,22 +33,22 @@ View::View(QWidget *parent)
     : QGraphicsView(parent)
 {
     MainWindow* p = qobject_cast<MainWindow *>(parent);
-    auto scrollUp = new QAction();
+    auto scrollUp = new QAction(i18n("Scroll Up"));
     connect(scrollUp, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
         }
     });
-    p->actionCollection()->addAction("Scroll Up", scrollUp);
+    p->actionCollection()->addAction("scrollUp", scrollUp);
     p->actionCollection()->setDefaultShortcut(scrollUp, Qt::Key_Up);
 
-    auto scrollDown = new QAction();
+    auto scrollDown = new QAction(i18n("Scroll Down"));
     connect(scrollDown, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
         }
     });
-    p->actionCollection()->addAction("Scroll Down", scrollDown);
+    p->actionCollection()->addAction("scrollDown", scrollDown);
     p->actionCollection()->setDefaultShortcut(scrollDown, Qt::Key_Down);
 
     setMouseTracking(true);
@@ -73,6 +73,11 @@ View::View(QWidget *parent)
             this, &View::onScrollBarRangeChanged);
 }
 
+int View::imageCount()
+{
+    return m_images.count();
+}
+
 void View::reset()
 {
     m_requestedPages.clear();
@@ -84,6 +89,8 @@ void View::loadImages()
     createPages();
     calculatePageSizes();
     setPagesVisibility();
+
+    emit imagesLoaded();
 }
 
 void View::goToPage(int number)
