@@ -61,8 +61,9 @@ public:
 
 private:
     void init();
-    void setupMangaFoldersTree(QFileInfo mangaDirInfo);
-    void createBookmarksWidget();
+    void setupMangaTreeDockWidget();
+    void setupBookmarksDockWidget();
+    void setupRenameDialog();
     void setupActions();
     void addMangaFolder();
     void openMangaFolder();
@@ -86,25 +87,26 @@ private:
     void populateBookmarkModel();
     void showError(QString error);
 
-    QMenu              *m_mangaFoldersMenu = nullptr;
-    QProgressBar       *m_progressBar;
     KSharedConfig::Ptr  m_config;
     QStringList         m_images;
-    QString             m_currentPath;
     View               *m_view;
+    QDockWidget        *m_treeDock;
+    QTreeView          *m_treeView;
+    QFileSystemModel   *m_treeModel;
+    QDockWidget        *m_bookmarksDock;
+    QTableView         *m_bookmarksView;
+    QStandardItemModel *m_bookmarksModel;
     Worker             *m_worker;
     QThread            *m_thread;
     Qt::ToolBarArea     m_mainToolBarArea;
-    QDockWidget        *m_treeDock;
-    QTreeView          *m_treeView = nullptr;
-    QFileSystemModel   *m_treeModel;
+    QMenu              *m_mangaFoldersMenu;
+    QProgressBar       *m_progressBar;
     QString             m_tmpFolder;
-    QStandardItemModel *m_bookmarksModel;
-    QTableView         *m_bookmarksView;
+    QString             m_currentPath;
     QAction            *m_selectMangaFolder;
     SettingsWidget     *m_settingsWidget = nullptr;
     QDialog            *m_renameDialog;
-    int                 m_startPage = 0;
+    int                 m_startPage{ 0 };
     bool                m_isLoadedRecursive = false;
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
 };

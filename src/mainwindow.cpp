@@ -35,8 +35,12 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
-    , m_treeView(new QTreeView())
-    , m_treeModel(new QFileSystemModel())
+    , m_treeDock{ new QDockWidget() }
+    , m_treeView{ new QTreeView() }
+    , m_treeModel{ new QFileSystemModel() }
+    , m_bookmarksDock{ new QDockWidget() }
+    , m_bookmarksView{ new QTableView() }
+    , m_bookmarksModel{ new QStandardItemModel(0, 2, this) }
 {
     // setup central widget
     auto centralWidget = new QWidget(this);
@@ -49,21 +53,232 @@ MainWindow::MainWindow(QWidget *parent)
     init();
     setupActions();
     setupGUI(QSize(1280, 720), Default, "mangareaderui.rc");
-    if (MangaReaderSettings::mangaFolders().count() < 2) {
-        m_selectMangaFolder->setVisible(false);
-    }
-
-    connect(m_view, &View::mouseMoved,
-            this, &MainWindow::onMouseMoved);
 
     showToolBars();
-    showDockWidgets();
     menuBar()->show();
     statusBar()->hide();
-    connect(qApp, &QApplication::aboutToQuit, this, [ = ]() {
+
+    if (m_treeDock->property("isEmpty").toBool()) {
+        m_treeDock->setVisible(false);
+    } else {
+        m_treeDock->setVisible(true);
+    }
+
+    if (m_bookmarksDock->property("isEmpty").toBool()) {
+        m_bookmarksDock->setVisible(false);
+    } else {
+        m_bookmarksDock->setVisible(true);
+    }
+
+    connect(qApp, &QApplication::aboutToQuit, this, [=]() {
         this->~MainWindow();
     });
+}
 
+MainWindow::~MainWindow()
+{
+    m_thread->quit();
+    m_thread->wait();
+
+    QFileInfo file(m_tmpFolder);
+    if (file.exists() && file.isDir() && file.isWritable()) {
+        QDir dir(m_tmpFolder);
+        dir.removeRecursively();
+    }
+}
+
+Qt::ToolBarArea MainWindow::mainToolBarArea()
+{
+    return m_mainToolBarArea;
+}
+
+void MainWindow::init()
+{
+    setupRenameDialog();
+
+    // ==================================================
+    // setup progress bar
+    // ==================================================
+    m_progressBar = new QProgressBar(this);
+    m_progressBar->setMinimum(0);
+    m_progressBar->setMaximum(100);
+    m_progressBar->setVisible(false);
+    centralWidget()->layout()->addWidget(m_progressBar);
+
+    // ==================================================
+    // setup view
+    // ==================================================
+    m_view = new View(this);
+    connect(m_view, &View::addBookmark,
+            this, &MainWindow::onAddBookmark);
+    connect(m_view, &View::mouseMoved,
+            this, &MainWindow::onMouseMoved);
+    connect(m_view, &View::addBookmark, this, [=]() {
+        m_bookmarksDock->setVisible(true);
+        m_bookmarksDock->setProperty("isEmpty", false);
+    });
+    centralWidget()->layout()->addWidget(m_view);
+
+    // ==================================================
+    // setup thread and worker
+    // ==================================================
+    m_worker = Worker::instance();
+    m_thread = new QThread(this);
+    m_worker->moveToThread(m_thread);
+    connect(m_thread, &QThread::finished,
+            m_worker, &Worker::deleteLater);
+    connect(m_thread, &QThread::finished,
+            m_thread, &QThread::deleteLater);
+    m_thread->start();
+
+    // ==================================================
+    // setup dock widgets
+    // ==================================================
+    setupMangaTreeDockWidget();
+    m_treeDock->setVisible(false);
+    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
+
+    setupBookmarksDockWidget();
+    addDockWidget(Qt::LeftDockWidgetArea, m_bookmarksDock);
+}
+
+void MainWindow::setupMangaTreeDockWidget()
+{
+    KConfigGroup rootGroup = m_config->group("");
+    QString mangaFolder = rootGroup.readEntry("Manga Folder");
+    QFileInfo mangaFolderInfo(mangaFolder);
+
+    m_treeDock->setObjectName("treeDockWidget");
+    m_treeDock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_treeDock->setProperty("h", 0);
+    m_treeDock->setProperty("isEmpty", true);
+
+    m_treeModel->setObjectName("mangaTree");
+    m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
+    m_treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.cb7" << "*.rar");
+    m_treeModel->setNameFilterDisables(false);
+
+    m_treeView->setModel(m_treeModel);
+    m_treeView->setColumnHidden(1, true);
+    m_treeView->setColumnHidden(2, true);
+    m_treeView->setColumnHidden(3, true);
+    m_treeView->header()->hide();
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    if (!mangaFolder.isEmpty()) {
+        m_treeModel->setRootPath(mangaFolder);
+        m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
+        m_treeDock->setProperty("isEmpty", false);
+        m_treeDock->setWindowTitle(mangaFolderInfo.baseName());
+    }
+
+    auto action = new QAction();
+    action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
+    action->setShortcutContext(Qt::WidgetShortcut);
+    connect(action, &QAction::triggered, this, [=]() {
+        QString path = m_treeModel->filePath(m_treeView->selectionModel()->currentIndex());
+        loadImages(path);
+    });
+    m_treeView->addAction(action);
+    connect(m_treeView, &QTreeView::doubleClicked, this, [=](const QModelIndex &index) {
+        // get path from index
+        QString path = m_treeModel->filePath(index);
+        loadImages(path);
+    });
+    connect(m_treeView, &QTreeView::customContextMenuRequested,
+            this, &MainWindow::treeViewContextMenu);
+
+    m_treeDock->setWidget(m_treeView);
+}
+
+void MainWindow::setupBookmarksDockWidget()
+{
+    KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+    m_bookmarksDock->setObjectName("bookmarksDockWidget");
+    m_bookmarksDock->setWindowTitle(i18n("Bookmarks"));
+    m_bookmarksDock->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_bookmarksDock->setMinimumHeight(300);
+    m_bookmarksDock->setProperty("h", 0);
+    m_bookmarksDock->setProperty("isEmpty", true);
+
+    m_bookmarksView->setObjectName("bookmarksTableView");
+    m_bookmarksView->setModel(m_bookmarksModel);
+    m_bookmarksView->setWordWrap(false);
+    m_bookmarksView->setTextElideMode(Qt::ElideRight);
+    m_bookmarksView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_bookmarksView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_bookmarksView->verticalHeader()->hide();
+
+    m_bookmarksModel->setHorizontalHeaderItem(0, new QStandardItem(i18n("Manga")));
+    m_bookmarksModel->setHorizontalHeaderItem(1, new QStandardItem(i18n("Page")));
+
+    auto tableHeader = m_bookmarksView->horizontalHeader();
+    tableHeader->setSectionResizeMode(0, QHeaderView::Stretch);
+    tableHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+
+    if (bookmarksGroup.keyList().count() > 0) {
+        populateBookmarkModel();
+        m_bookmarksDock->setProperty("isEmpty", false);
+    }
+
+    auto action = new QAction();
+    action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
+    action->setShortcutContext(Qt::WidgetShortcut);
+    connect(action, &QAction::triggered, this, [=]() {
+        if (m_bookmarksView->selectionModel()->selectedRows().count() > 1) {
+            return;
+        }
+        QModelIndex index = m_bookmarksView->selectionModel()->selectedRows().first();
+        QString path = m_bookmarksModel->data(index, PathRole).toString();
+        loadImages(path);
+    });
+    m_bookmarksView->addAction(action);
+
+    connect(m_bookmarksModel, &QAbstractItemModel::rowsRemoved, this, [=]() {
+        if (m_bookmarksModel->rowCount() == 0) {
+            m_bookmarksDock->setVisible(false);
+            m_bookmarksDock->setProperty("isEmpty", true);
+        }
+    });
+
+    connect(m_bookmarksView, &QTableView::doubleClicked, this, [=](const QModelIndex &index) {
+        // get path from index
+        QModelIndex cellIndex = m_bookmarksModel->index(index.row(), 1);
+
+        m_startPage  = m_bookmarksModel->data(cellIndex, IndexRole).toInt();
+        QString path = m_bookmarksModel->data(cellIndex, PathRole).toString();
+        QString key  = m_bookmarksModel->data(cellIndex, KeyRole).toString();
+        QFileInfo pathInfo(path);
+        if (!pathInfo.exists()) {
+            showError(i18n("The file or folder does not exist.\n%1", path));
+            return;
+        }
+        if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
+            loadImages(path, true);
+        } else {
+            loadImages(path);
+        }
+    });
+
+    connect(m_bookmarksView, &QTableView::customContextMenuRequested,
+            this, &MainWindow::bookmarksViewContextMenu);
+
+    auto deleteButton = new QPushButton();
+    deleteButton->setText(i18n("Delete Selected Bookmarks"));
+    connect(deleteButton, &QPushButton::clicked, this, [=]() {
+        deleteBookmarks(m_bookmarksView);
+    });
+
+    auto bookmarksLayout = new QVBoxLayout();
+    auto bookmarksWidget = new QWidget(this);
+    bookmarksLayout->addWidget(m_bookmarksView);
+    bookmarksLayout->addWidget(deleteButton);
+    bookmarksWidget->setLayout(bookmarksLayout);
+    m_bookmarksDock->setWidget(bookmarksWidget);
+}
+
+void MainWindow::setupRenameDialog()
+{
     // rename dialog
     m_renameDialog = new QDialog(this, Qt::Dialog);
     m_renameDialog->setWindowTitle(i18n("Rename"));
@@ -101,174 +316,6 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::renameFile);
     connect(cancelButton, &QPushButton::clicked,
             m_renameDialog, &QDialog::reject);
-}
-
-MainWindow::~MainWindow()
-{
-    m_thread->quit();
-    m_thread->wait();
-
-    QFileInfo file(m_tmpFolder);
-    if (file.exists() && file.isDir() && file.isWritable()) {
-        QDir dir(m_tmpFolder);
-        dir.removeRecursively();
-    }
-}
-
-Qt::ToolBarArea MainWindow::mainToolBarArea()
-{
-    return m_mainToolBarArea;
-}
-
-void MainWindow::init()
-{
-    // ==================================================
-    // setup progress bar
-    // ==================================================
-    m_progressBar = new QProgressBar(this);
-    m_progressBar->setMinimum(0);
-    m_progressBar->setMaximum(100);
-    m_progressBar->setVisible(false);
-    centralWidget()->layout()->addWidget(m_progressBar);
-
-    // ==================================================
-    // setup view
-    // ==================================================
-    m_view = new View(this);
-    connect(m_view, &View::addBookmark,
-            this, &MainWindow::onAddBookmark);
-    centralWidget()->layout()->addWidget(m_view);
-
-    // ==================================================
-    // setup thread and worker
-    // ==================================================
-    m_worker = Worker::instance();
-    m_thread = new QThread(this);
-    m_worker->moveToThread(m_thread);
-    connect(m_thread, &QThread::finished,
-            m_worker, &Worker::deleteLater);
-    connect(m_thread, &QThread::finished,
-            m_thread, &QThread::deleteLater);
-    m_thread->start();
-
-    // ==================================================
-    // setup dock widgets
-    // ==================================================
-
-    // ==================================================
-    // tree dock widget
-    // ==================================================
-    KConfigGroup rootGroup = m_config->group("");
-    QFileInfo mangaDirInfo(rootGroup.readEntry("Manga Folder"));
-    m_treeDock = new QDockWidget();
-    m_treeDock->setObjectName("treeDock");
-    if (!mangaDirInfo.absoluteFilePath().isEmpty()) {
-        setupMangaFoldersTree(mangaDirInfo);
-    }
-    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
-
-    // ==================================================
-    // bookmarks dock widget
-    // ==================================================
-    KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
-    if (bookmarksGroup.keyList().count() > 0) {
-        createBookmarksWidget();
-    }
-}
-
-void MainWindow::setupMangaFoldersTree(QFileInfo mangaDirInfo)
-{
-    m_treeDock->setWindowTitle(mangaDirInfo.baseName());
-    m_treeDock->show();
-
-    m_treeModel->setObjectName("mangaTree");
-    m_treeModel->setRootPath(mangaDirInfo.absoluteFilePath());
-    m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
-    m_treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.cb7" << "*.rar");
-    m_treeModel->setNameFilterDisables(false);
-
-    m_treeView->setModel(m_treeModel);
-    m_treeView->setRootIndex(m_treeModel->index(mangaDirInfo.absoluteFilePath()));
-    m_treeView->setColumnHidden(1, true);
-    m_treeView->setColumnHidden(2, true);
-    m_treeView->setColumnHidden(3, true);
-    m_treeView->header()->hide();
-    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(m_treeView, &QTreeView::doubleClicked, this, [ = ](const QModelIndex &index) {
-        // get path from index
-        const QFileSystemModel *model = static_cast<const QFileSystemModel *>(index.model());
-        QString path = model->filePath(index);
-        loadImages(path);
-    });
-    connect(m_treeView, &QTreeView::customContextMenuRequested,
-            this, &MainWindow::treeViewContextMenu);
-
-    m_treeDock->setWidget(m_treeView);
-    resizeDocks({m_treeDock}, {400}, Qt::Horizontal);
-}
-
-void MainWindow::createBookmarksWidget()
-{
-    auto bookmarksLayout = new QVBoxLayout();
-    auto bookmarksWidget = new QWidget(this);
-    auto dockWidget = new QDockWidget();
-    dockWidget->setWindowTitle(i18n("Bookmarks"));
-    dockWidget->setObjectName("bookmarksDockWidget");
-    dockWidget->setMinimumHeight(300);
-
-    m_bookmarksModel = new QStandardItemModel(0, 2, this);
-    m_bookmarksModel->setHorizontalHeaderItem(0, new QStandardItem(i18n("Manga")));
-    m_bookmarksModel->setHorizontalHeaderItem(1, new QStandardItem(i18n("Page")));
-
-    populateBookmarkModel();
-
-    m_bookmarksView = new QTableView();
-    m_bookmarksView->setObjectName("bookmarksTableView");
-    m_bookmarksView->setModel(m_bookmarksModel);
-    m_bookmarksView->setWordWrap(false);
-    m_bookmarksView->setTextElideMode(Qt::ElideRight);
-    m_bookmarksView->setContextMenuPolicy(Qt::CustomContextMenu);
-    m_bookmarksView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_bookmarksView->verticalHeader()->hide();
-
-    auto tableHeader = m_bookmarksView->horizontalHeader();
-    tableHeader->setSectionResizeMode(0, QHeaderView::Stretch);
-    tableHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-
-    connect(m_bookmarksView, &QTableView::doubleClicked, this, [ = ](const QModelIndex &index) {
-        // get path from index
-        QModelIndex cellIndex = m_bookmarksModel->index(index.row(), 1);
-
-        m_startPage  = m_bookmarksModel->data(cellIndex, IndexRole).toInt();
-        QString path = m_bookmarksModel->data(cellIndex, PathRole).toString();
-        QString key  = m_bookmarksModel->data(cellIndex, KeyRole).toString();
-        QFileInfo pathInfo(path);
-        if (!pathInfo.exists()) {
-            showError(i18n("The file or folder does not exist.\n%1", path));
-            return;
-        }
-        if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
-            loadImages(path, true);
-        } else {
-            loadImages(path);
-        }
-    });
-
-    connect(m_bookmarksView, &QTableView::customContextMenuRequested,
-            this, &MainWindow::bookmarksViewContextMenu);
-
-    auto deleteButton = new QPushButton();
-    deleteButton->setText(i18n("Delete Selected Bookmarks"));
-    connect(deleteButton, &QPushButton::clicked, this, [ = ]() {
-        deleteBookmarks(m_bookmarksView);
-    });
-
-    bookmarksLayout->addWidget(m_bookmarksView);
-    bookmarksLayout->addWidget(deleteButton);
-    bookmarksWidget->setLayout(bookmarksLayout);
-    dockWidget->setWidget(bookmarksWidget);
-    addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 }
 
 void MainWindow::populateBookmarkModel()
@@ -426,7 +473,7 @@ void MainWindow::setupActions()
     m_selectMangaFolder->setText(i18n("Select Manga Folder"));
     populateMangaFoldersMenu();
     actionCollection()->addAction("selectMangaFolder", m_selectMangaFolder);
-    connect(m_selectMangaFolder, &QAction::triggered, this, [ = ]() {
+    connect(m_selectMangaFolder, &QAction::triggered, this, [=]() {
         QWidget *widget = toolBar("mainToolBar")->widgetForAction(m_selectMangaFolder);
         QToolButton *button = qobject_cast<QToolButton*>(widget);
         button->showMenu();
@@ -445,15 +492,19 @@ void MainWindow::setupActions()
     goTowidget->setLayout(goToLayout);
     auto goToLabel = new QLabel(i18n("Go to page"));
     auto goToSpinBox = new QSpinBox();
-    connect(goToSpinBox, &QSpinBox::editingFinished, this, [=]() {
+    auto action = new QAction();
+    action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
+    action->setShortcutContext(Qt::WidgetShortcut);
+    connect(action, &QAction::triggered, this, [=]() {
         m_view->goToPage(goToSpinBox->value() - 1);
-        m_view->setFocus();
     });
+    goToSpinBox->addAction(action);
     connect(m_view, &View::imagesLoaded, this, [=]() {
         goToSpinBox->setRange(1, m_view->imageCount());
     });
-    auto goToButton = new QPushButton(i18n("Go"));
-    connect(goToButton, &QPushButton::clicked, this, [=]() {
+    auto goToButton = new QToolButton();
+    goToButton->setText(i18n("Go"));
+    connect(goToButton, &QToolButton::clicked, this, [=]() {
         m_view->goToPage(goToSpinBox->value() - 1);
     });
     goToLayout->addWidget(goToLabel);
@@ -469,9 +520,9 @@ void MainWindow::setupActions()
     KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
     KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
 
-    QAction *action = KStandardAction::fullScreen(this, [ = ]() {toggleFullScreen();}, this, actionCollection());
+    QAction *toggleFullScreenAction = KStandardAction::fullScreen(this, [=]() {toggleFullScreen();}, this, actionCollection());
     connect(m_view, &View::doubleClicked,
-            action, &QAction::trigger);
+            toggleFullScreenAction, &QAction::trigger);
 }
 
 void MainWindow::toggleMenubar()
@@ -484,7 +535,7 @@ QMenu *MainWindow::populateMangaFoldersMenu()
     m_mangaFoldersMenu->clear();
     for (QString mangaFolder : MangaReaderSettings::mangaFolders()) {
         QAction *action = m_mangaFoldersMenu->addAction(mangaFolder);
-        connect(action, &QAction::triggered, this, [ = ]() {
+        connect(action, &QAction::triggered, this, [=]() {
             m_treeModel->setRootPath(mangaFolder);
             m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
             m_treeDock->setWindowTitle(QFileInfo(mangaFolder).baseName());
@@ -597,18 +648,18 @@ void MainWindow::extractArchive(QString archivePath)
 
     m_progressBar->setVisible(true);
     m_progressBar->setValue(0);
-    connect(extractor, &QArchive::DiskExtractor::finished, this, [ = ]() {
+    connect(extractor, &QArchive::DiskExtractor::finished, this, [=]() {
         m_progressBar->setVisible(false);
         loadImages(m_tmpFolder, true, false);
     });
 
-    connect(extractor, &QArchive::DiskExtractor::progress, this, [ = ](QString file, int processedFiles, int totalFiles, int percent) {
+    connect(extractor, &QArchive::DiskExtractor::progress, this, [=](QString file, int processedFiles, int totalFiles, int percent) {
         Q_UNUSED(file)
         Q_UNUSED(processedFiles)
         Q_UNUSED(totalFiles)
         m_progressBar->setValue(percent);
     });
-    connect(extractor, &QArchive::DiskExtractor::error, this, [ = ](short error) {
+    connect(extractor, &QArchive::DiskExtractor::error, this, [=](short error) {
         showError(i18n("Error %1: Could not open the archive.\n%2",
                               QString::number(error),
                               QArchive::errorCodeToString(error)));
@@ -700,14 +751,14 @@ void MainWindow::treeViewContextMenu(QPoint point)
     menu->addAction(openPath);
     menu->addAction(openContainingFolder);
 
-    connect(load, &QAction::triggered, this, [ = ]() {
+    connect(load, &QAction::triggered, this, [=]() {
         loadImages(path);
     });
-    connect(loadRecursive, &QAction::triggered, this, [ = ]() {
+    connect(loadRecursive, &QAction::triggered, this, [=]() {
         loadImages(path, true);
     });
 
-    connect(rename, &QAction::triggered, this, [ = ]() {
+    connect(rename, &QAction::triggered, this, [=]() {
         QWidget *w = m_renameDialog->layout()->itemAt(1)->widget();
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(w);
         lineEdit->setText(pathInfo.fileName());
@@ -716,12 +767,12 @@ void MainWindow::treeViewContextMenu(QPoint point)
         m_renameDialog->exec();
     });
 
-    connect(openPath, &QAction::triggered, this, [ = ]() {
+    connect(openPath, &QAction::triggered, this, [=]() {
         QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
         QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
     });
 
-    connect(openContainingFolder, &QAction::triggered, this, [ = ]() {
+    connect(openContainingFolder, &QAction::triggered, this, [=]() {
         QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
         QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
     });
@@ -764,8 +815,12 @@ void MainWindow::hideDockWidgets(Qt::DockWidgetAreas area)
 {
     QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
     for (QDockWidget *dockWidget : dockWidgets) {
-        if ((dockWidgetArea(dockWidget) == area || area == Qt::AllDockWidgetAreas) && !dockWidget->isFloating()) {
-            dockWidget->hide();
+        if ((dockWidgetArea(dockWidget) == area || area == Qt::AllDockWidgetAreas)
+                && !dockWidget->isFloating()) {
+            bool isEmpty = dockWidget->property("isEmpty").toBool();
+            if (!isEmpty) {
+                dockWidget->setVisible(false);
+            }
         }
     }
 }
@@ -776,7 +831,11 @@ void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
     for (int i = dockWidgets.size(); i > 0; i--) {
         if ((dockWidgetArea(dockWidgets.at(i-1)) == area || area == Qt::AllDockWidgetAreas)
                 && !dockWidgets.at(i-1)->isFloating()) {
-            dockWidgets.at(i-1)->show();
+            QDockWidget *dockWidget = dockWidgets.at(i-1);
+            bool isEmpty = dockWidget->property("isEmpty").toBool();
+            if (!isEmpty) {
+                dockWidget->setVisible(true);
+            }
         }
     }
 }
@@ -796,6 +855,7 @@ void MainWindow::showToolBars(Qt::ToolBarAreas area)
     QList<QToolBar *> toolBars = findChildren<QToolBar *>();
     for (QToolBar *toolBar : toolBars) {
         if ((toolBarArea(toolBar) == area || area == Qt::AllToolBarAreas) && !toolBar->isFloating()) {
+
             toolBar->show();
         }
     }
@@ -827,10 +887,6 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
 void MainWindow::onAddBookmark(int pageIndex)
 {
     int pageNumber = pageIndex + 1;
-    QDockWidget *bookmarksWidget = findChild<QDockWidget *>("bookmarksDockWidget");
-    if (!bookmarksWidget) {
-        createBookmarksWidget();
-    }
     QFileInfo mangaInfo(m_currentPath);
     QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QStringLiteral();
     QString key = mangaInfo.absoluteFilePath().prepend(keyPrefix);
@@ -960,7 +1016,7 @@ void MainWindow::openSettings()
     connect(dialog, &KConfigDialog::settingsChanged,
             m_view, &View::onSettingsChanged);
 
-    connect(m_settingsWidget->selectExtractionFolder, &QPushButton::clicked, this, [ = ]() {
+    connect(m_settingsWidget->selectExtractionFolder, &QPushButton::clicked, this, [=]() {
         QString path = QFileDialog::getExistingDirectory(
                     this,
                     i18n("Select extraction folder"),
@@ -971,23 +1027,23 @@ void MainWindow::openSettings()
         m_settingsWidget->kcfg_ExtractionFolder->setText(path);
     });
 
-    connect(dialog, &KConfigDialog::settingsChanged, this, [ = ]() {
+    connect(dialog, &KConfigDialog::settingsChanged, this, [=]() {
         QString mangaFolder = m_config->group("").readEntry("Manga Folder");
         if (MangaReaderSettings::mangaFolders().count() > 0) {
-            if (mangaFolder.isEmpty()) {
-                // "Manga Folder" key is empty so the tree not fully setup
-                setupMangaFoldersTree(QFileInfo(MangaReaderSettings::mangaFolders().at(0)));
-                m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
+            // if current manga folder is empty or not in the manga folders list
+            // set first folder in manga folders list as current
+            if (mangaFolder.isEmpty() || !MangaReaderSettings::mangaFolders().contains(mangaFolder)) {
+                QString firstMangaFolder = MangaReaderSettings::mangaFolders().at(0);
+                m_treeModel->setRootPath(firstMangaFolder);
+                m_treeView->setRootIndex(m_treeModel->index(firstMangaFolder));
+                m_treeDock->setVisible(true);
+                m_treeDock->setProperty("isEmpty", false);
+                m_config->group("").writeEntry("Manga Folder", firstMangaFolder);
                 m_config->sync();
             }
-            if (!MangaReaderSettings::mangaFolders().contains(mangaFolder)) {
-                setupMangaFoldersTree(QFileInfo(MangaReaderSettings::mangaFolders().at(0)));
-                m_config->group("").writeEntry("Manga Folder", MangaReaderSettings::mangaFolders().at(0));
-                m_config->sync();
-            }
-        }
-        if (MangaReaderSettings::mangaFolders().count() == 0) {
-            m_treeDock->close();
+        } else {
+            m_treeDock->setVisible(false);
+            m_treeDock->setProperty("isEmpty", true);
             m_config->group("").deleteEntry("Manga Folder");
         }
         populateMangaFoldersMenu();
@@ -1001,13 +1057,20 @@ void MainWindow::toggleFullScreen()
         setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
         setWindowState(windowState() & ~Qt::WindowFullScreen);
         showToolBars();
-        showDockWidgets();
         menuBar()->show();
+
+        showDockWidgets();
+        int treeDockHeight = m_treeDock->property("h").toInt();
+        int bookmarksDockHeight = m_bookmarksDock->property("h").toInt();
+        resizeDocks({m_treeDock, m_bookmarksDock}, {treeDockHeight, bookmarksDockHeight}, Qt::Vertical);
     } else {
         setWindowState(windowState() | Qt::WindowFullScreen);
         hideToolBars();
-        hideDockWidgets();
         menuBar()->hide();
+
+        hideDockWidgets();
+        m_treeDock->setProperty("h", m_treeDock->height());
+        m_bookmarksDock->setProperty("h", m_bookmarksDock->height());
     }
 }
 

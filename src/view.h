@@ -18,18 +18,20 @@
 #ifndef VIEW_H
 #define VIEW_H
 
+#include <KXMLGUIClient>
 #include <QGraphicsView>
 #include <QObject>
 
 class Page;
 class QGraphicsScene;
+class MainWindow;
 
-class View : public QGraphicsView
+class View : public QGraphicsView, public KXMLGUIClient
 {
     Q_OBJECT
 
 public:
-    View(QWidget *parent = nullptr);
+    View(MainWindow *parent);
     ~View() = default;
     int imageCount();
     void reset();

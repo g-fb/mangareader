@@ -24,32 +24,43 @@
 
 #include <KActionCollection>
 #include <KToolBar>
+#include <KXMLGUIFactory>
 
 #include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
 
-View::View(QWidget *parent)
+View::View(MainWindow *parent)
     : QGraphicsView(parent)
+    , KXMLGUIClient()
 {
-    MainWindow* p = qobject_cast<MainWindow *>(parent);
+    KXMLGUIClient::setComponentName(QStringLiteral("View"), i18n("View"));
+    parent->guiFactory()->addClient(this);
+
+    KActionCollection *collection = actionCollection();
+    collection->setComponentDisplayName("View");
+    collection->addAssociatedWidget(this);
+
     auto scrollUp = new QAction(i18n("Scroll Up"));
+    scrollUp->setShortcut(Qt::Key_Up);
+    scrollUp->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollUp, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
         }
     });
-    p->actionCollection()->addAction("scrollUp", scrollUp);
-    p->actionCollection()->setDefaultShortcut(scrollUp, Qt::Key_Up);
 
     auto scrollDown = new QAction(i18n("Scroll Down"));
+    scrollDown->setShortcut(Qt::Key_Down);
+    scrollDown->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollDown, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
         }
     });
-    p->actionCollection()->addAction("scrollDown", scrollDown);
-    p->actionCollection()->setDefaultShortcut(scrollDown, Qt::Key_Down);
+
+    collection->addAction("scrollUp", scrollUp);
+    collection->addAction("scrollDown", scrollDown);
 
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
@@ -321,7 +332,7 @@ void View::contextMenuEvent(QContextMenuEvent *event)
     if (QGraphicsItem *item = itemAt(position)) {
         page = qgraphicsitem_cast<Page *>(item);
         QMenu *menu = new QMenu();
-        menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [ = ] {
+        menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [=] {
             emit addBookmark(page->number());
         });
         menu->popup(event->globalPos());
