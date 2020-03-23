@@ -52,11 +52,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     init();
     setupActions();
-    setupGUI(QSize(1280, 720), Default, "mangareaderui.rc");
+    setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, "mangareaderui.rc");
 
-    showToolBars();
-    menuBar()->show();
-    statusBar()->hide();
+    if (MangaReaderSettings::mainToolBarVisible())
+        showToolBars();
+    if (MangaReaderSettings::menuBarVisible())
+        menuBar()->show();
 
     if (m_treeDock->property("isEmpty").toBool()) {
         m_treeDock->setVisible(false);
@@ -70,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent)
         m_bookmarksDock->setVisible(true);
     }
 
+    connect(toolBar("mainToolBar"), &QToolBar::visibilityChanged,
+            this, &MainWindow::setToolBarVisible);
     connect(qApp, &QApplication::aboutToQuit, this, [=]() {
         this->~MainWindow();
     });
@@ -393,8 +396,14 @@ void MainWindow::openMangaFolder()
 
 void MainWindow::loadImages(QString path, bool recursive, bool updateCurrentPath)
 {
+    // when opening an archive the files are extracted
+    // to a temporary folder which is used to load the images from
+    // m_currentPath should not be set to this temporary folder
+    // m_currentPath is the file/folder opened by the user
     if (updateCurrentPath)
         m_currentPath = path;
+    const QFileInfo currentPathInfo(m_currentPath);
+    setWindowTitle(currentPathInfo.fileName());
 
     m_isLoadedRecursive = recursive;
     const QFileInfo fileInfo(path);
@@ -527,7 +536,22 @@ void MainWindow::setupActions()
 
 void MainWindow::toggleMenubar()
 {
-    menuBar()->isHidden() ? menuBar()->show() : menuBar()->hide();
+    if (menuBar()->isVisible()) {
+        menuBar()->hide();
+        MangaReaderSettings::setMenuBarVisible(false);
+    } else {
+        menuBar()->show();
+        MangaReaderSettings::setMenuBarVisible(true);
+    }
+    MangaReaderSettings::self()->save();
+}
+
+void MainWindow::setToolBarVisible(bool visible)
+{
+    QToolBar *tb = toolBar("mainToolBar");
+    tb->setVisible(visible);
+    MangaReaderSettings::setMainToolBarVisible(visible);
+    MangaReaderSettings::self()->save();
 }
 
 QMenu *MainWindow::populateMangaFoldersMenu()
@@ -1056,8 +1080,10 @@ void MainWindow::toggleFullScreen()
     if (isFullScreen()) {
         setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
         setWindowState(windowState() & ~Qt::WindowFullScreen);
-        showToolBars();
-        menuBar()->show();
+        if (MangaReaderSettings::mainToolBarVisible())
+            showToolBars();
+        if (MangaReaderSettings::menuBarVisible())
+            menuBar()->show();
 
         showDockWidgets();
         int treeDockHeight = m_treeDock->property("h").toInt();

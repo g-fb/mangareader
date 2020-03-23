@@ -81,6 +81,7 @@ private:
     void deleteBookmarks(QTableView *tableView);
     void openSettings();
     void toggleMenubar();
+    void toggleToolBar();
     bool isFullScreen();
     void renameFile();
     QMenu *populateMangaFoldersMenu();
@@ -109,6 +110,7 @@ private:
     int                 m_startPage{ 0 };
     bool                m_isLoadedRecursive = false;
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
+    void setToolBarVisible(bool visible);
 };
 
 #endif // MAINWINDOW_H

@@ -29,5 +29,14 @@
         <entry name="MangaFolders" type="PathList">
             <label>Manga folders.</label>
         </entry>
+
+        <entry name="MenuBarVisible" type="bool">
+            <label>MenuBarVisible.</label>
+            <default>true</default>
+        </entry>
+        <entry name="MainToolBarVisible" type="bool">
+            <label>MainToolBarVisible.</label>
+            <default>true</default>
+        </entry>
     </group>
 </kcfg>
