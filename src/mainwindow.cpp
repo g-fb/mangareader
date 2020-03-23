@@ -117,7 +117,8 @@ void MainWindow::init()
     connect(m_view, &View::mouseMoved,
             this, &MainWindow::onMouseMoved);
     connect(m_view, &View::addBookmark, this, [=]() {
-        m_bookmarksDock->setVisible(true);
+        if (!isFullScreen())
+            m_bookmarksDock->setVisible(true);
         m_bookmarksDock->setProperty("isEmpty", false);
     });
     centralWidget()->layout()->addWidget(m_view);
@@ -548,6 +549,9 @@ void MainWindow::toggleMenubar()
 
 void MainWindow::setToolBarVisible(bool visible)
 {
+    if (isFullScreen())
+        return;
+
     QToolBar *tb = toolBar("mainToolBar");
     tb->setVisible(visible);
     MangaReaderSettings::setMainToolBarVisible(visible);

@@ -11,6 +11,7 @@
             <Action name="openMangaFolder" />
             <Action name="openMangaArchive" />
             <Action name="addMangaFolder" />
+            <Separator />
             <Action name="file_quit" />
         </Menu>
     </MenuBar>
