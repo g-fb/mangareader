@@ -526,6 +526,16 @@ void MainWindow::setupActions()
     goToAction->setText(i18n("Go To Page"));
     actionCollection()->addAction("goToPage", goToAction);
 
+    auto resetZoom = new QAction();
+    resetZoom->setText(i18n("Zoom Reset"));
+    resetZoom->setIcon(QIcon::fromTheme("view-zoom-original-symbolic"));
+    connect(resetZoom, &QAction::triggered,
+            m_view, &View::zoomReset);
+    actionCollection()->setDefaultShortcut(resetZoom, Qt::CTRL + Qt::Key_0);
+    actionCollection()->addAction("resetZoom", resetZoom);
+
+    KStandardAction::zoomIn(m_view, &View::zoomIn, actionCollection());
+    KStandardAction::zoomOut(m_view, &View::zoomOut, actionCollection());
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
     KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
     KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
@@ -1042,7 +1052,7 @@ void MainWindow::openSettings()
     m_settingsWidget->kcfg_MangaFolders->layout()->addWidget(widget);
 
     connect(dialog, &KConfigDialog::settingsChanged,
-            m_view, &View::onSettingsChanged);
+            m_view, &View::refreshPages);
 
     connect(m_settingsWidget->selectExtractionFolder, &QPushButton::clicked, this, [=]() {
         QString path = QFileDialog::getExistingDirectory(

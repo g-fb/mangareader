@@ -52,12 +52,17 @@ public slots:
     void onImageReady(QImage image, int number);
     void onImageResized(QImage image, int number);
     void onScrollBarRangeChanged(int x, int y);
-    void onSettingsChanged();
+    void refreshPages();
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
 
 private:
     void resizeEvent(QResizeEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void createPages();
     void calculatePageSizes();
@@ -75,9 +80,10 @@ private:
     QVector<int>     m_start;
     QVector<int>     m_end;
     QVector<int>     m_requestedPages;
+    int              m_startPage = 0;
     int              m_firstVisible = -1;
     float            m_firstVisibleOffset = 0.0f;
-    int              m_startPage = 0;
+    double           m_globalZoom = 1.0;
 };
 
 #endif // VIEW_H

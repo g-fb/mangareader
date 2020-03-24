@@ -14,6 +14,11 @@
             <Separator />
             <Action name="file_quit" />
         </Menu>
+        <Menu name="view" >
+            <Action name="view_zoom_in" />
+            <Action name="view_zoom_out" />
+            <Action name="resetZoom" />
+        </Menu>
     </MenuBar>
 
     <ToolBar name="mainToolBar" >
@@ -23,6 +28,9 @@
         <Action name="selectMangaFolder" />
         <Separator />
         <Action name="goToPage" />
+        <Separator />
+        <Action name="view_zoom_in" />
+        <Action name="view_zoom_out" />
         <Action name="spacer" />
         <Action name="fullscreen" />
         <Action name="file_quit" />

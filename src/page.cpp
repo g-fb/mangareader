@@ -56,6 +56,16 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     }
 }
 
+double Page::zoom() const
+{
+    return m_zoom;
+}
+
+void Page::setZoom(double zoom)
+{
+    m_zoom = zoom;
+}
+
 QRectF Page::boundingRect() const
 {
     return QRectF(0.0f, 0.0f, m_scaledSize.width(), m_scaledSize.height());
@@ -129,6 +139,12 @@ void Page::calculateScaledSize()
             m_ratio = wRatio;
             m_scaledSize = QSize(viewWidth, imageHeight * wRatio);
         }
+    }
+
+    if (m_zoom != 1.0) {
+        m_ratio = static_cast<double>(m_scaledSize.width() * m_zoom) / imageWidth;
+        m_scaledSize = QSize(m_scaledSize.width() * m_zoom,
+                             m_scaledSize.height() * m_zoom);
     }
 }
 

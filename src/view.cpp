@@ -23,7 +23,6 @@
 #include "settings.h"
 
 #include <KActionCollection>
-#include <KToolBar>
 #include <KXMLGUIFactory>
 
 #include <QMenu>
@@ -42,7 +41,7 @@ View::View(MainWindow *parent)
     collection->addAssociatedWidget(this);
 
     auto scrollUp = new QAction(i18n("Scroll Up"));
-    scrollUp->setShortcut(Qt::Key_Up);
+    collection->setDefaultShortcut(scrollUp, Qt::Key_Up);
     scrollUp->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollUp, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
@@ -51,7 +50,7 @@ View::View(MainWindow *parent)
     });
 
     auto scrollDown = new QAction(i18n("Scroll Down"));
-    scrollDown->setShortcut(Qt::Key_Down);
+    collection->setDefaultShortcut(scrollDown, Qt::Key_Down);
     scrollDown->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollDown, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
@@ -112,6 +111,24 @@ void View::goToPage(int number)
 void View::setStartPage(int number)
 {
     m_startPage = number;
+}
+
+void View::zoomIn()
+{
+    m_globalZoom += 0.1;
+    refreshPages();
+}
+
+void View::zoomOut()
+{
+    m_globalZoom -= 0.1;
+    refreshPages();
+}
+
+void View::zoomReset()
+{
+    m_globalZoom = 1.0;
+    refreshPages();
 }
 
 void View::createPages()
@@ -281,7 +298,7 @@ void View::onScrollBarRangeChanged(int x, int y)
     }
 }
 
-void View::onSettingsChanged()
+void View::refreshPages()
 {
     // clear requested pages so they are resized too
     m_requestedPages.clear();
@@ -289,6 +306,7 @@ void View::onSettingsChanged()
 
     if (maximumWidth() != MangaReaderSettings::maxWidth()) {
         for (Page *page: m_pages) {
+            page->setZoom(m_globalZoom);
             if (!page->isImageDeleted()) {
                 page->deleteImage();
             }
@@ -317,12 +335,57 @@ void View::resizeEvent(QResizeEvent *e)
 void View::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
+    if (event->button() != Qt::LeftButton)
+        return;
+
     emit doubleClicked();
+}
+
+void View::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::MiddleButton)
+        return;
+
+    QPoint position = mapFromGlobal(event->globalPos());
+    Page *page;
+    if (QGraphicsItem *item = itemAt(position)) {
+        page = qgraphicsitem_cast<Page *>(item);
+        // zoom single page only if global zoom
+        // is less than the max single page zoom
+        if (m_globalZoom < 1.3) {
+            if (page->zoom() <= m_globalZoom) {
+                // zoom in
+                page->setZoom(1.3);
+                page->redrawImage();
+            } else {
+                // zoom out
+                page->setZoom(m_globalZoom);
+                page->redrawImage();
+            }
+        }
+    }
+    calculatePageSizes();
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
 {
     emit mouseMoved(event);
+}
+
+void View::wheelEvent(QWheelEvent *event)
+{
+    if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+        if (event->angleDelta().y() > 0 && m_globalZoom < 2.0) {
+            // zoom in, max x2
+            zoomIn();
+        }
+        if (event->angleDelta().y() < 0 && m_globalZoom > 1.0) {
+            // zoom out, not smaller that the initial size
+            zoomOut();
+        }
+    } else {
+        QGraphicsView::wheelEvent(event);
+    }
 }
 
 void View::contextMenuEvent(QContextMenuEvent *event)
@@ -332,6 +395,7 @@ void View::contextMenuEvent(QContextMenuEvent *event)
     if (QGraphicsItem *item = itemAt(position)) {
         page = qgraphicsitem_cast<Page *>(item);
         QMenu *menu = new QMenu();
+        menu->addSection(i18n("Page %1").arg(page->number() + 1));
         menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [=] {
             emit addBookmark(page->number());
         });

@@ -41,6 +41,9 @@ public:
     bool isImageDeleted() const;
     int number();
 
+    double zoom() const;
+    void setZoom(double zoom);
+
 private:
     void calculateScaledSize();
     void calculateSourceSize();
@@ -53,6 +56,7 @@ private:
     QSize    m_sourceSize;
     int      m_number;
     int      m_maxWidth;
+    double   m_zoom = 1.0;
     double   m_ratio;
     QPixmap *m_pixmap = nullptr;
     QImage  *m_image = nullptr;
