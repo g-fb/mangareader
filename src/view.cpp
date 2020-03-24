@@ -30,8 +30,7 @@
 #include <QScrollBar>
 
 View::View(MainWindow *parent)
-    : QGraphicsView(parent)
-    , KXMLGUIClient()
+    : QGraphicsView{ parent }
 {
     KXMLGUIClient::setComponentName(QStringLiteral("View"), i18n("View"));
     parent->guiFactory()->addClient(this);
@@ -83,7 +82,7 @@ View::View(MainWindow *parent)
             this, &View::onScrollBarRangeChanged);
 }
 
-int View::imageCount()
+auto View::imageCount() -> int
 {
     return m_images.count();
 }
@@ -220,7 +219,7 @@ void View::setPagesVisibility()
 //    const int vy2 = vy1 + viewport()->height();
 
     m_firstVisible = -1;
-    m_firstVisibleOffset = 0.0f;
+    m_firstVisibleOffset = 0.0F;
 
     for (int i = 0; i < m_pages.count(); i++) {
         // page is visible on the screen but its image not loaded
@@ -233,7 +232,7 @@ void View::setPagesVisibility()
             if (m_firstVisible < 0) {
                 m_firstVisible = pageNumber;
                 // hidden portion (%) of page
-                m_firstVisibleOffset = static_cast<float>(vy1 - m_start[pageNumber]) / page->scaledSize().height();
+                m_firstVisibleOffset = static_cast<float>(vy1 - m_start[pageNumber]) / static_cast<float>(page->scaledSize().height());
             }
         } else {
             // page is not visible but its image is loaded
@@ -273,7 +272,7 @@ void View::addRequest(int number)
     emit requestPage(number);
 }
 
-bool View::hasRequest(int number) const
+auto View::hasRequest(int number) const -> bool
 {
     return m_requestedPages.indexOf(number) >= 0;
 }
@@ -286,7 +285,7 @@ void View::delRequest(int number)
     }
 }
 
-void View::onImageReady(QImage image, int number)
+void View::onImageReady(const QImage &image, int number)
 {
     m_pages.at(number)->setImage(image);
     calculatePageSizes();
@@ -297,7 +296,7 @@ void View::onImageReady(QImage image, int number)
     setPagesVisibility();
 }
 
-void View::onImageResized(QImage image, int number)
+void View::onImageResized(const QImage &image, int number)
 {
     m_pages.at(number)->redraw(image);
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
@@ -309,7 +308,7 @@ void View::onScrollBarRangeChanged(int x, int y)
     Q_UNUSED(y)
     if (m_firstVisible >= 0)
     {
-        int pageHeight = (m_end[m_firstVisible] - m_start[m_firstVisible]);
+        auto pageHeight = static_cast<float>(m_end[m_firstVisible] - m_start[m_firstVisible]);
         int offset = m_start[m_firstVisible] + static_cast<int>(m_firstVisibleOffset * pageHeight);
         verticalScrollBar()->setValue(offset);
     }
@@ -333,7 +332,7 @@ void View::refreshPages()
     setPagesVisibility();
 }
 
-bool View::isInView(int imgTop, int imgBot)
+auto View::isInView(int imgTop, int imgBot) -> bool
 {
     const int vy1 = verticalScrollBar()->value();
     const int vy2 = vy1 + viewport()->height();
@@ -399,7 +398,7 @@ void View::contextMenuEvent(QContextMenuEvent *event)
     Page *page;
     if (QGraphicsItem *item = itemAt(position)) {
         page = qgraphicsitem_cast<Page *>(item);
-        QMenu *menu = new QMenu();
+        auto menu = new QMenu();
         menu->addSection(i18n("Page %1").arg(page->number() + 1));
 
         QString zoomActionText = page->zoom() == 1.0
@@ -426,12 +425,12 @@ void View::scrollContentsBy(int dx, int dy)
     setPagesVisibility();
 }
 
-void View::setManga(QString manga)
+void View::setManga(const QString &manga)
 {
     m_manga = manga;
 }
 
-void View::setImages(QStringList images)
+void View::setImages(const QStringList &images)
 {
     m_images = images;
 }

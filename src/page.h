@@ -35,27 +35,26 @@ public:
     void redraw(const QImage &image);
     void deleteImage();
     void setEstimatedSize(QSize estimatedSize);
-    QSize estimatedSize();
-    QSize scaledSize();
-    QSize sourceSize();
-    bool isImageDeleted() const;
-    int number();
-
-    double zoom() const;
+    auto estimatedSize() -> QSize;
+    auto scaledSize() -> QSize;
+    auto sourceSize() -> QSize;
+    auto isImageDeleted() const -> bool;
+    auto number() -> int;
+    auto zoom() const -> double;
     void setZoom(double zoom);
 
 private:
     void calculateScaledSize();
     void calculateSourceSize();
-    QRectF boundingRect() const override;
+    auto boundingRect() const -> QRectF override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
 
     View    *m_view;
     QSize    m_estimatedSize;
     QSize    m_scaledSize;
     QSize    m_sourceSize;
-    int      m_number;
     int      m_maxWidth;
+    int      m_number;
     double   m_zoom = 1.0;
     double   m_ratio;
     QPixmap *m_pixmap = nullptr;

@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
     const QStringList args = parser.positionalArguments();
 
-    MainWindow *w = new MainWindow();
+    auto w = new MainWindow();
     w->setWindowIcon(QIcon::fromTheme("mangareader"));
     w->show();
 
@@ -66,6 +66,6 @@ int main(int argc, char *argv[])
         w->loadImages(url.toLocalFile());
     }
 
-    return app.exec();
+    return QApplication::exec();
 }
 

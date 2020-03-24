@@ -33,10 +33,10 @@ class View : public QGraphicsView, public KXMLGUIClient
 public:
     View(MainWindow *parent);
     ~View() = default;
-    int imageCount();
+    auto imageCount() -> int;
     void reset();
-    void setManga(QString manga);
-    void setImages(QStringList images);
+    void setManga(const QString &manga);
+    void setImages(const QStringList &images);
     void loadImages();
     void goToPage(int number);
     void setStartPage(int number);
@@ -49,8 +49,8 @@ signals:
     void addBookmark(int number);
 
 public slots:
-    void onImageReady(QImage image, int number);
-    void onImageResized(QImage image, int number);
+    void onImageReady(const QImage &image, int number);
+    void onImageResized(const QImage &image, int number);
     void onScrollBarRangeChanged(int x, int y);
     void refreshPages();
     void zoomIn();
@@ -71,8 +71,8 @@ private:
     void scrollContentsBy(int dx, int dy) override;
     void addRequest(int number);
     void delRequest(int number);
-    bool hasRequest(int number) const;
-    bool isInView  (int imgTop, int imgBot);
+    auto hasRequest(int number) const -> bool;
+    auto isInView  (int imgTop, int imgBot) -> bool;
 
     QGraphicsScene  *m_scene;
     QString          m_manga;

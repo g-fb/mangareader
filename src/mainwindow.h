@@ -48,7 +48,6 @@ class MainWindow : public KXmlGuiWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    Qt::ToolBarArea mainToolBarArea();
 
     enum {
         IndexRole = Qt::UserRole,
@@ -57,9 +56,10 @@ public:
         RecursiveRole
     };
 
-    void loadImages(QString path, bool recursive = false, bool updateCurrentPath = true);
+    void loadImages(const QString& path, bool recursive = false, bool updateCurrentPath = true);
 
 private:
+    static void showError(const QString& error);
     void init();
     void setupMangaTreeDockWidget();
     void setupBookmarksDockWidget();
@@ -69,7 +69,7 @@ private:
     void openMangaFolder();
     void openMangaArchive();
     void toggleFullScreen();
-    void extractArchive(QString archivePath);
+    void extractArchive(const QString& archivePath);
     void treeViewContextMenu(QPoint point);
     void bookmarksViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
@@ -77,16 +77,15 @@ private:
     void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void onMouseMoved(QMouseEvent *event);
-    void onAddBookmark(int pageNumber);
+    void onAddBookmark(int pageIndex);
     void deleteBookmarks(QTableView *tableView);
     void openSettings();
     void toggleMenubar();
     void setToolBarVisible(bool visible);
-    bool isFullScreen();
-    void renameFile();
-    QMenu *populateMangaFoldersMenu();
+    auto isFullScreen() -> bool;
+    auto populateMangaFoldersMenu() -> QMenu *;
     void populateBookmarkModel();
-    void showError(QString error);
+    void renameFile();
 
     KSharedConfig::Ptr  m_config;
     QStringList         m_images;
@@ -97,18 +96,17 @@ private:
     QDockWidget        *m_bookmarksDock;
     QTableView         *m_bookmarksView;
     QStandardItemModel *m_bookmarksModel;
-    Worker             *m_worker;
-    QThread            *m_thread;
-    Qt::ToolBarArea     m_mainToolBarArea;
-    QMenu              *m_mangaFoldersMenu;
-    QProgressBar       *m_progressBar;
+    Worker             *m_worker{};
+    QThread            *m_thread{};
+    QMenu              *m_mangaFoldersMenu{};
+    QProgressBar       *m_progressBar{};
     QString             m_tmpFolder;
     QString             m_currentPath;
-    QAction            *m_selectMangaFolder;
-    SettingsWidget     *m_settingsWidget = nullptr;
-    QDialog            *m_renameDialog;
+    QAction            *m_selectMangaFolder{};
+    SettingsWidget     *m_settingsWidget{};
+    QDialog            *m_renameDialog{};
     int                 m_startPage{ 0 };
-    bool                m_isLoadedRecursive = false;
+    bool                m_isLoadedRecursive{ false };
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
 };
 

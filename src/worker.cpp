@@ -21,9 +21,9 @@
 #include <QImage>
 #include <QPainter>
 
-Worker* Worker::sm_worker = 0;
+Worker* Worker::sm_worker = nullptr;
 
-void Worker::setImages(QStringList images)
+void Worker::setImages(const QStringList &images)
 {
     m_images = images;
 }
@@ -58,7 +58,7 @@ void Worker::processImageResize(const QImage &image, const QSize& size, double r
     delete m_result;
 }
 
-Worker* Worker::instance()
+auto Worker::instance() -> Worker *
 {
     if (!sm_worker) {
         sm_worker = new Worker();

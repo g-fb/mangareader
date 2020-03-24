@@ -27,11 +27,14 @@
 #include <QStyleOptionGraphicsItem>
 
 Page::Page(int width, int height, int number, QGraphicsItem *parent)
-    : QGraphicsItem(parent)
-    , m_estimatedSize(width, height)
-    , m_scaledSize(0, 0)
-    , m_sourceSize(0, 0)
-    , m_number(number)
+    : QGraphicsItem{ parent }
+    , m_view{ nullptr }
+    , m_estimatedSize{ width, height }
+    , m_scaledSize{ 0, 0 }
+    , m_sourceSize{ 0, 0 }
+    , m_maxWidth{}
+    , m_number{ number }
+    , m_ratio{}
 {
 }
 
@@ -56,7 +59,7 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     }
 }
 
-double Page::zoom() const
+auto Page::zoom() const -> double
 {
     return m_zoom;
 }
@@ -66,12 +69,12 @@ void Page::setZoom(double zoom)
     m_zoom = zoom;
 }
 
-QRectF Page::boundingRect() const
+auto Page::boundingRect() const -> QRectF
 {
-    return QRectF(0.0f, 0.0f, m_scaledSize.width(), m_scaledSize.height());
+    return {0.0F, 0.0F, static_cast<qreal>(m_scaledSize.width()), static_cast<qreal>(m_scaledSize.height())};
 }
 
-bool Page::isImageDeleted() const
+auto Page::isImageDeleted() const -> bool
 {
     return m_pixmap == nullptr;
 }
@@ -102,7 +105,8 @@ void Page::redrawImage()
 
 void Page::calculateSourceSize()
 {
-    int totalWidth, totalHeight;
+    int totalWidth;
+    int totalHeight;
     if (!m_image) {
         totalWidth = m_estimatedSize.width();
         totalHeight = m_estimatedSize.height();
@@ -128,7 +132,7 @@ void Page::calculateScaledSize()
         } else {
             double wRatio = static_cast<double>(maxWidth) / imageWidth;
             m_ratio = wRatio;
-            m_scaledSize = QSize(maxWidth, imageHeight * wRatio);
+            m_scaledSize = QSize(maxWidth, static_cast<qint64>(imageHeight * wRatio));
         }
     } else {
         if (imageWidth < viewWidth) {
@@ -137,14 +141,14 @@ void Page::calculateScaledSize()
         } else {
             double wRatio = static_cast<double>(viewWidth) / imageWidth;
             m_ratio = wRatio;
-            m_scaledSize = QSize(viewWidth, imageHeight * wRatio);
+            m_scaledSize = QSize(viewWidth, static_cast<qint64>(imageHeight * wRatio));
         }
     }
 
     if (m_zoom != 1.0) {
         m_ratio = static_cast<double>(m_scaledSize.width() * m_zoom) / imageWidth;
-        m_scaledSize = QSize(m_scaledSize.width() * m_zoom,
-                             m_scaledSize.height() * m_zoom);
+        m_scaledSize = QSize(static_cast<qint64>(m_scaledSize.width() * m_zoom),
+                             static_cast<qint64>(m_scaledSize.height() * m_zoom));
     }
 }
 
@@ -174,22 +178,22 @@ void Page::setView(View *view)
     m_view = view;
 }
 
-int Page::number()
+auto Page::number() -> int
 {
     return m_number;
 }
 
-QSize Page::estimatedSize()
+auto Page::estimatedSize() -> QSize
 {
     return m_estimatedSize;
 }
 
-QSize Page::scaledSize()
+auto Page::scaledSize() -> QSize
 {
     return m_scaledSize;
 }
 
-QSize Page::sourceSize()
+auto Page::sourceSize() -> QSize
 {
     return m_sourceSize;
 }
