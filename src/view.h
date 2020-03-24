@@ -56,6 +56,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void zoomReset();
+    void togglePageZoom(Page *page);
 
 private:
     void resizeEvent(QResizeEvent *e) override;

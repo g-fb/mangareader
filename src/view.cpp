@@ -131,6 +131,23 @@ void View::zoomReset()
     refreshPages();
 }
 
+void View::togglePageZoom(Page *page)
+{
+    // zoom single page only if global zoom
+    // is less than the max single page zoom
+    if (m_globalZoom < 1.3) {
+        if (page->zoom() <= m_globalZoom) {
+            // zoom in
+            page->setZoom(1.3);
+            page->redrawImage();
+        } else {
+            // zoom out
+            page->setZoom(m_globalZoom);
+            page->redrawImage();
+        }
+    }
+}
+
 void View::createPages()
 {
     for (Page *page : m_pages) {
@@ -350,19 +367,7 @@ void View::mouseReleaseEvent(QMouseEvent *event)
     Page *page;
     if (QGraphicsItem *item = itemAt(position)) {
         page = qgraphicsitem_cast<Page *>(item);
-        // zoom single page only if global zoom
-        // is less than the max single page zoom
-        if (m_globalZoom < 1.3) {
-            if (page->zoom() <= m_globalZoom) {
-                // zoom in
-                page->setZoom(1.3);
-                page->redrawImage();
-            } else {
-                // zoom out
-                page->setZoom(m_globalZoom);
-                page->redrawImage();
-            }
-        }
+        togglePageZoom(page);
     }
     calculatePageSizes();
 }
@@ -396,6 +401,18 @@ void View::contextMenuEvent(QContextMenuEvent *event)
         page = qgraphicsitem_cast<Page *>(item);
         QMenu *menu = new QMenu();
         menu->addSection(i18n("Page %1").arg(page->number() + 1));
+
+        QString zoomActionText = page->zoom() == 1.0
+                ? i18n("Zoom In")
+                : i18n("Zoom Out");
+        QIcon zoomActionIcon = page->zoom() == 1.0
+                ? QIcon::fromTheme("zoom-in")
+                : QIcon::fromTheme("zoom-out");
+        menu->addAction(zoomActionIcon, zoomActionText, this, [=]() {
+            togglePageZoom(page);
+            calculatePageSizes();
+        });
+
         menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [=] {
             emit addBookmark(page->number());
         });
