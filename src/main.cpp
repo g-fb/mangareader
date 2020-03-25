@@ -30,22 +30,21 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     KLocalizedString::setApplicationDomain("mangareader");
-    KAboutData aboutData(
-        QStringLiteral("mangareader"),
-        i18n("Manga Reader"),
-        QStringLiteral("1.1.0"),
-        i18n("Manga reader for local files."),
-        KAboutLicense::GPL_V3,
-        i18n("(c) 2019"),
-        QStringLiteral(),
-        QStringLiteral("https://gitlab.com/g-fb/manga-reader"),
-        QStringLiteral("https://gitlab.com/g-fb/manga-reader/issues"));
 
+    KAboutData aboutData;
+    aboutData.setDisplayName(i18n("Manga Reader"));
+    aboutData.setComponentName(QStringLiteral("mangareader"));
+    aboutData.setVersion(QStringLiteral("1.1.0").toUtf8());
+    aboutData.setShortDescription(i18n("Manga reader for local files."));
+    aboutData.setLicense(KAboutLicense::GPL_V3);
+    aboutData.setCopyrightStatement(i18n("(c) 2019-2020"));
+    aboutData.setHomepage(QStringLiteral("https://gitlab.com/g-fb/manga-reader"));
+    aboutData.setBugAddress(QStringLiteral("https://gitlab.com/g-fb/manga-reader").toUtf8());
     aboutData.addAuthor(
         i18n("George Florea Bănuș"),
         i18n("Developer"),
         QStringLiteral("georgefb899@gmail.org"),
-        QStringLiteral("http://georgefb.com")
+        QStringLiteral("https://georgefb.com")
     );
     KAboutData::setApplicationData(aboutData);
 
