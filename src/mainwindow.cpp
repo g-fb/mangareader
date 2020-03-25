@@ -152,7 +152,6 @@ void MainWindow::setupMangaTreeDockWidget()
 
     m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
-    m_treeDock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_treeDock->setProperty("h", 0);
     m_treeDock->setProperty("isEmpty", true);
 
@@ -200,8 +199,6 @@ void MainWindow::setupBookmarksDockWidget()
     m_bookmarksDock->setObjectName("bookmarksDockWidget");
     m_bookmarksDock->setWindowTitle(i18n("Bookmarks"));
     m_bookmarksDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
-    m_bookmarksDock->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    m_bookmarksDock->setMinimumHeight(300);
     m_bookmarksDock->setProperty("h", 0);
     m_bookmarksDock->setProperty("isEmpty", true);
 
