@@ -43,12 +43,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bookmarksView{ new QTableView() }
     , m_bookmarksModel{ new QStandardItemModel(0, 2, this) }
 {
-    // setup central widget
-    auto centralWidget = new QWidget(this);
-    auto centralWidgetLayout = new QVBoxLayout(centralWidget);
-    centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
-    setCentralWidget(centralWidget);
-
     m_config = KSharedConfig::openConfig("mangareader/mangareader.conf");
 
     init();
@@ -57,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     if (MangaReaderSettings::mainToolBarVisible())
         showToolBars();
+
     if (MangaReaderSettings::menuBarVisible())
         menuBar()->show();
 
@@ -96,13 +91,21 @@ void MainWindow::init()
     setupRenameDialog();
 
     // ==================================================
+    // setup central widget
+    // ==================================================
+    auto mainWidget = new QWidget(this);
+    auto centralWidgetLayout = new QVBoxLayout(mainWidget);
+    centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
+    setCentralWidget(mainWidget);
+
+    // ==================================================
     // setup progress bar
     // ==================================================
     m_progressBar = new QProgressBar(this);
     m_progressBar->setMinimum(0);
     m_progressBar->setMaximum(100);
     m_progressBar->setVisible(false);
-    centralWidget()->layout()->addWidget(m_progressBar);
+    centralWidgetLayout->addWidget(m_progressBar);
 
     // ==================================================
     // setup view
@@ -116,7 +119,7 @@ void MainWindow::init()
             m_bookmarksDock->setVisible(true);
         m_bookmarksDock->setProperty("isEmpty", false);
     });
-    centralWidget()->layout()->addWidget(m_view);
+    centralWidgetLayout->addWidget(m_view);
 
     // ==================================================
     // setup thread and worker
