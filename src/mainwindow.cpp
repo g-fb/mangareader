@@ -449,6 +449,30 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
 
 void MainWindow::setupActions()
 {
+    auto focusMangaTree = new QAction();
+    focusMangaTree->setText(i18n("Focus Manga Tree"));
+    actionCollection()->addAction("focusTree", focusMangaTree);
+    actionCollection()->setDefaultShortcuts(focusMangaTree, {Qt::Key_N, Qt::CTRL + Qt::Key_N});
+    connect(focusMangaTree, &QAction::triggered, this, [=]() {
+        m_treeView->setFocus();
+    });
+
+    auto focusBookmarksTable = new QAction();
+    focusBookmarksTable->setText(i18n("Focus Manga Bookmarks"));
+    actionCollection()->addAction("focusBookmarksTable", focusBookmarksTable);
+    actionCollection()->setDefaultShortcuts(focusBookmarksTable, {Qt::Key_B, Qt::CTRL + Qt::Key_B});
+    connect(focusBookmarksTable, &QAction::triggered, this, [=]() {
+        m_bookmarksView->setFocus();
+    });
+
+    auto focusView = new QAction();
+    focusView->setText(i18n("Focus Manga Viewer"));
+    actionCollection()->addAction("focusView", focusView);
+    actionCollection()->setDefaultShortcuts(focusView, {Qt::Key_V, Qt::CTRL + Qt::Key_V});
+    connect(focusView, &QAction::triggered, this, [=]() {
+        m_view->setFocus();
+    });
+
     auto addMangaFolderAction = new QAction(this);
     addMangaFolderAction->setText(i18n("&Add Manga Folder"));
     addMangaFolderAction->setIcon(QIcon::fromTheme("folder-add"));
