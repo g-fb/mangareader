@@ -14,6 +14,28 @@
         <p>Manga reader for local files.</p>
     </description>
     <releases>
+        <release version="1.2.0" date="2020-03-25">
+            <description>
+                <p>Add zoom support.</p>
+                <ul>
+                    <li>middle click image to toggle zoom for that image</li>
+                    <li>ctrl + scroll up/down (or ctrl + +/-) to zoom in/out all images</li>
+                    <li>ctrl + 0 to reset zoom</li>
+                    <li>actions (menu bar and tool bar) to zoom in/out</li>
+                </ul>
+                <p>Use unrar to extract rar files.</p>
+                <p>Add actions to focus the manga tree, bookmaks table and manga view</p>
+                <ul>
+                    <li>manga tree 'ctrl+n' or 'n'</li>
+                    <li>bookmaks table 'ctrl+b' or 'b'</li>
+                    <li>manga view 'ctrl+v' or 'v'</li>
+                </ul>
+                <p>Open manga with enter from manga tree and bookmarks table.</p>
+                <p>Set open file/folder as window title.</p>
+                <p>Remember menu bar and tool bar visibility.</p>
+                <p>Fix manga tree and bookmarks table resizing when toggling to fullscreen and back.</p>
+            </description>
+        </release>
         <release version="1.1.0" date="2020-03-20">
             <description>
                 <p>Added rename option to the context menu of the tree view item.</p>

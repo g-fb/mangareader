@@ -399,7 +399,7 @@ void View::contextMenuEvent(QContextMenuEvent *event)
     if (QGraphicsItem *item = itemAt(position)) {
         page = qgraphicsitem_cast<Page *>(item);
         auto menu = new QMenu();
-        menu->addSection(i18n("Page %1").arg(page->number() + 1));
+        menu->addSection(i18n("Page %1", page->number() + 1));
 
         QString zoomActionText = page->zoom() == 1.0
                 ? i18n("Zoom In")
