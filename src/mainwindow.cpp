@@ -222,30 +222,8 @@ void MainWindow::setupBookmarksDockWidget()
         m_bookmarksDock->setProperty("isEmpty", false);
     }
 
-    auto action = new QAction();
-    action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
-    action->setShortcutContext(Qt::WidgetShortcut);
-    connect(action, &QAction::triggered, this, [=]() {
-        if (m_bookmarksView->selectionModel()->selectedRows().count() > 1) {
-            return;
-        }
-        QModelIndex index = m_bookmarksView->selectionModel()->selectedRows().first();
-        QString path = m_bookmarksModel->data(index, PathRole).toString();
-        loadImages(path);
-    });
-    m_bookmarksView->addAction(action);
-
-    connect(m_bookmarksModel, &QAbstractItemModel::rowsRemoved, this, [=]() {
-        if (m_bookmarksModel->rowCount() == 0) {
-            m_bookmarksDock->setVisible(false);
-            m_bookmarksDock->setProperty("isEmpty", true);
-        }
-    });
-
-    connect(m_bookmarksView, &QTableView::doubleClicked, this, [=](const QModelIndex &index) {
-        // get path from index
+    auto openBookmark = [=](const QModelIndex &index) {
         QModelIndex cellIndex = m_bookmarksModel->index(index.row(), 1);
-
         m_startPage  = m_bookmarksModel->data(cellIndex, IndexRole).toInt();
         QString path = m_bookmarksModel->data(cellIndex, PathRole).toString();
         QString key  = m_bookmarksModel->data(cellIndex, KeyRole).toString();
@@ -259,6 +237,29 @@ void MainWindow::setupBookmarksDockWidget()
         } else {
             loadImages(path);
         }
+    };
+
+    auto action = new QAction();
+    action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
+    action->setShortcutContext(Qt::WidgetShortcut);
+    connect(action, &QAction::triggered, this, [=]() {
+        if (m_bookmarksView->selectionModel()->selectedRows().count() > 1) {
+            return;
+        }
+        QModelIndex index = m_bookmarksView->selectionModel()->selectedRows().first();
+        openBookmark(index);
+    });
+    m_bookmarksView->addAction(action);
+
+    connect(m_bookmarksModel, &QAbstractItemModel::rowsRemoved, this, [=]() {
+        if (m_bookmarksModel->rowCount() == 0) {
+            m_bookmarksDock->setVisible(false);
+            m_bookmarksDock->setProperty("isEmpty", true);
+        }
+    });
+
+    connect(m_bookmarksView, &QTableView::doubleClicked, this, [=](const QModelIndex &index) {
+        openBookmark(index);
     });
 
     connect(m_bookmarksView, &QTableView::customContextMenuRequested,
