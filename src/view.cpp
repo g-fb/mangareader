@@ -150,6 +150,7 @@ void View::togglePageZoom(Page *page)
 void View::createPages()
 {
     for (Page *page : m_pages) {
+        page->deleteImage();
         delete page;
     }
     m_pages.clear();
