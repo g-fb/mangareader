@@ -57,8 +57,24 @@ View::View(MainWindow *parent)
         }
     });
 
+    auto nextPage = new QAction(i18n("Next Page"));
+    collection->setDefaultShortcut(nextPage, Qt::Key_Right);
+    nextPage->setShortcutContext(Qt::WidgetShortcut);
+    connect(nextPage, &QAction::triggered, this, [=]() {
+        goToPage(m_firstVisible + 1);
+    });
+
+    auto prevPage = new QAction(i18n("Previous Page"));
+    collection->setDefaultShortcut(prevPage, Qt::Key_Left);
+    prevPage->setShortcutContext(Qt::WidgetShortcut);
+    connect(prevPage, &QAction::triggered, this, [=]() {
+        goToPage(m_firstVisible - 1);
+    });
+
     collection->addAction("scrollUp", scrollUp);
     collection->addAction("scrollDown", scrollDown);
+    collection->addAction("nextPage", nextPage);
+    collection->addAction("prevPage", prevPage);
 
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
@@ -150,6 +166,7 @@ void View::togglePageZoom(Page *page)
 void View::createPages()
 {
     for (Page *page : m_pages) {
+        page->deleteImage();
         delete page;
     }
     m_pages.clear();
