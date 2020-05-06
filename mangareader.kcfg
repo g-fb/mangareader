@@ -38,5 +38,18 @@
             <label>MainToolBarVisible.</label>
             <default>true</default>
         </entry>
+
+        <entry name="FitHeight" type="bool">
+            <label>Fit height to view.</label>
+            <default>false</default>
+        </entry>
+        <entry name="FitWidth" type="bool">
+            <label>Fit witdth to view.</label>
+            <default>true</default>
+        </entry>
+        <entry name="UpScale" type="bool">
+            <label>Scale image up if it does not fill the limits.</label>
+            <default>true</default>
+        </entry>
     </group>
 </kcfg>

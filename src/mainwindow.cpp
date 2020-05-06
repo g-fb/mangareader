@@ -556,6 +556,24 @@ void MainWindow::setupActions()
     actionCollection()->setDefaultShortcut(resetZoom, Qt::CTRL + Qt::Key_0);
     actionCollection()->addAction("resetZoom", resetZoom);
 
+    auto fitToHeightAction = new QAction();
+    fitToHeightAction->setText(i18n("Fit height"));
+    fitToHeightAction->setIcon(QIcon::fromTheme("fitheight"));
+    fitToHeightAction->setCheckable(true);
+    fitToHeightAction->setChecked(MangaReaderSettings::fitHeight());
+    connect(fitToHeightAction, &QAction::triggered,
+            this, &MainWindow::toggleFitHeight);
+    actionCollection()->addAction("fitToHeightAction", fitToHeightAction);
+
+    auto fitToWidthAction = new QAction();
+    fitToWidthAction->setText(i18n("Fit width"));
+    fitToWidthAction->setIcon(QIcon::fromTheme("fitwidth"));
+    fitToWidthAction->setCheckable(true);
+    fitToWidthAction->setChecked(MangaReaderSettings::fitWidth());
+    connect(fitToWidthAction, &QAction::triggered,
+            this, &MainWindow::toggleFitWidth);
+    actionCollection()->addAction("fitToWidthAction", fitToWidthAction);
+
     KStandardAction::zoomIn(m_view, &View::zoomIn, actionCollection());
     KStandardAction::zoomOut(m_view, &View::zoomOut, actionCollection());
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
@@ -588,6 +606,20 @@ void MainWindow::setToolBarVisible(bool visible)
     tb->setVisible(visible);
     MangaReaderSettings::setMainToolBarVisible(visible);
     MangaReaderSettings::self()->save();
+}
+
+void MainWindow::toggleFitHeight()
+{
+    MangaReaderSettings::setFitHeight(!MangaReaderSettings::fitHeight());
+    MangaReaderSettings::self()->save();
+    m_view->zoomReset();
+}
+
+void MainWindow::toggleFitWidth()
+{
+    MangaReaderSettings::setFitWidth(!MangaReaderSettings::fitWidth());
+    MangaReaderSettings::self()->save();
+    m_view->zoomReset();
 }
 
 auto MainWindow::populateMangaFoldersMenu() -> QMenu *
