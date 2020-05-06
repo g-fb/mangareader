@@ -59,6 +59,16 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     }
 }
 
+bool Page::isZoomToggled() const
+{
+    return m_isZoomToggled;
+}
+
+void Page::setIsZoomToggled(bool isZoomToggled)
+{
+    m_isZoomToggled = isZoomToggled;
+}
+
 auto Page::zoom() const -> double
 {
     return m_zoom;

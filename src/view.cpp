@@ -152,19 +152,14 @@ void View::zoomReset()
 
 void View::togglePageZoom(Page *page)
 {
-    // zoom single page only if global zoom
-    // is less than the max single page zoom
-    if (m_globalZoom < 1.3) {
-        if (page->zoom() <= m_globalZoom) {
-            // zoom in
-            page->setZoom(1.3);
-            page->redrawImage();
-        } else {
-            // zoom out
-            page->setZoom(m_globalZoom);
-            page->redrawImage();
-        }
+    if (page->isZoomToggled()) {
+        auto zoom = page->zoom() < 1.3 ? 1.0 : page->zoom() - 0.3;
+        page->setZoom(zoom);
+    } else {
+        page->setZoom(page->zoom() + 0.3);
     }
+    page->setIsZoomToggled(!page->isZoomToggled());
+    page->redrawImage();
 }
 
 void View::createPages()
@@ -422,12 +417,12 @@ void View::contextMenuEvent(QContextMenuEvent *event)
         auto menu = new QMenu();
         menu->addSection(i18n("Page %1", page->number() + 1));
 
-        QString zoomActionText = page->zoom() == 1.0
-                ? i18n("Zoom In")
-                : i18n("Zoom Out");
-        QIcon zoomActionIcon = page->zoom() == 1.0
-                ? QIcon::fromTheme("zoom-in")
-                : QIcon::fromTheme("zoom-out");
+        QString zoomActionText = page->isZoomToggled()
+                ? i18n("Zoom Out")
+                : i18n("Zoom In");
+        QIcon zoomActionIcon = page->isZoomToggled()
+                ? QIcon::fromTheme("zoom-out")
+                : QIcon::fromTheme("zoom-in");
         menu->addAction(zoomActionIcon, zoomActionText, this, [=]() {
             togglePageZoom(page);
             calculatePageSizes();

@@ -43,6 +43,9 @@ public:
     auto zoom() const -> double;
     void setZoom(double zoom);
 
+    bool isZoomToggled() const;
+    void setIsZoomToggled(bool isZoomToggled);
+
 private:
     void calculateScaledSize();
     void calculateSourceSize();
@@ -56,6 +59,7 @@ private:
     int      m_maxWidth;
     int      m_number;
     double   m_zoom = 1.0;
+    bool     m_isZoomToggled {false};
     double   m_ratio;
     QPixmap *m_pixmap = nullptr;
     QImage  *m_image = nullptr;
