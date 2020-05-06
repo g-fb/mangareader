@@ -61,14 +61,18 @@ View::View(MainWindow *parent)
     collection->setDefaultShortcut(nextPage, Qt::Key_Right);
     nextPage->setShortcutContext(Qt::WidgetShortcut);
     connect(nextPage, &QAction::triggered, this, [=]() {
-        goToPage(m_firstVisible + 1);
+        if (m_firstVisible < m_pages.count() - 1) {
+            goToPage(m_firstVisible + 1);
+        }
     });
 
     auto prevPage = new QAction(i18n("Previous Page"));
     collection->setDefaultShortcut(prevPage, Qt::Key_Left);
     prevPage->setShortcutContext(Qt::WidgetShortcut);
     connect(prevPage, &QAction::triggered, this, [=]() {
-        goToPage(m_firstVisible - 1);
+        if (m_firstVisible > 0) {
+            goToPage(m_firstVisible - 1);
+        }
     });
 
     collection->addAction("scrollUp", scrollUp);

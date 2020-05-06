@@ -31,6 +31,8 @@
         <Separator />
         <Action name="view_zoom_in" />
         <Action name="view_zoom_out" />
+        <Action name="fitToHeightAction" />
+        <Action name="fitToWidthAction" />
         <Action name="spacer" />
         <Action name="fullscreen" />
         <Action name="file_quit" />

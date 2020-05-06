@@ -120,30 +120,29 @@ void Page::calculateSourceSize()
 void Page::calculateScaledSize()
 {
     int maxWidth = MangaReaderSettings::maxWidth();
+    bool fitWidth = MangaReaderSettings::fitWidth();
+    bool fitHeight = MangaReaderSettings::fitHeight();
+    bool upScale = MangaReaderSettings::upScale();
     int viewWidth = m_view->width() - (m_view->verticalScrollBar()->width() + 10);
+    int viewHeight = m_view->height();
     int imageWidth = m_sourceSize.width();
     int imageHeight = m_sourceSize.height();
 
-    m_scaledSize = QSize(imageWidth, imageHeight);
-    if (viewWidth > maxWidth) {
-        if (imageWidth < maxWidth) {
-            m_ratio = 1.0;
-            m_scaledSize = QSize(imageWidth, imageHeight);
-        } else {
-            double wRatio = static_cast<double>(maxWidth) / imageWidth;
-            m_ratio = wRatio;
-            m_scaledSize = QSize(maxWidth, static_cast<qint64>(imageHeight * wRatio));
-        }
+    int width = viewWidth < maxWidth ? viewWidth : maxWidth;
+
+    if (fitHeight || fitWidth) {
+        double hRatio = fitHeight ? static_cast<double>(viewHeight) / imageHeight : 9999.0;
+        double wRatio = fitWidth ? static_cast<double>(width) / imageWidth : 9999.0;
+        m_ratio = hRatio < wRatio ? hRatio : wRatio;
     } else {
-        if (imageWidth < viewWidth) {
-            m_ratio = 1.0;
-            m_scaledSize = QSize(imageWidth, imageHeight);
-        } else {
-            double wRatio = static_cast<double>(viewWidth) / imageWidth;
-            m_ratio = wRatio;
-            m_scaledSize = QSize(viewWidth, static_cast<qint64>(imageHeight * wRatio));
-        }
+        m_ratio = 1.0;
     }
+
+    if (m_ratio > 1.0 && !upScale) {
+        m_ratio = 1.0;
+    }
+
+    m_scaledSize = QSize(static_cast<qint64>(imageWidth * m_ratio), static_cast<qint64>(imageHeight * m_ratio));
 
     if (m_zoom != 1.0) {
         m_ratio = static_cast<double>(m_scaledSize.width() * m_zoom) / imageWidth;

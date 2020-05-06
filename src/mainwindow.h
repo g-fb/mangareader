@@ -82,6 +82,8 @@ private:
     void openSettings();
     void toggleMenubar();
     void setToolBarVisible(bool visible);
+    void toggleFitHeight();
+    void toggleFitWidth();
     auto isFullScreen() -> bool;
     auto populateMangaFoldersMenu() -> QMenu *;
     void populateBookmarkModel();
