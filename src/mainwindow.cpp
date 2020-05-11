@@ -520,9 +520,9 @@ void MainWindow::setupActions()
     actionCollection()->addAction("spacer", spacerAction);
 
     auto goToLayout = new QHBoxLayout();
+    goToLayout->setSpacing(0);
     auto goTowidget = new QWidget();
     goTowidget->setLayout(goToLayout);
-    auto goToLabel = new QLabel(i18n("Go to page"));
     auto goToSpinBox = new QSpinBox();
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
@@ -535,13 +535,12 @@ void MainWindow::setupActions()
         goToSpinBox->setRange(1, m_view->imageCount());
     });
     auto goToButton = new QToolButton();
-    goToButton->setText(i18n("Go"));
+    goToButton->setText(i18n("Go to page"));
     connect(goToButton, &QToolButton::clicked, this, [=]() {
         m_view->goToPage(goToSpinBox->value() - 1);
     });
-    goToLayout->addWidget(goToLabel);
-    goToLayout->addWidget(goToSpinBox);
     goToLayout->addWidget(goToButton);
+    goToLayout->addWidget(goToSpinBox);
 
     auto goToAction = new QWidgetAction(this);
     goToAction->setDefaultWidget(goTowidget);
@@ -558,7 +557,11 @@ void MainWindow::setupActions()
 
     auto fitToHeightAction = new QAction();
     fitToHeightAction->setText(i18n("Fit height"));
-    fitToHeightAction->setIcon(QIcon::fromTheme("fitheight"));
+    fitToHeightAction->setToolTip(i18n("Image height is resized to view's height.\n"
+                                       "If the image height is smaller than the view height\n"
+                                       "the image will only be upscaled if the scale up setting is enabled."));
+    QIcon fallbackIcon = QIcon::fromTheme("zoom-fit-height");
+    fitToHeightAction->setIcon(QIcon::fromTheme("fitheight", fallbackIcon));
     fitToHeightAction->setCheckable(true);
     fitToHeightAction->setChecked(MangaReaderSettings::fitHeight());
     connect(fitToHeightAction, &QAction::triggered,
@@ -567,7 +570,12 @@ void MainWindow::setupActions()
 
     auto fitToWidthAction = new QAction();
     fitToWidthAction->setText(i18n("Fit width"));
-    fitToWidthAction->setIcon(QIcon::fromTheme("fitwidth"));
+    fitToWidthAction->setToolTip(i18n("Image width is resized to max width setting.\n"
+                                      "If the image width is smaller than the max width\n"
+                                      "the image will only be upscaled if the scale up setting is enabled.\n"
+                                      "Set max width to 9999 to have the image fill all available space."));
+    fallbackIcon = QIcon::fromTheme("zoom-fit-width");
+    fitToWidthAction->setIcon(QIcon::fromTheme("fitwidth", fallbackIcon));
     fitToWidthAction->setCheckable(true);
     fitToWidthAction->setChecked(MangaReaderSettings::fitWidth());
     connect(fitToWidthAction, &QAction::triggered,

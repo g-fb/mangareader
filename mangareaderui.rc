@@ -23,7 +23,6 @@
 
     <ToolBar name="mainToolBar" >
         <text>Main Toolbar</text>
-        <Action name="options_configure" />
         <Action name="addMangaFolder" />
         <Action name="selectMangaFolder" />
         <Separator />
@@ -31,6 +30,7 @@
         <Separator />
         <Action name="view_zoom_in" />
         <Action name="view_zoom_out" />
+        <Separator />
         <Action name="fitToHeightAction" />
         <Action name="fitToWidthAction" />
         <Action name="spacer" />
