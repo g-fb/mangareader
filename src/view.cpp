@@ -165,10 +165,7 @@ void View::togglePageZoom(Page *page)
 
 void View::createPages()
 {
-    for (Page *page : m_pages) {
-        page->deleteImage();
-        delete page;
-    }
+    qDeleteAll(m_pages);
     m_pages.clear();
     m_start.clear();
     m_end.clear();
@@ -176,16 +173,14 @@ void View::createPages()
     m_end.resize(m_images.count());
 
     // create page for each image
-    if (m_images.count() > 0) {
-        for (int i = 0; i < m_images.count(); i++) {
+    for (int i = 0; i < m_images.count(); i++) {
 
-            QImageReader imageReader(m_images[i]);
-            Page *p = new Page(imageReader.size(), i);
-            p->setView(this);
+        QImageReader imageReader(m_images[i]);
+        Page *p = new Page(imageReader.size(), i);
+        p->setView(this);
 
-            m_pages.append(p);
-            m_scene->addItem(p);
-        }
+        m_pages.append(p);
+        m_scene->addItem(p);
     }
 }
 

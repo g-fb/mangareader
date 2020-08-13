@@ -27,7 +27,7 @@ class Page : public QGraphicsItem
 {
 public:
     Page(QSize sourceSize, int number, QGraphicsItem *parent = nullptr);
-    ~Page() = default;
+    ~Page();
     void setView(View *view);
     void setMaxWidth(int maxWidth);
     void setImage(const QImage &image);

@@ -37,6 +37,11 @@ Page::Page(QSize sourceSize, int number, QGraphicsItem *parent)
 {
 }
 
+Page::~Page()
+{
+    deleteImage();
+}
+
 void Page::setMaxWidth(int maxWidth)
 {
     m_maxWidth = maxWidth;
