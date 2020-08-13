@@ -81,6 +81,7 @@ View::View(MainWindow *parent)
     collection->addAction("nextPage", nextPage);
     collection->addAction("prevPage", prevPage);
 
+    setDragMode(QGraphicsView::ScrollHandDrag);
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
 
@@ -350,6 +351,8 @@ void View::mouseDoubleClickEvent(QMouseEvent *event)
 
 void View::mouseReleaseEvent(QMouseEvent *event)
 {
+    QGraphicsView::mouseReleaseEvent(event);
+
     if (event->button() != Qt::MiddleButton)
         return;
 
@@ -364,6 +367,8 @@ void View::mouseReleaseEvent(QMouseEvent *event)
 
 void View::mouseMoveEvent(QMouseEvent *event)
 {
+    QGraphicsView::mouseMoveEvent(event);
+
     emit mouseMoved(event);
 }
 
