@@ -26,16 +26,16 @@ class View;
 class Page : public QGraphicsItem
 {
 public:
-    Page(int width, int height, int number, QGraphicsItem *parent = nullptr);
+    Page(QSize sourceSize, int number, QGraphicsItem *parent = nullptr);
     ~Page() = default;
     void setView(View *view);
     void setMaxWidth(int maxWidth);
     void setImage(const QImage &image);
     void redrawImage();
+    void calculateScaledSize();
     void redraw(const QImage &image);
     void deleteImage();
-    void setEstimatedSize(QSize estimatedSize);
-    auto estimatedSize() -> QSize;
+    void setScaledSize(QSize size);
     auto scaledSize() -> QSize;
     auto sourceSize() -> QSize;
     auto isImageDeleted() const -> bool;
@@ -47,13 +47,10 @@ public:
     void setIsZoomToggled(bool isZoomToggled);
 
 private:
-    void calculateScaledSize();
-    void calculateSourceSize();
     auto boundingRect() const -> QRectF override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
 
     View    *m_view;
-    QSize    m_estimatedSize;
     QSize    m_scaledSize;
     QSize    m_sourceSize;
     int      m_maxWidth;

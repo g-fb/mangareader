@@ -26,12 +26,11 @@
 #include <QScrollBar>
 #include <QStyleOptionGraphicsItem>
 
-Page::Page(int width, int height, int number, QGraphicsItem *parent)
+Page::Page(QSize sourceSize, int number, QGraphicsItem *parent)
     : QGraphicsItem{ parent }
     , m_view{ nullptr }
-    , m_estimatedSize{ width, height }
     , m_scaledSize{ 0, 0 }
-    , m_sourceSize{ 0, 0 }
+    , m_sourceSize{ sourceSize }
     , m_maxWidth{}
     , m_number{ number }
     , m_ratio{}
@@ -106,25 +105,10 @@ void Page::setImage(const QImage &image)
 
 void Page::redrawImage()
 {
-    calculateSourceSize();
     calculateScaledSize();
     if (m_image) {
         Worker::instance()->processImageResize(*m_image, m_scaledSize, m_ratio, m_number);
     }
-}
-
-void Page::calculateSourceSize()
-{
-    int totalWidth;
-    int totalHeight;
-    if (!m_image) {
-        totalWidth = m_estimatedSize.width();
-        totalHeight = m_estimatedSize.height();
-    } else {
-        totalWidth = m_image->width();
-        totalHeight = m_image->height();
-    }
-    m_sourceSize = QSize(totalWidth, totalHeight);
 }
 
 void Page::calculateScaledSize()
@@ -177,11 +161,6 @@ void Page::redraw(const QImage &image)
     }
 }
 
-void Page::setEstimatedSize(QSize estimatedSize)
-{
-    m_estimatedSize = estimatedSize;
-}
-
 void Page::setView(View *view)
 {
     m_view = view;
@@ -192,9 +171,9 @@ auto Page::number() -> int
     return m_number;
 }
 
-auto Page::estimatedSize() -> QSize
+void Page::setScaledSize(QSize size)
 {
-    return m_estimatedSize;
+    m_scaledSize = size;
 }
 
 auto Page::scaledSize() -> QSize

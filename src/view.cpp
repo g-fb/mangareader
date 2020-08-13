@@ -25,6 +25,7 @@
 #include <KActionCollection>
 #include <KXMLGUIFactory>
 
+#include <QImageReader>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
@@ -173,13 +174,15 @@ void View::createPages()
     m_end.clear();
     m_start.resize(m_images.count());
     m_end.resize(m_images.count());
-    int w = viewport()->width() - 10;
-    int h = viewport()->height() - 10;
+
     // create page for each image
     if (m_images.count() > 0) {
         for (int i = 0; i < m_images.count(); i++) {
-            Page *p = new Page(w, h, i);
+
+            QImageReader imageReader(m_images[i]);
+            Page *p = new Page(imageReader.size(), i);
             p->setView(this);
+
             m_pages.append(p);
             m_scene->addItem(p);
         }
@@ -188,44 +191,21 @@ void View::createPages()
 
 void View::calculatePageSizes()
 {
-    if (m_pages.count() > 0) {
-        int avgw = 0;
-        int avgh = 0;
-        int n = 0;
-        for (int i = 0; i < m_pages.count(); i++) {
-            // find loaded pages
-            Page *p = m_pages.at(i);
-            p->setMaxWidth(MangaReaderSettings::maxWidth());
-            if (p->scaledSize().width() > 0) {
-                const QSize s(p->scaledSize());
-                avgw += s.width();
-                avgh += s.height();
-                ++n;
-            }
-        }
-        if (n > 0) {
-            avgw /= n;
-            avgh /= n;
-        }
-        int y = 0;
+    int pageYCoordinate = 0;
+    for (int i = 0; i < m_pages.count(); i++) {
+        Page *p = m_pages.at(i);
+        p->calculateScaledSize();
 
-        for (int i = 0; i < m_pages.count(); i++) {
-            Page *p = m_pages.at(i);
-            if (n > 0 && !(p->scaledSize().width() > 0)) {
-                p->setEstimatedSize(QSize(avgw, avgh));
-                p->redrawImage();
-            }
-            p->setPos(0, y);
+        const int x = (viewport()->width() - p->scaledSize().width()) / 2;
+        p->setPos(x, pageYCoordinate);
 
-            const int x = (viewport()->width() - p->scaledSize().width()) / 2;
-            p->setPos(x, p->y());
+        int height = p->scaledSize().height();
 
-            int height = p->scaledSize().height() > 0 ? p->scaledSize().height() : viewport()->height() - 20;
-            m_start[i] = y;
-            m_end[i] = y + height;
-            y += height + MangaReaderSettings::pageSpacing();
-        }
+        m_start[i] = pageYCoordinate;
+        m_end[i] = pageYCoordinate + height;
+        pageYCoordinate += height + MangaReaderSettings::pageSpacing();
     }
+
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
 }
 

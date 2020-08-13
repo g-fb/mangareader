@@ -37,7 +37,7 @@ void Worker::processImageRequest(int number)
     }
 }
 
-void Worker::processImageResize(const QImage &image, const QSize& size, double ratio, int number)
+void Worker::processImageResize(const QImage &image, const QSize &size, double ratio, int number)
 {
     auto m_result = new QImage(size.width(), size.height(), QImage::Format_ARGB32);
     m_result->fill(0);
