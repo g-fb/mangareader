@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0)
-project(mangareader)
+cmake_minimum_required(VERSION 3.10)
+project(mangareader LANGUAGES CXX)
 
 find_package(ECM 1.0.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -9,6 +9,7 @@ set(CMAKE_AUTOMOC ON)
 
 include(KDEInstallDirs)
 include(ECMInstallIcons)
+include(FetchContent)
 
 find_package(Qt5 REQUIRED COMPONENTS
     Core
@@ -21,7 +22,12 @@ find_package(KF5 REQUIRED COMPONENTS
     Config
 )
 
-add_subdirectory(QArchive/)
+FetchContent_Declare(
+    QArchive
+    GIT_REPOSITORY "https://github.com/antony-jr/QArchive"
+    GIT_TAG "62d2e1690ddbcfda099e569b40b1c1f86f1f507e"
+)
+FetchContent_MakeAvailable(QArchive)
 
 set(mangareader_SRC
     src/main.cpp
@@ -41,12 +47,13 @@ add_executable(${PROJECT_NAME} ${mangareader_SRC})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(mangareader
-    Qt5::Widgets
-    KF5::CoreAddons
-    KF5::I18n
-    KF5::XmlGui
-    KF5::ConfigCore
-    QArchive
+    PRIVATE
+        Qt5::Widgets
+        KF5::CoreAddons
+        KF5::I18n
+        KF5::XmlGui
+        KF5::ConfigCore
+        QArchive
 )
 
 ecm_install_icons(ICONS data/512-apps-mangareader.svg DESTINATION ${KDE_INSTALL_ICONDIR})
