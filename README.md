@@ -34,12 +34,9 @@ If you don't like flatpak you can build from source or ask the your distro to pr
 
 ```
 git clone https://gitlab.com/g-fb/manga-reader
-cd manga-reader
-git submodule init
-git submodule update
-mkdir build && cd build
+cd manga-reader && mkdir build && cd build
 cmake ..
-make
+cmake --build .
 ./mangareader
 
 ```
