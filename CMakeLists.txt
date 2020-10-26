@@ -22,12 +22,23 @@ find_package(KF5 REQUIRED COMPONENTS
     Config
 )
 
-FetchContent_Declare(
-    QArchive
-    GIT_REPOSITORY "https://github.com/antony-jr/QArchive"
-    GIT_TAG "62d2e1690ddbcfda099e569b40b1c1f86f1f507e"
-)
-FetchContent_MakeAvailable(QArchive)
+# Wheter to use FetchContent or add_subdirectory to provide the QArchive dependency
+# there is no internet access when building packages for OpenSuse
+option(UseFetchContent "Wheter to use FetchContent or add_subdirectory to provide the QArchive dependency." ON)
+if(UseFetchContent)
+    FetchContent_Declare(
+        QArchive
+        GIT_REPOSITORY "https://github.com/antony-jr/QArchive"
+        GIT_TAG "01d4da1c8ac1c4fcddf4bf1aa96f7a555da17b2b"
+        )
+    FetchContent_MakeAvailable(QArchive)
+else()
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/QArchive)
+        add_subdirectory(QArchive)
+    else()
+        message("QArchive folder doesn't exist. https://github.com/antony-jr/QArchive")
+    endif()
+endif()
 
 set(mangareader_SRC
     src/main.cpp
