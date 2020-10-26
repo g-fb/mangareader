@@ -12,8 +12,21 @@
     <summary>Manga Reader for local files</summary>
     <description>
         <p>Manga reader for local files.</p>
+        <p>Supports zip, rar, tar, 7z, cbz, cbr, cbt, cb7 files and also folders.</p>
+        <p>Images are displayed in a vertical list and their size can be configured (fit width and/or height, user defined max width, original size).</p>
+        <p>Can set up multiple manga folders whose contents will be displayed in a tree view, from where they can be opened.</p>
+        <p>Can bookmark mangas.</p>
+        <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="1.4.0" date="2020-10-26">
+            <description>
+                <p>Use QImageReader to get the source sizes of images and use them to calculate the scaled sizes.</p>
+                <p>Before, the sizes were estimated from the loaded images, causing some minor issues.</p>
+                <p>Can now click and drag to scroll in the images viewer.</p>
+                <p>Code and build improvements.</p>
+            </description>
+        </release>
         <release version="1.3.0" date="2020-05-11">
             <description>
                 <p>Fixed a memory leak when loading a new manga (Mariusz Chryc)</p>
@@ -35,7 +48,7 @@
                 <p>Add actions to focus the manga tree, bookmaks table and manga view</p>
                 <ul>
                     <li>manga tree 'ctrl+n' or 'n'</li>
-                    <li>bookmaks table 'ctrl+b' or 'b'</li>
+                    <li>bookmarks table 'ctrl+b' or 'b'</li>
                     <li>manga view 'ctrl+v' or 'v'</li>
                 </ul>
                 <p>Open manga with enter from manga tree and bookmarks table.</p>
