@@ -678,7 +678,7 @@ void MainWindow::extractArchive(const QString& archivePath)
         QDir dir(m_tmpFolder);
         dir.removeRecursively();
     }
-    m_tmpFolder = extractionFolder.absoluteFilePath() + "/" + archivePathInfo.baseName().toLatin1();
+    m_tmpFolder = extractionFolder.absoluteFilePath() + "/" + archivePathInfo.baseName();
     QDir dir(m_tmpFolder);
     if (!dir.exists()) {
         dir.mkdir(m_tmpFolder);
@@ -744,6 +744,7 @@ void MainWindow::extractArchive(const QString& archivePath)
     auto extractor = new QArchive::DiskExtractor(this);
     extractor->setArchive(archivePathInfo.absoluteFilePath());
     extractor->setOutputDirectory(m_tmpFolder);
+    extractor->setCalculateProgress(true);
     extractor->start();
 
     m_progressBar->setVisible(true);
@@ -753,6 +754,13 @@ void MainWindow::extractArchive(const QString& archivePath)
         loadImages(m_tmpFolder, true, false);
     });
 
+    connect(extractor, &QArchive::DiskExtractor::progress,
+            this, [=](QString file, int entriesProcessed, int entriesTotal, qint64 bytesProcessed, qint64 bytesTotal) {
+        Q_UNUSED(file)
+        Q_UNUSED(entriesProcessed)
+        Q_UNUSED(entriesTotal)
+        m_progressBar->setValue(float(bytesProcessed) * 100 / float(bytesTotal));
+    });
     connect(extractor, &QArchive::DiskExtractor::progress,
             this, [=](const QString &file, int processedFiles, int totalFiles, int percent) {
         Q_UNUSED(file)
