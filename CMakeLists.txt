@@ -10,6 +10,7 @@ set(CMAKE_AUTOMOC ON)
 include(KDEInstallDirs)
 include(ECMInstallIcons)
 include(FetchContent)
+include(FindLibArchive)
 
 find_package(Qt5 REQUIRED COMPONENTS
     Core
