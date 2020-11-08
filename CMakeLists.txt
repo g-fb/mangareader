@@ -75,4 +75,4 @@ install(FILES mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareade
 install(FILES viewui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
 install(FILES mangareader.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 install(FILES data/com.georgefb.mangareader.appdata.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
-install(PROGRAMS data/com.georgefb.mangareader.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+install(FILES data/com.georgefb.mangareader.desktop DESTINATION ${KDE_INSTALL_APPDIR})
