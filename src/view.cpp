@@ -33,8 +33,8 @@
 View::View(MainWindow *parent)
     : QGraphicsView{ parent }
 {
-    KXMLGUIClient::setComponentName(QStringLiteral("View"), i18n("View"));
-    parent->guiFactory()->addClient(this);
+    KXMLGUIClient::setComponentName(QStringLiteral("mangareader"), i18n("View"));
+    setXMLFile(QStringLiteral("viewui.rc"));
 
     KActionCollection *collection = actionCollection();
     collection->setComponentDisplayName("View");
@@ -80,6 +80,8 @@ View::View(MainWindow *parent)
     collection->addAction("scrollDown", scrollDown);
     collection->addAction("nextPage", nextPage);
     collection->addAction("prevPage", prevPage);
+
+    parent->guiFactory()->addClient(this);
 
     setDragMode(QGraphicsView::ScrollHandDrag);
     setMouseTracking(true);

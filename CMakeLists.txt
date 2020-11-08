@@ -72,6 +72,7 @@ ecm_install_icons(ICONS data/512-apps-mangareader.svg DESTINATION ${KDE_INSTALL_
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
+install(FILES viewui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
 install(FILES mangareader.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 install(FILES data/com.georgefb.mangareader.appdata.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
 install(PROGRAMS data/com.georgefb.mangareader.desktop DESTINATION ${KDE_INSTALL_APPDIR})
