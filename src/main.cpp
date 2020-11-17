@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     KAboutData aboutData;
     aboutData.setDisplayName(i18n("Manga Reader"));
     aboutData.setComponentName(QStringLiteral("mangareader"));
-    aboutData.setVersion(QStringLiteral("1.4.0").toUtf8());
+    aboutData.setVersion(QStringLiteral("1.4.1").toUtf8());
     aboutData.setShortDescription(i18n("Manga reader for local files."));
     aboutData.setLicense(KAboutLicense::GPL_V3);
     aboutData.setCopyrightStatement(i18n("(c) 2019-2020"));

@@ -19,6 +19,11 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="1.4.1" date="2020-11-18">
+            <description>
+                <p>Fix custom shortcuts for the viewer (next/previous image, scroll up/down) not being saved.</p>
+            </description>
+        </release>
         <release version="1.4.0" date="2020-10-26">
             <description>
                 <p>Use QImageReader to get the source sizes of images and use them to calculate the scaled sizes.</p>
