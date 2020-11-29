@@ -85,6 +85,7 @@ private:
     int              m_firstVisible = -1;
     float            m_firstVisibleOffset = 0.0f;
     double           m_globalZoom = 1.0;
+    QTimer          *m_resizeTimer;
 };
 
 #endif // VIEW_H

@@ -29,12 +29,23 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QTimer>
 
 View::View(MainWindow *parent)
     : QGraphicsView{ parent }
 {
     KXMLGUIClient::setComponentName(QStringLiteral("mangareader"), i18n("View"));
     setXMLFile(QStringLiteral("viewui.rc"));
+
+    m_resizeTimer = new QTimer(this);
+    m_resizeTimer->setInterval(0);
+    m_resizeTimer->setSingleShot(true);
+    connect(m_resizeTimer, &QTimer::timeout, this, [=]() {
+        for (Page *p : m_pages) {
+            p->redrawImage();
+        }
+        calculatePageSizes();
+    });
 
     KActionCollection *collection = actionCollection();
     collection->setComponentDisplayName("View");
@@ -335,10 +346,14 @@ auto View::isInView(int imgTop, int imgBot) -> bool
 
 void View::resizeEvent(QResizeEvent *e)
 {
-    for (Page *p : m_pages) {
-        p->redrawImage();
+    if (m_resizeTimer->interval() == 0) {
+        for (Page *p : m_pages) {
+            p->redrawImage();
+        }
+        calculatePageSizes();
+    } else {
+        m_resizeTimer->start();
     }
-    calculatePageSizes();
     QGraphicsView::resizeEvent(e);
 }
 
