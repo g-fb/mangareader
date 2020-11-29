@@ -38,7 +38,7 @@ View::View(MainWindow *parent)
     setXMLFile(QStringLiteral("viewui.rc"));
 
     m_resizeTimer = new QTimer(this);
-    m_resizeTimer->setInterval(0);
+    m_resizeTimer->setInterval(50);
     m_resizeTimer->setSingleShot(true);
     connect(m_resizeTimer, &QTimer::timeout, this, [=]() {
         for (Page *p : m_pages) {
@@ -346,13 +346,13 @@ auto View::isInView(int imgTop, int imgBot) -> bool
 
 void View::resizeEvent(QResizeEvent *e)
 {
-    if (m_resizeTimer->interval() == 0) {
+    if (MangaReaderSettings::useResizeTimer()) {
+        m_resizeTimer->start();
+    } else {
         for (Page *p : m_pages) {
             p->redrawImage();
         }
         calculatePageSizes();
-    } else {
-        m_resizeTimer->start();
     }
     QGraphicsView::resizeEvent(e);
 }

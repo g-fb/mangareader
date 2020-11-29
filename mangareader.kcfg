@@ -51,5 +51,9 @@
             <label>Scale image up if it does not fill the limits.</label>
             <default>true</default>
         </entry>
+        <entry name="UseResizeTimer" type="bool">
+            <label>Use resize timer.</label>
+            <default>false</default>
+        </entry>
     </group>
 </kcfg>
