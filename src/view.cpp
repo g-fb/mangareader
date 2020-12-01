@@ -47,6 +47,34 @@ View::View(MainWindow *parent)
         calculatePageSizes();
     });
 
+    setupActions();
+    parent->guiFactory()->addClient(this);
+
+    setDragMode(QGraphicsView::ScrollHandDrag);
+    setMouseTracking(true);
+    setFrameShape(QFrame::NoFrame);
+
+    setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
+    setCacheMode(QGraphicsView::CacheBackground);
+
+    m_scene = new QGraphicsScene(this);
+    setScene(m_scene);
+
+    connect(this, &View::requestPage,
+            Worker::instance(), &Worker::processImageRequest);
+
+    connect(Worker::instance(), &Worker::imageReady,
+            this, &View::onImageReady);
+
+    connect(Worker::instance(), &Worker::imageResized,
+            this, &View::onImageResized);
+
+    connect(verticalScrollBar(), &QScrollBar::rangeChanged,
+            this, &View::onScrollBarRangeChanged);
+}
+
+void View::setupActions()
+{
     KActionCollection *collection = actionCollection();
     collection->setComponentDisplayName("View");
     collection->addAssociatedWidget(this);
@@ -91,30 +119,6 @@ View::View(MainWindow *parent)
     collection->addAction("scrollDown", scrollDown);
     collection->addAction("nextPage", nextPage);
     collection->addAction("prevPage", prevPage);
-
-    parent->guiFactory()->addClient(this);
-
-    setDragMode(QGraphicsView::ScrollHandDrag);
-    setMouseTracking(true);
-    setFrameShape(QFrame::NoFrame);
-
-    setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
-    setCacheMode(QGraphicsView::CacheBackground);
-
-    m_scene = new QGraphicsScene(this);
-    setScene(m_scene);
-
-    connect(this, &View::requestPage,
-            Worker::instance(), &Worker::processImageRequest);
-
-    connect(Worker::instance(), &Worker::imageReady,
-            this, &View::onImageReady);
-
-    connect(Worker::instance(), &Worker::imageResized,
-            this, &View::onImageResized);
-
-    connect(verticalScrollBar(), &QScrollBar::rangeChanged,
-            this, &View::onScrollBarRangeChanged);
 }
 
 auto View::imageCount() -> int
