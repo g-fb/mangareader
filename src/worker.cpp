@@ -37,25 +37,11 @@ void Worker::processImageRequest(int number)
     }
 }
 
-void Worker::processImageResize(const QImage &image, const QSize &size, double ratio, int number)
+void Worker::processImageResize(const QImage &image, const QSize &size, int number)
 {
-    auto m_result = new QImage(size.width(), size.height(), QImage::Format_ARGB32);
-    m_result->fill(0);
+    auto scaledImage = image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-    QTransform transform;
-    transform.scale(ratio, ratio);
-
-    QPainter p(m_result);
-    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-    p.setTransform(transform);
-
-    if (!image.isNull()) {
-        p.drawImage(0, 0, image, 0, 0);
-    }
-    p.end();
-
-    emit imageResized(*m_result, number);
-    delete m_result;
+    emit imageResized(scaledImage, number);
 }
 
 auto Worker::instance() -> Worker *

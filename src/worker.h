@@ -32,7 +32,7 @@ public:
 
 public slots:
     void processImageRequest(int);
-    void processImageResize(const QImage &image, const QSize &size, double ratio, int number);
+    void processImageResize(const QImage &image, const QSize &size, int number);
 
 signals:
     void imageReady(QImage image, int number);

@@ -112,7 +112,7 @@ void Page::redrawImage()
 {
     calculateScaledSize();
     if (m_image) {
-        Worker::instance()->processImageResize(*m_image, m_scaledSize, m_ratio, m_number);
+        Worker::instance()->processImageResize(*m_image, m_scaledSize, m_number);
     }
 }
 
@@ -152,18 +152,16 @@ void Page::calculateScaledSize()
 
 void Page::redraw(const QImage &image)
 {
-    if (image.size() == m_scaledSize) {
-        // reuse existing pixmap if of right size
-        if (m_pixmap != nullptr && m_pixmap->size() == image.size()) {
-            QPainter p(m_pixmap);
-            p.drawImage(0, 0, image);
-            p.end();
-        } else {
-            delete m_pixmap;
-            m_pixmap = new QPixmap(QPixmap::fromImage(image));
-        }
-        update();
+    // reuse existing pixmap if of right size
+    if (m_pixmap != nullptr && m_pixmap->size() == image.size()) {
+        QPainter p(m_pixmap);
+        p.drawImage(0, 0, image);
+        p.end();
+    } else {
+        delete m_pixmap;
+        m_pixmap = new QPixmap(QPixmap::fromImage(image));
     }
+    update();
 }
 
 void Page::setView(View *view)
