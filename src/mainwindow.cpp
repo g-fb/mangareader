@@ -323,7 +323,8 @@ void MainWindow::setupRenameDialog()
 void MainWindow::populateBookmarkModel()
 {
     KConfigGroup bookmarks = m_config->group("Bookmarks");
-    for (const QString &key : bookmarks.keyList()) {
+    const QStringList keys = bookmarks.keyList();
+    for (const QString &key : keys) {
         QString pageIndex = bookmarks.readEntry(key);
         QString pageNumber = QString::number(pageIndex.toInt() + 1);
         QString path = key;
@@ -419,6 +420,7 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     // get images from path
     auto it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::NoIteratorFlags);
     if (recursive) {
+        delete it;
         it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::Subdirectories);
     }
     while (it->hasNext()) {
@@ -633,7 +635,8 @@ void MainWindow::toggleFitWidth()
 auto MainWindow::populateMangaFoldersMenu() -> QMenu *
 {
     m_mangaFoldersMenu->clear();
-    for (const QString &mangaFolder : MangaReaderSettings::mangaFolders()) {
+    const QStringList mangaFolders = MangaReaderSettings::mangaFolders();
+    for (const QString &mangaFolder : mangaFolders) {
         QAction *action = m_mangaFoldersMenu->addAction(mangaFolder);
         connect(action, &QAction::triggered, this, [=]() {
             m_treeModel->setRootPath(mangaFolder);
@@ -921,7 +924,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
 
 void MainWindow::hideDockWidgets(Qt::DockWidgetAreas area)
 {
-    QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
+    const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
     for (QDockWidget *dockWidget : dockWidgets) {
         if ((dockWidgetArea(dockWidget) == area || area == Qt::AllDockWidgetAreas)
                 && !dockWidget->isFloating()) {
@@ -950,7 +953,7 @@ void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
 
 void MainWindow::hideToolBars(Qt::ToolBarAreas area)
 {
-    QList<QToolBar *> toolBars = findChildren<QToolBar *>();
+    const QList<QToolBar *> toolBars = findChildren<QToolBar *>();
     for (QToolBar *toolBar : toolBars) {
         if ((toolBarArea(toolBar) == area || area == Qt::AllToolBarAreas) && !toolBar->isFloating()) {
             toolBar->hide();
@@ -960,7 +963,7 @@ void MainWindow::hideToolBars(Qt::ToolBarAreas area)
 
 void MainWindow::showToolBars(Qt::ToolBarAreas area)
 {
-    QList<QToolBar *> toolBars = findChildren<QToolBar *>();
+    const QList<QToolBar *> toolBars = findChildren<QToolBar *>();
     for (QToolBar *toolBar : toolBars) {
         if ((toolBarArea(toolBar) == area || area == Qt::AllToolBarAreas) && !toolBar->isFloating()) {
 
@@ -1059,7 +1062,8 @@ void MainWindow::deleteBookmarks(QTableView *tableView)
     QVector<int> rows;
     int prev = -1;
     // get the rows to be deleted
-    for (const QModelIndex &index : selection.indexes()) {
+    const QModelIndexList indexes = selection.indexes();
+    for (const QModelIndex &index : indexes) {
         int current = index.row();
         if (prev != current) {
             rows.append(index.row());
@@ -1078,16 +1082,13 @@ void MainWindow::deleteBookmarks(QTableView *tableView)
         // first delete from config file
         // deleting from table view first causes problems with index change
         QModelIndex cell_0 = tableView->model()->index(rows.at(i), 0);
-        QModelIndex cell_1 = tableView->model()->index(rows.at(i), 1);
         bool isRecursive = tableView->model()->data(cell_0, RecursiveRole).toBool();
         QString key   = tableView->model()->data(cell_0, Qt::ToolTipRole).toString();
         if (isRecursive) {
             key = key.prepend(RECURSIVE_KEY_PREFIX);
         }
-        QString value = tableView->model()->data(cell_1).toString();
         m_config->reparseConfiguration();
         KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
-        QString bookmarks = bookmarksGroup.readEntry(key);
         bookmarksGroup.deleteEntry(key);
         bookmarksGroup.config()->sync();
         tableView->model()->removeRow(rows.at(i));

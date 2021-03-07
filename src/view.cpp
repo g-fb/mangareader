@@ -41,7 +41,7 @@ View::View(MainWindow *parent)
     m_resizeTimer->setInterval(50);
     m_resizeTimer->setSingleShot(true);
     connect(m_resizeTimer, &QTimer::timeout, this, [=]() {
-        for (Page *p : m_pages) {
+        for (Page *p : qAsConst(m_pages)) {
             p->redrawImage();
         }
         calculatePageSizes();
@@ -331,7 +331,7 @@ void View::refreshPages()
     setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
 
     if (maximumWidth() != MangaReaderSettings::maxWidth()) {
-        for (Page *page: m_pages) {
+        for (Page *page: qAsConst(m_pages)) {
             page->setZoom(m_globalZoom);
             if (!page->isImageDeleted()) {
                 page->deleteImage();
@@ -354,7 +354,7 @@ void View::resizeEvent(QResizeEvent *e)
     if (MangaReaderSettings::useResizeTimer()) {
         m_resizeTimer->start();
     } else {
-        for (Page *p : m_pages) {
+        for (Page *p : qAsConst(m_pages)) {
             p->redrawImage();
         }
         calculatePageSizes();
