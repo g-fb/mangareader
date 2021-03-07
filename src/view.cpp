@@ -53,6 +53,7 @@ View::View(MainWindow *parent)
     setDragMode(QGraphicsView::ScrollHandDrag);
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
     setCacheMode(QGraphicsView::CacheBackground);
