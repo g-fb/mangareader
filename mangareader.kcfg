@@ -3,6 +3,7 @@
     xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
     <include>KColorScheme</include>
+    <include>QStandardPaths</include>
     <kcfgfile name="mangareader/mangareader.conf" />
     <group name="General">
         <entry name="MaxWidth" type="Int">
@@ -15,7 +16,10 @@
         </entry>
         <entry name="ExtractionFolder" type="String">
             <label>Folder where archives will be extracted.</label>
-            <default>/tmp</default>
+            <code>
+                QString tmpFolder = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+            </code>
+            <default code="true">tmpFolder</default>
         </entry>
         <entry name="BackgroundColor" type="Color">
             <label>Background color.</label>
