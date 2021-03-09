@@ -23,8 +23,10 @@
 #include "settings.h"
 
 #include <KActionCollection>
+#include <KLocalizedString>
 #include <KXMLGUIFactory>
 
+#include <QApplication>
 #include <QImageReader>
 #include <QMenu>
 #include <QMouseEvent>
@@ -396,7 +398,7 @@ void View::mouseMoveEvent(QMouseEvent *event)
 
 void View::wheelEvent(QWheelEvent *event)
 {
-    if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+    if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
         if (event->angleDelta().y() > 0 && m_globalZoom < 2.0) {
             // zoom in, max x2
             zoomIn();

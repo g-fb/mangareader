@@ -47,10 +47,7 @@ set(mangareader_SRC
     src/view.cpp
     src/page.cpp
     src/worker.cpp
-)
-
-ki18n_wrap_ui(mangareader_SRC
-   settings.ui
+    src/settingswindow.cpp
 )
 
 kconfig_add_kcfg_files(mangareader_SRC GENERATE_MOC settings.kcfgc)

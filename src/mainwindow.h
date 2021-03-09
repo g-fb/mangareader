@@ -21,8 +21,6 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
-#include "ui_settings.h"
-
 class QProgressBar;
 class QStandardItemModel;
 class QTableView;
@@ -31,16 +29,7 @@ class View;
 class Worker;
 class QFileInfo;
 class QFileSystemModel;
-
-class SettingsWidget: public QWidget, public Ui::SettingsWidget
-{
-    Q_OBJECT
-public:
-    explicit SettingsWidget(QWidget *parent) : QWidget(parent) {
-        setupUi(this);
-    }
-};
-
+class SettingsWindow;
 
 class MainWindow : public KXmlGuiWindow
 {
@@ -65,7 +54,6 @@ private:
     void setupBookmarksDockWidget();
     void setupRenameDialog();
     void setupActions();
-    void addMangaFolder();
     void openMangaFolder();
     void openMangaArchive();
     void toggleFullScreen();
@@ -105,7 +93,7 @@ private:
     QString             m_tmpFolder;
     QString             m_currentPath;
     QAction            *m_selectMangaFolder{};
-    SettingsWidget     *m_settingsWidget{};
+    SettingsWindow     *m_settingsWindow;
     QDialog            *m_renameDialog{};
     int                 m_startPage{ 0 };
     bool                m_isLoadedRecursive{ false };
