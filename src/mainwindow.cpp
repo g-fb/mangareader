@@ -172,7 +172,7 @@ void MainWindow::setupMangaTreeDockWidget()
         m_treeModel->setRootPath(mangaFolder);
         m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
         m_treeDock->setProperty("isEmpty", false);
-        m_treeDock->setWindowTitle(mangaFolderInfo.baseName());
+        m_treeDock->setWindowTitle(mangaFolder);
     }
 
     auto action = new QAction();
@@ -630,7 +630,7 @@ auto MainWindow::populateMangaFoldersMenu() -> QMenu *
         connect(action, &QAction::triggered, this, [=]() {
             m_treeModel->setRootPath(mangaFolder);
             m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
-            m_treeDock->setWindowTitle(QFileInfo(mangaFolder).baseName());
+            m_treeDock->setWindowTitle(mangaFolder);
             m_config->group("").writeEntry("Manga Folder", mangaFolder);
             m_config->sync();
         });
