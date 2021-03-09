@@ -21,6 +21,10 @@
             </code>
             <default code="true">tmpFolder</default>
         </entry>
+        <entry name="UseCustomBackgroundColor" type="bool">
+            <label>Use custom background color.</label>
+            <default>false</default>
+        </entry>
         <entry name="BackgroundColor" type="Color">
             <label>Background color.</label>
             <code>KColorScheme schemeView(QPalette::Active, KColorScheme::View);

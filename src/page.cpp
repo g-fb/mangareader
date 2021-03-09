@@ -59,7 +59,7 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
         QRectF border(pixpos, QSizeF(w, h));
         border.adjust(-1, -1, 0, 0);
 
-        painter->setPen(QPen(QColor(MangaReaderSettings::borderColor())));
+        painter->setPen(QPen(MangaReaderSettings::borderColor()));
         painter->drawRect(border);
 
         painter->drawPixmap(option->exposedRect, *m_pixmap, option->exposedRect);

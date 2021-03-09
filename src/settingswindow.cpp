@@ -31,9 +31,12 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_extractionFolder = new QLineEdit(this);
     m_extractionFolder->setObjectName(QStringLiteral("kcfg_ExtractionFolder"));
     m_extractionFolder->setText(MangaReaderSettings::extractionFolder());
+    m_extractionFolder->setToolTip(i18n("Where to extract archives so that the archived files can be loaded."
+"\nExtracted files are deleted when loading a new manga or when closing the application."));
 
     auto selectExtractionFolderButton = new QPushButton(extractionFolderWidget);
     selectExtractionFolderButton->setIcon(QIcon::fromTheme("folder"));
+    selectExtractionFolderButton->setToolTip(i18n("Select a new extraction folder."));
     connect(selectExtractionFolderButton, &QPushButton::clicked, this, [=]() {
         QString path = QFileDialog::getExistingDirectory(
                     this, i18n("Select extraction folder"),
@@ -56,6 +59,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_upscaleImages->setObjectName(QStringLiteral("kcfg_UpScale"));
     m_upscaleImages->setText(i18n("Upscale images"));
     m_upscaleImages->setChecked(MangaReaderSettings::upScale());
+    m_upscaleImages->setToolTip(i18n("When checked images are resized even if the the new size is bigger than the original size."));
     formLayout->addRow(QLatin1String(), m_upscaleImages);
     // end upscale images
 
@@ -66,6 +70,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_maxWidth->setMinimum(200);
     m_maxWidth->setMaximum(9999);
     m_maxWidth->setValue(MangaReaderSettings::maxWidth());
+    m_maxWidth->setToolTip(i18n("Maximum width a page/image can have. Only when fit width is enabled."));
     formLayout->addRow(i18n("Maximum page width"), m_maxWidth);
     // end max page width
 
@@ -76,14 +81,31 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_pageSpacing->setMinimum(0);
     m_pageSpacing->setMaximum(999);
     m_pageSpacing->setValue(MangaReaderSettings::pageSpacing());
+    m_pageSpacing->setToolTip(i18n("Vertical distance between pages/images."));
     formLayout->addRow(i18n("Page spacing"), m_pageSpacing);
     // end page spacing
+
+
+    // custom colors
+    auto useCustomBackgroundColor = new QCheckBox(this);
+    useCustomBackgroundColor->setObjectName(QStringLiteral("kcfg_UseCustomBackgroundColor"));
+    useCustomBackgroundColor->setText(i18n("Use custom background color"));
+    useCustomBackgroundColor->setChecked(MangaReaderSettings::useCustomBackgroundColor());
+    useCustomBackgroundColor->setToolTip(i18n("When unchecked the background uses the system color."));
+    connect(useCustomBackgroundColor, &QCheckBox::stateChanged, this, [=]() {
+        m_backgroundColor->setEnabled(useCustomBackgroundColor->isChecked());
+    });
+    formLayout->addRow(QLatin1String(), useCustomBackgroundColor);
+    // end custom colors
 
 
     // background color
     m_backgroundColor = new KColorButton(this);
     m_backgroundColor->setObjectName(QStringLiteral("kcfg_BackgroundColor"));
     m_backgroundColor->setColor(MangaReaderSettings::backgroundColor());
+    m_backgroundColor->setAlphaChannelEnabled(true);
+    m_backgroundColor->setEnabled(MangaReaderSettings::useCustomBackgroundColor());
+    m_backgroundColor->setToolTip(i18n("Set a custom background for the view."));
     formLayout->addRow(i18n("Background color"), m_backgroundColor);
     // end background color
 
@@ -92,6 +114,8 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_borderColor = new KColorButton(this);
     m_borderColor->setObjectName(QStringLiteral("kcfg_BorderColor"));
     m_borderColor->setColor(MangaReaderSettings::borderColor());
+    m_borderColor->setToolTip(i18n("Set a custom color for the page/image border.\nTo disable the border set its alpha channel to 0."));
+    m_borderColor->setAlphaChannelEnabled(true);
     formLayout->addRow(i18n("Border color"), m_borderColor);
     // end border color
 
@@ -100,9 +124,10 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_mangaFolders = new KEditListWidget(this);
     m_mangaFolders->setObjectName(QStringLiteral("kcfg_MangaFolders"));
     m_mangaFolders->setItems(MangaReaderSettings::mangaFolders());
+    m_mangaFolders->setToolTip(i18n("These folders can be loaded in the tree view."));
     formLayout->addRow(i18n("Manga folders"), m_mangaFolders);
 
-    m_addMangaFolderButton = new QPushButton(i18n("Select and add Manga Folder"));
+    m_addMangaFolderButton = new QPushButton(i18n("Select and add manga folder"));
     m_addMangaFolderButton->setIcon(QIcon::fromTheme("folder-add"));
     connect(m_addMangaFolderButton, &QPushButton::clicked, this, [=]() {
         QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"));

@@ -57,11 +57,23 @@ View::View(MainWindow *parent)
     setFrameShape(QFrame::NoFrame);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
-    setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
+    if (MangaReaderSettings::useCustomBackgroundColor()) {
+        setBackgroundBrush(MangaReaderSettings::backgroundColor());
+    } else {
+        setBackgroundBrush(QPalette().base());
+    }
     setCacheMode(QGraphicsView::CacheBackground);
 
     m_scene = new QGraphicsScene(this);
     setScene(m_scene);
+
+    connect(qApp, &QApplication::paletteChanged, this, [=]() {
+        if (MangaReaderSettings::useCustomBackgroundColor()) {
+            setBackgroundBrush(MangaReaderSettings::backgroundColor());
+        } else {
+            setBackgroundBrush(QPalette().base());
+        }
+    });
 
     connect(this, &View::requestPage,
             Worker::instance(), &Worker::processImageRequest);
@@ -330,7 +342,11 @@ void View::refreshPages()
 {
     // clear requested pages so they are resized too
     m_requestedPages.clear();
-    setBackgroundBrush(QColor(MangaReaderSettings::backgroundColor()));
+    if (MangaReaderSettings::useCustomBackgroundColor()) {
+        setBackgroundBrush(MangaReaderSettings::backgroundColor());
+    } else {
+        setBackgroundBrush(QPalette().base());
+    }
 
     if (maximumWidth() != MangaReaderSettings::maxWidth()) {
         for (Page *page: qAsConst(m_pages)) {
