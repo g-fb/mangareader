@@ -19,6 +19,14 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="1.5.0" date="2021-03-10">
+            <description>
+                <p>Add option to resize image after a short delay, prevents unnecesary resizes when resizing the window or the sidebar.</p>
+                <p>Changed text above the tree view to show the manga folder full path.</p>
+                <p>Fixed an issues causing bad images quality.</p>
+                <p>Fixed custom border color not being set.</p>
+            </description>
+        </release>
         <release version="1.4.1" date="2020-11-18">
             <description>
                 <p>Fix custom shortcuts for the viewer (next/previous image, scroll up/down) not being saved.</p>
@@ -115,19 +123,15 @@
     <screenshots>
         <screenshot type="default">
             <caption>Manga Reader</caption>
-            <image>https://s.put.re/ZpRVkeAL.png</image>
+            <image>https://i.imgur.com/neoL6n1.png</image>
         </screenshot>
         <screenshot type="default">
             <caption>Manga Reader settings dialog</caption>
-            <image>https://s.put.re/AhFTFbmj.png</image>
-        </screenshot>
-        <screenshot type="default">
-            <caption>Manga Reader with images</caption>
-            <image>https://s.put.re/8Frink97.png</image>
+            <image>https://i.imgur.com/NKIIHpY.png</image>
         </screenshot>
         <screenshot type="default">
             <caption>Manga Reader light theme</caption>
-            <image>https://s.put.re/FUCVw2pw.png</image>
+            <image>https://i.imgur.com/YHfnzdx.png</image>
         </screenshot>
     </screenshots>
     <content_rating type="oars-1.0" />
