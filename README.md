@@ -1,3 +1,6 @@
+
+#### Donate: [GitHub Sponsors](https://github.com/sponsors/g-fb) | [Liberapay](https://liberapay.com/gfb/) | [PayPal](https://paypal.me/georgefloreabanus) | [Patreon](https://www.patreon.com/georgefb)
+
 # Manga Reader
 
 A manga reader for local files. Works with folders and archives.
