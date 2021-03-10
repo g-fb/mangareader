@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     aboutData.setVersion(QStringLiteral("1.4.1").toUtf8());
     aboutData.setShortDescription(i18n("Manga reader for local files."));
     aboutData.setLicense(KAboutLicense::GPL_V3);
-    aboutData.setCopyrightStatement(i18n("(c) 2019-2020"));
+    aboutData.setCopyrightStatement(i18n("(c) 2019-2021"));
     aboutData.setHomepage(QStringLiteral("https://gitlab.com/g-fb/manga-reader"));
     aboutData.setBugAddress(QStringLiteral("https://gitlab.com/g-fb/manga-reader").toUtf8());
     aboutData.addAuthor(
