@@ -40,7 +40,7 @@ View::View(MainWindow *parent)
     setXMLFile(QStringLiteral("viewui.rc"));
 
     m_resizeTimer = new QTimer(this);
-    m_resizeTimer->setInterval(50);
+    m_resizeTimer->setInterval(100);
     m_resizeTimer->setSingleShot(true);
     connect(m_resizeTimer, &QTimer::timeout, this, [=]() {
         for (Page *p : qAsConst(m_pages)) {

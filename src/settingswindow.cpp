@@ -20,7 +20,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     setFaceType(KPageDialog::Plain);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(i18n("Settings"));
-    resize(750, 600);
+    resize(800, 700);
 
     auto formWidget = new QWidget(this);
     auto formLayout = new QFormLayout(formWidget);
@@ -62,6 +62,16 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     m_upscaleImages->setToolTip(i18n("When checked images are resized even if the the new size is bigger than the original size."));
     formLayout->addRow(QLatin1String(), m_upscaleImages);
     // end upscale images
+
+
+    // resize timer
+    auto resizeTimer = new QCheckBox(this);
+    resizeTimer->setObjectName(QStringLiteral("kcfg_UseResizeTimer"));
+    resizeTimer->setText(i18n("Delay image resizing"));
+    resizeTimer->setChecked(MangaReaderSettings::useResizeTimer());
+    resizeTimer->setToolTip(i18n("When checked image resizing is delayed by 100 miliseconds\nto prevent unnecesary resizing, possibly causing performance issues."));
+    formLayout->addRow(QLatin1String(), resizeTimer);
+    // end resize timer
 
 
     // max page width
