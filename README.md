@@ -1,4 +1,3 @@
-
 #### Donate: [GitHub Sponsors](https://github.com/sponsors/g-fb) | [Liberapay](https://liberapay.com/gfb/) | [PayPal](https://paypal.me/georgefloreabanus) | [Patreon](https://www.patreon.com/georgefb)
 
 # Manga Reader
@@ -37,11 +36,11 @@ If you don't like flatpak you can build from source or ask the your distro to pr
 
 ```
 git clone https://gitlab.com/g-fb/manga-reader
-cd manga-reader && mkdir build && cd build
-cmake ..
-cmake --build .
-./mangareader
-
+cd manga-reader
+# append `-D CMAKE_INSTALL_PREFIX:PATH=/your/custom/path` to install to a custom location
+cmake -B build -G Ninja
+cmake --build build
+cmake --install build
 ```
 
 # Screenshots
