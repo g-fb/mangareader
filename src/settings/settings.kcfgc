@@ -1,4 +1,4 @@
-File=mangareader.kcfg
+File=settings.kcfg
 ClassName=MangaReaderSettings
 Singleton=true
 Mutators=true
