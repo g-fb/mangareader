@@ -27,4 +27,4 @@ target_link_libraries(mangareader
 install(TARGETS mangareader DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES settings/mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
 install(FILES settings/viewui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
-install(FILES settings/mangareader.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+install(FILES settings/settings.kcfg DESTINATION ${KCFG_INSTALL_DIR})
