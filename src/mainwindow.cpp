@@ -149,7 +149,6 @@ void MainWindow::setupMangaTreeDockWidget()
 {
     KConfigGroup rootGroup = m_config->group("");
     QString mangaFolder = rootGroup.readEntry("Manga Folder");
-    QFileInfo mangaFolderInfo(mangaFolder);
 
     m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
@@ -340,7 +339,7 @@ void MainWindow::populateBookmarkModel()
         if (type.name().startsWith("application/")) {
             icon = QIcon::fromTheme("application-zip");
         }
-        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QStringLiteral();
+        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QString();
 
         auto col1 = new QStandardItem(pathInfo.fileName().prepend(displayPrefix));
         col1->setData(icon, Qt::DecorationRole);
@@ -988,7 +987,7 @@ void MainWindow::onAddBookmark(int pageIndex)
 {
     int pageNumber = pageIndex + 1;
     QFileInfo mangaInfo(m_currentPath);
-    QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QStringLiteral();
+    QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QString();
     QString key = mangaInfo.absoluteFilePath().prepend(keyPrefix);
     // get the bookmark from the config file
     m_config->reparseConfiguration();
