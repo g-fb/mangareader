@@ -19,6 +19,11 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="1.6.0" date="2021-12-14">
+            <description>
+                <p>Add option to change the color scheme. Can be accessed from the menubar, under Settings.</p>
+            </description>
+        </release>
         <release version="1.5.0" date="2021-03-10">
             <description>
                 <p>Add option to resize image after a short delay, prevents unnecesary resizes when resizing the window or the sidebar.</p>
