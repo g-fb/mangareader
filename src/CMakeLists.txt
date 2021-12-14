@@ -9,6 +9,7 @@ target_sources(mangareader
         page.cpp
         worker.cpp
         settingswindow.cpp
+        settings/resources.qrc
         ${mangareader_SRC}
 )
 
