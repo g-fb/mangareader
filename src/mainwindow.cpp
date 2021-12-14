@@ -23,10 +23,12 @@
 #include "settingswindow.h"
 
 #include <KActionCollection>
+#include <KActionMenu>
+#include <KColorSchemeManager>
 #include <KConfigDialog>
 #include <KConfigGroup>
-#include <KToolBar>
 #include <KLocalizedString>
+#include <KToolBar>
 
 #include <QtWidgets>
 #include <QThread>
@@ -439,6 +441,25 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
 
 void MainWindow::setupActions()
 {
+    auto *schemes = new KColorSchemeManager(this);
+#if KCONFIGWIDGETS_VERSION >= QT_VERSION_CHECK(5, 89, 0)
+    schemes->setAutosaveChanges(false);
+#endif
+
+    KConfigGroup cg(m_config, "UiSettings");
+    auto schemeName = cg.readEntry("ColorScheme", QString());
+    schemes->activateScheme(schemes->indexForScheme(schemeName));
+
+    auto colorSchemeAction = schemes->createSchemeSelectionMenu(schemeName, this);
+    colorSchemeAction->setPopupMode(QToolButton::InstantPopup);
+    actionCollection()->addAction("colorSchemeChooser", colorSchemeAction);
+
+    connect(colorSchemeAction->menu(), &QMenu::triggered, this, [=](QAction *triggeredAction) {
+        KConfigGroup cg(m_config, "UiSettings");
+        cg.writeEntry("ColorScheme", KLocalizedString::removeAcceleratorMarker(triggeredAction->text()));
+        cg.sync();
+    });
+
     auto focusMangaTree = new QAction();
     focusMangaTree->setText(i18n("Focus Manga Tree"));
     actionCollection()->addAction("focusTree", focusMangaTree);

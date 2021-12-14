@@ -18,10 +18,11 @@ target_include_directories(mangareader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(mangareader
     PRIVATE
         Qt5::Widgets
+        KF5::ConfigCore
+        KF5::ConfigWidgets
         KF5::CoreAddons
         KF5::I18n
         KF5::XmlGui
-        KF5::ConfigCore
         QArchive
 )
 

@@ -19,6 +19,9 @@
             <Action name="view_zoom_out" />
             <Action name="resetZoom" />
         </Menu>
+        <Menu name="settings" >
+            <Action name="colorSchemeChooser" />
+        </Menu>
     </MenuBar>
 
     <ToolBar name="mainToolBar" >

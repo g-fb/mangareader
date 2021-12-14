@@ -29,6 +29,10 @@ find_package(KF5Config)
 set_package_properties(KF5Config PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfig/html/index.html")
 
+find_package(KF5ConfigWidgets)
+set_package_properties(KF5ConfigWidgets PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/kconfigwidgets/html/index.html")
+
 find_package(KF5CoreAddons)
 set_package_properties(KF5CoreAddons PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kcoreaddons/html/index.html")
