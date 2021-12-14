@@ -12,16 +12,27 @@ include(ECMInstallIcons)
 include(FetchContent)
 include(FeatureSummary)
 
-find_package(Qt5 REQUIRED COMPONENTS
-    Core
-    Widgets
-)
-find_package(KF5 REQUIRED COMPONENTS
-    CoreAddons
-    I18n
-    XmlGui
-    Config
-)
+find_package(Qt5Core)
+set_package_properties(Qt5Core PROPERTIES TYPE REQUIRED)
+
+find_package(Qt5Widgets)
+set_package_properties(Qt5Widgets PROPERTIES TYPE REQUIRED)
+
+find_package(KF5Config)
+set_package_properties(KF5Config PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/kconfig/html/index.html")
+
+find_package(KF5CoreAddons)
+set_package_properties(KF5CoreAddons PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/kcoreaddons/html/index.html")
+
+find_package(KF5I18n)
+set_package_properties(KF5I18n PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/ki18n/html/index.html")
+
+find_package(KF5XmlGui)
+set_package_properties(KF5XmlGui PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")
 
 find_package(QArchive)
 set_package_properties(QArchive PROPERTIES TYPE OPTIONAL
@@ -39,8 +50,7 @@ if(NOT ${QArchive_FOUND})
         FetchContent_Declare(
             QArchive
             GIT_REPOSITORY "https://github.com/antony-jr/QArchive"
-            GIT_TAG "v2.1.1"
-            )
+            GIT_TAG "v2.1.1")
         FetchContent_MakeAvailable(QArchive)
     else()
         if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/QArchive)
