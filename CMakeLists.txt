@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(mangareader LANGUAGES CXX)
+project(mangareader VERSION 1.5.0 LANGUAGES CXX)
 
 find_package(ECM 5.66 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -9,8 +9,14 @@ set(CMAKE_AUTOMOC ON)
 
 include(KDEInstallDirs)
 include(ECMInstallIcons)
+include(ECMSetupVersion)
 include(FetchContent)
 include(FeatureSummary)
+
+ecm_setup_version(${PROJECT_VERSION}
+    VARIABLE_PREFIX MANGAREADER
+    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/mangareader-version.h"
+)
 
 find_package(Qt5Core)
 set_package_properties(Qt5Core PROPERTIES TYPE REQUIRED)

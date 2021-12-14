@@ -17,6 +17,7 @@
 
 #include "_debug.h"
 #include "mainwindow.h"
+#include "mangareader-version.h"
 
 #include <KAboutData>
 #include <KLocalizedString>
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
     KAboutData aboutData;
     aboutData.setDisplayName(i18n("Manga Reader"));
     aboutData.setComponentName(QStringLiteral("mangareader"));
-    aboutData.setVersion(QStringLiteral("1.5.0").toUtf8());
+    aboutData.setVersion(MANGAREADER_VERSION_STRING);
     aboutData.setShortDescription(i18n("Manga reader for local files."));
     aboutData.setLicense(KAboutLicense::GPL_V3);
     aboutData.setCopyrightStatement(i18n("(c) 2019-2021"));
