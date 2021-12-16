@@ -32,6 +32,10 @@ int main(int argc, char *argv[])
 
     KLocalizedString::setApplicationDomain("mangareader");
 
+#ifdef Q_OS_WIN
+    QApplication::setStyle(QStringLiteral("breeze"));
+#endif
+
     KAboutData aboutData;
     aboutData.setDisplayName(i18n("Manga Reader"));
     aboutData.setComponentName(QStringLiteral("mangareader"));
