@@ -14,6 +14,7 @@ target_sources(mangareader
 )
 
 if(WIN32)
+    message("Windows ----")
     set(ICONS_FOLDER ${PROJECT_SOURCE_DIR}/data/icons/windows)
 
     set(ICON_FILES
