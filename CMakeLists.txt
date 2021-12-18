@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 
 include(KDEInstallDirs)
 include(ECMInstallIcons)
+include(ECMAddAppIcon)
 include(ECMSetupVersion)
 include(FetchContent)
 include(FeatureSummary)
