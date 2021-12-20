@@ -12,6 +12,7 @@ include(KDEInstallDirs)
 include(ECMInstallIcons)
 include(ECMAddAppIcon)
 include(ECMSetupVersion)
+include(KDECMakeSettings)
 include(FetchContent)
 include(FeatureSummary)
 
