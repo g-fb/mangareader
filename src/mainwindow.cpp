@@ -17,10 +17,10 @@
 
 #include "_debug.h"
 #include "mainwindow.h"
-#include "view.h"
-#include "worker.h"
 #include "settings.h"
 #include "settingswindow.h"
+#include "view.h"
+#include "worker.h"
 
 #include <KActionCollection>
 #include <KActionMenu>
@@ -29,6 +29,7 @@
 #include <KConfigGroup>
 #include <KLocalizedString>
 #include <KToolBar>
+#include <kconfigwidgets_version.h>
 
 #include <QtWidgets>
 #include <QThread>
