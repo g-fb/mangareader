@@ -13,8 +13,11 @@ include(ECMInstallIcons)
 include(ECMAddAppIcon)
 include(ECMSetupVersion)
 include(KDECMakeSettings)
+include(KDECompilerSettings NO_POLICY_SCOPE)
 include(FetchContent)
 include(FeatureSummary)
+
+kde_enable_exceptions()
 
 ecm_setup_version(${PROJECT_VERSION}
     VARIABLE_PREFIX MANGAREADER
