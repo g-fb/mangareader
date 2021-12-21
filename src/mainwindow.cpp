@@ -736,14 +736,19 @@ void MainWindow::extractArchive(const QString& archivePath)
             switch (error) {
             case QProcess::FailedToStart:
                 errorMessage = "FailedToStart";
+                break;
             case QProcess::Crashed:
                 errorMessage = "Crashed";
+                break;
             case QProcess::Timedout:
                 errorMessage = "Timedout";
+                break;
             case QProcess::WriteError:
                 errorMessage = "WriteError";
+                break;
             case QProcess::ReadError:
                 errorMessage = "ReadError";
+                break;
             default:
                 errorMessage = "UnknownError";
             }
