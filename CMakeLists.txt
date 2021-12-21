@@ -13,11 +13,8 @@ include(ECMInstallIcons)
 include(ECMAddAppIcon)
 include(ECMSetupVersion)
 include(KDECMakeSettings)
-include(KDECompilerSettings NO_POLICY_SCOPE)
 include(FetchContent)
 include(FeatureSummary)
-
-kde_enable_exceptions()
 
 ecm_setup_version(${PROJECT_VERSION}
     VARIABLE_PREFIX MANGAREADER
@@ -79,5 +76,5 @@ endif()
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
-add_subdirectory(data)
 add_subdirectory(src)
+add_subdirectory(data)
