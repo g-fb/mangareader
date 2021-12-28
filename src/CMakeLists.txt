@@ -1,6 +1,8 @@
-kconfig_add_kcfg_files(mangareader_SRC GENERATE_MOC settings/settings.kcfgc)
-add_executable(mangareader)
+kconfig_add_kcfg_files(SETTINGS_SRCS GENERATE_MOC settings/settings.kcfgc)
+# DATA_ICONS is defined in data/CMakeLists.txt
+ecm_add_app_icon(ICONS_SRCS ICONS ${DATA_ICONS})
 
+add_executable(mangareader)
 target_sources(mangareader
     PRIVATE
         main.cpp
@@ -10,10 +12,9 @@ target_sources(mangareader
         worker.cpp
         settingswindow.cpp
         settings/resources.qrc
-        ${mangareader_SRC}
+        ${SETTINGS_SRCS}
+        ${ICONS_SRCS}
 )
-
-target_include_directories(mangareader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(mangareader
     PRIVATE

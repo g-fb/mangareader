@@ -13,8 +13,9 @@ set(ICON_FILES
     ${ICONS_FOLDER}/310-apps-mangareader.png
     ${ICONS_FOLDER}/512-apps-mangareader.png
 )
-ecm_add_app_icon(ICONS_SOURCES ICONS ${ICON_FILES})
-target_sources(mangareader PRIVATE ${ICONS_SOURCES})
+
+# used in src/CMakeLists.txt
+set(DATA_ICONS ${ICON_FILES} PARENT_SCOPE)
 
 ecm_install_icons(
     ICONS ${ICON_FILES}
