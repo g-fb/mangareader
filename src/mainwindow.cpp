@@ -168,13 +168,13 @@ void MainWindow::setupMangaTreeDockWidget()
     auto treeDockLayout = new QVBoxLayout(treeDockWidget);
 
     m_mangaFoldersMenu = new QMenu(this);
+
+    m_selectMangaLibraryButton = new QPushButton(treeDockWidget);
+    m_selectMangaLibraryButton->setText(i18n("Select Manga Library"));
+    m_selectMangaLibraryButton->setMenu(m_mangaFoldersMenu);
     populateMangaFoldersMenu();
 
-    auto selectMangaLibraryButton = new QPushButton(treeDockWidget);
-    selectMangaLibraryButton->setText(i18n("Select Manga Library"));
-    selectMangaLibraryButton->setMenu(m_mangaFoldersMenu);
-
-    treeDockLayout->addWidget(selectMangaLibraryButton);
+    treeDockLayout->addWidget(m_selectMangaLibraryButton);
 
     m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
@@ -662,7 +662,11 @@ auto MainWindow::populateMangaFoldersMenu() -> QMenu *
             m_config->sync();
         });
     }
-
+    m_selectMangaLibraryButton->setVisible(false);
+    // no point in showing if there's only one option
+    if (MangaReaderSettings::mangaFolders().count() > 1) {
+        m_selectMangaLibraryButton->setVisible(true);
+    }
     return m_mangaFoldersMenu;
 }
 

@@ -21,6 +21,7 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+class QPushButton;
 class StartUpWidget;
 class QProgressBar;
 class QStandardItemModel;
@@ -93,7 +94,7 @@ private:
     QProgressBar       *m_progressBar{};
     QString             m_tmpFolder;
     QString             m_currentPath;
-    QAction            *m_selectMangaFolder{};
+    QPushButton        *m_selectMangaLibraryButton{nullptr};
     SettingsWindow     *m_settingsWindow;
     QDialog            *m_renameDialog{};
     StartUpWidget      *m_startUpWidget;
