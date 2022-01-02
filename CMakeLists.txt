@@ -66,7 +66,7 @@ if(NOT ${QArchive_FOUND})
         FetchContent_Declare(
             QArchive
             GIT_REPOSITORY "https://github.com/antony-jr/QArchive"
-            GIT_TAG "v2.1.1")
+            GIT_TAG "master")
         FetchContent_MakeAvailable(QArchive)
     else()
         if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/QArchive)
