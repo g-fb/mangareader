@@ -21,6 +21,7 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+class StartUpWidget;
 class QProgressBar;
 class QStandardItemModel;
 class QTableView;
@@ -95,6 +96,7 @@ private:
     QAction            *m_selectMangaFolder{};
     SettingsWindow     *m_settingsWindow;
     QDialog            *m_renameDialog{};
+    StartUpWidget      *m_startUpWidget;
     int                 m_startPage{ 0 };
     bool                m_isLoadedRecursive{ false };
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";

@@ -19,6 +19,7 @@
 #include "mainwindow.h"
 #include "settings.h"
 #include "settingswindow.h"
+#include "startupwidget.h"
 #include "view.h"
 #include "worker.h"
 
@@ -102,6 +103,15 @@ void MainWindow::init()
     centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
     setCentralWidget(mainWidget);
 
+    m_startUpWidget = new StartUpWidget(this);
+    connect(m_startUpWidget, &StartUpWidget::addMangaFolderClicked,
+            this, [=]() {actionCollection()->action("addMangaFolder")->trigger();});
+    connect(m_startUpWidget, &StartUpWidget::openMangaFolderClicked,
+            this, &MainWindow::openMangaFolder);
+    connect(m_startUpWidget, &StartUpWidget::openMangaArchiveClicked,
+            this, &MainWindow::openMangaArchive);
+    centralWidgetLayout->addWidget(m_startUpWidget);
+
     // ==================================================
     // setup progress bar
     // ==================================================
@@ -114,6 +124,7 @@ void MainWindow::init()
     // ==================================================
     // setup view
     // ==================================================
+    m_view->setVisible(false);
     connect(m_view, &View::addBookmark,
             this, &MainWindow::onAddBookmark);
     connect(m_view, &View::mouseMoved,
@@ -387,6 +398,8 @@ void MainWindow::openMangaFolder()
 
 void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurrentPath)
 {
+    m_startUpWidget->setVisible(false);
+    m_view->setVisible(true);
     // when opening an archive the files are extracted
     // to a temporary folder which is used to load the images from
     // m_currentPath should not be set to this temporary folder
@@ -486,7 +499,7 @@ void MainWindow::setupActions()
     });
 
     auto addMangaFolderAction = new QAction(this);
-    addMangaFolderAction->setText(i18n("&Add Manga Folder"));
+    addMangaFolderAction->setText(i18n("&Add Manga Library Folder"));
     addMangaFolderAction->setIcon(QIcon::fromTheme("folder-add"));
     actionCollection()->addAction("addMangaFolder", addMangaFolderAction);
     actionCollection()->setDefaultShortcut(addMangaFolderAction, Qt::CTRL + Qt::Key_A);

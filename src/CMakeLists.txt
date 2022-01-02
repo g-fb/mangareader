@@ -12,6 +12,7 @@ target_sources(mangareader
         worker.cpp
         settingswindow.cpp
         settings/resources.qrc
+        startupwidget.cpp
         ${SETTINGS_SRCS}
         ${ICONS_SRCS}
 )
