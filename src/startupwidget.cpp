@@ -26,6 +26,7 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     mainVLayout->addWidget(image);
     mainVLayout->addWidget(bottomWidget);
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
+    mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     auto addMangaFolderButton = new QPushButton(i18n("Add Manga Library Folder"), this);
     addMangaFolderButton->setIcon(QIcon::fromTheme("folder"));
