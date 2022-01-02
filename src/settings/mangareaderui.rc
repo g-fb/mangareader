@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gui name="mangareader"
-     version="3"
+     version="4"
      xmlns="http://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
@@ -35,7 +35,7 @@
         <Separator />
         <Action name="fitToHeightAction" />
         <Action name="fitToWidthAction" />
-        <Action name="spacer" />
+        <Spacer />
         <Action name="fullscreen" />
         <Action name="file_quit" />
     </ToolBar>

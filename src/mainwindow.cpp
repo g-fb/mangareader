@@ -536,14 +536,6 @@ void MainWindow::setupActions()
         button->showMenu();
     });
 
-    auto spacer = new QWidget(this);
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    spacer->setVisible(true);
-    auto spacerAction = new QWidgetAction(this);
-    spacerAction->setDefaultWidget(spacer);
-    spacerAction->setText(i18n("Spacer"));
-    actionCollection()->addAction("spacer", spacerAction);
-
     auto goToLayout = new QHBoxLayout();
     goToLayout->setSpacing(0);
     auto goTowidget = new QWidget();
