@@ -24,15 +24,13 @@
         </Menu>
     </MenuBar>
 
-    <ToolBar name="mainToolBar" >
+    <ToolBar name="mainToolBar" noMerge="1">
         <text>Main Toolbar</text>
-        <Action name="selectMangaFolder" />
-        <Separator />
+        <Action name="options_configure" />
+        <Spacer />
         <Action name="goToPage" />
-        <Separator />
         <Action name="view_zoom_in" />
         <Action name="view_zoom_out" />
-        <Separator />
         <Action name="fitToHeightAction" />
         <Action name="fitToWidthAction" />
         <Spacer />
