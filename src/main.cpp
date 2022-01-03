@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
     aboutData.setShortDescription(i18n("Manga reader for local files."));
     aboutData.setLicense(KAboutLicense::GPL_V3);
     aboutData.setCopyrightStatement(i18n("(c) 2019-2021"));
-    aboutData.setHomepage(QStringLiteral("https://gitlab.com/g-fb/manga-reader"));
-    aboutData.setBugAddress(QStringLiteral("https://gitlab.com/g-fb/manga-reader").toUtf8());
+    aboutData.setHomepage(QStringLiteral("https://github.com/g-fb/mangareader"));
+    aboutData.setBugAddress(QStringLiteral("https://github.com/g-fb/mangareader/issues").toUtf8());
     aboutData.addAuthor(
         i18n("George Florea Bănuș"),
         i18n("Developer"),
