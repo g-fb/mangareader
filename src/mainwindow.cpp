@@ -28,6 +28,7 @@
 #include <KColorSchemeManager>
 #include <KConfigDialog>
 #include <KConfigGroup>
+#include <KHamburgerMenu>
 #include <KLocalizedString>
 #include <KToolBar>
 #include <kconfigwidgets_version.h>
@@ -147,6 +148,14 @@ void MainWindow::init()
     connect(m_thread, &QThread::finished,
             m_thread, &QThread::deleteLater);
     m_thread->start();
+
+    // ==================================================
+    // setup KHamburgerMenu
+    // ==================================================
+    m_hamburgerMenu = KStandardAction::hamburgerMenu(nullptr, nullptr, actionCollection());
+    toolBar()->addAction(m_hamburgerMenu);
+    m_hamburgerMenu->hideActionsOf(toolBar());
+    m_hamburgerMenu->setMenuBar(menuBar());
 
     // ==================================================
     // setup dock widgets

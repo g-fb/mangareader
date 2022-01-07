@@ -40,7 +40,7 @@
 
         <entry name="MenuBarVisible" type="bool">
             <label>MenuBarVisible.</label>
-            <default>true</default>
+            <default>false</default>
         </entry>
         <entry name="MainToolBarVisible" type="bool">
             <label>MainToolBarVisible.</label>

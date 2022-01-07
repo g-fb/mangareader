@@ -21,6 +21,7 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+class KHamburgerMenu;
 class QPushButton;
 class StartUpWidget;
 class QProgressBar;
@@ -80,6 +81,7 @@ private:
     void renameFile();
 
     KSharedConfig::Ptr  m_config;
+    KHamburgerMenu     *m_hamburgerMenu;
     QStringList         m_images;
     View               *m_view;
     QDockWidget        *m_treeDock;

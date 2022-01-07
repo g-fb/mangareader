@@ -26,6 +26,7 @@
 
     <ToolBar name="mainToolBar" noMerge="1">
         <text>Main Toolbar</text>
+        <Action name="hamburger_menu" />
         <Action name="options_configure" />
         <Spacer />
         <Action name="goToPage" />
