@@ -7,60 +7,47 @@
     <kcfgfile name="mangareader/mangareader.conf" />
     <group name="General">
         <entry name="MaxWidth" type="Int">
-            <label>Maximum page width.</label>
             <default>1200</default>
         </entry>
         <entry name="PageSpacing" type="Int">
-            <label>Vertical space between pages.</label>
             <default>50</default>
         </entry>
         <entry name="ExtractionFolder" type="String">
-            <label>Folder where archives will be extracted.</label>
             <code>
                 QString tmpFolder = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
             </code>
             <default code="true">tmpFolder</default>
         </entry>
         <entry name="UseCustomBackgroundColor" type="bool">
-            <label>Use custom background color.</label>
             <default>false</default>
         </entry>
         <entry name="BackgroundColor" type="Color">
-            <label>Background color.</label>
             <code>KColorScheme schemeView(QPalette::Active, KColorScheme::View);
                         QColor defaultColor = schemeView.background().color();</code>
             <default code="true">defaultColor</default>
         </entry>
         <entry name="BorderColor" type="Color">
-            <label>Page border color.</label>
         </entry>
         <entry name="MangaFolders" type="PathList">
-            <label>Manga folders.</label>
         </entry>
 
         <entry name="MenuBarVisible" type="bool">
-            <label>MenuBarVisible.</label>
             <default>false</default>
         </entry>
         <entry name="MainToolBarVisible" type="bool">
-            <label>MainToolBarVisible.</label>
             <default>true</default>
         </entry>
 
         <entry name="FitHeight" type="bool">
-            <label>Fit height to view.</label>
             <default>false</default>
         </entry>
         <entry name="FitWidth" type="bool">
-            <label>Fit witdth to view.</label>
             <default>true</default>
         </entry>
         <entry name="UpScale" type="bool">
-            <label>Scale image up if it does not fill the limits.</label>
             <default>true</default>
         </entry>
         <entry name="UseResizeTimer" type="bool">
-            <label>Use resize timer.</label>
             <default>false</default>
         </entry>
     </group>
