@@ -73,8 +73,13 @@ MainWindow::MainWindow(QWidget *parent)
         m_bookmarksDock->setVisible(true);
     }
 
+    // setup toolbar
+    toolBar("mainToolBar")->setFloatable(false);
+    toolBarMenuAction()->setEnabled(false);
+    toolBarMenuAction()->setVisible(false);
     connect(toolBar("mainToolBar"), &QToolBar::visibilityChanged,
             this, &MainWindow::setToolBarVisible);
+
     connect(QApplication::instance(), &QApplication::aboutToQuit, this, [=]() {
         this->~MainWindow();
     });
