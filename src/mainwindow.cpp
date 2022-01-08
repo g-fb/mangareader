@@ -618,6 +618,9 @@ void MainWindow::setupActions()
     KStandardAction::zoomOut(m_view, &View::zoomOut, actionCollection());
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
     KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
+    KStandardAction::donate(this, [=]() {
+        QDesktopServices::openUrl(QUrl("https://github.com/sponsors/g-fb"));
+    }, actionCollection());
     KStandardAction::quit(QApplication::instance(), &QApplication::quit, actionCollection());
 
     QAction *toggleFullScreenAction = KStandardAction::fullScreen(this, [=]() {toggleFullScreen();}, this, actionCollection());

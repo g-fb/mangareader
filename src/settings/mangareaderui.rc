@@ -6,21 +6,42 @@
      xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
                          http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
 
-    <MenuBar>
-        <Menu name="file" >
+    <MenuBar noMerge="1">
+        <Menu name="file"><text>&amp;File</text>
             <Action name="openMangaFolder" />
             <Action name="openMangaArchive" />
             <Action name="addMangaFolder" />
             <Separator />
             <Action name="file_quit" />
         </Menu>
-        <Menu name="view" >
+        <Menu name="view"><text>&amp;View</text>
             <Action name="view_zoom_in" />
             <Action name="view_zoom_out" />
             <Action name="resetZoom" />
+            <Separator />
+            <Action name="fitToWidthAction" />
+            <Action name="fitToHeightAction" />
+            <Separator />
+            <Action name="focusView" />
+            <Action name="focusTree" />
+            <Action name="focusBookmarksTable" />
+            <Separator />
+            <Action name="fullscreen" />
         </Menu>
-        <Menu name="settings" >
+        <Menu name="settings"><text>&amp;Settings</text>
             <Action name="colorSchemeChooser" />
+            <Separator/>
+            <Action name="options_show_menubar"/>
+            <Action name="options_configure_keybinding"/>
+            <Action name="options_configure_toolbars"/>
+            <Action name="options_configure"/>
+        </Menu>
+        <Menu name="help"><text>&amp;Help</text>
+            <Action name="help_report_bug"/>
+            <Action name="help_donate"/>
+            <Separator/>
+            <Action name="help_about_app"/>
+            <Action name="help_about_kde"/>
         </Menu>
     </MenuBar>
 
