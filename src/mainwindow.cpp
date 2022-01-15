@@ -37,6 +37,9 @@
 #include <QThread>
 #include <QProcess>
 #include <KFileItem>
+#include <KIO/JobUiDelegate>
+#include <KIO/OpenFileManagerWindowJob>
+#include <KIO/OpenUrlJob>
 #include <KIO/RenameFileDialog>
 
 #include <QArchive>
@@ -856,13 +859,17 @@ void MainWindow::treeViewContextMenu(QPoint point)
     });
 
     connect(openPath, &QAction::triggered, this, [=]() {
-        QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+        QUrl url(path);
+        url.setScheme(QStringLiteral("file"));
+        auto job = new KIO::OpenUrlJob(url);
+        job->setUiDelegate(new KIO::JobUiDelegate());
+        job->start();
     });
 
     connect(openContainingFolder, &QAction::triggered, this, [=]() {
-        QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+        QUrl url(path);
+        url.setScheme(QStringLiteral("file"));
+        KIO::highlightInFileManager({url});
     });
     menu->exec(QCursor::pos());
 }
@@ -878,15 +885,20 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
     auto action = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
     contextMenu->addAction(action);
     connect(action, &QAction::triggered, this, [=]() {
-        QString nativePath = QDir::toNativeSeparators(pathInfo.absoluteFilePath());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+        QUrl url(path);
+        url.setScheme(QStringLiteral("file"));
+        auto job = new KIO::OpenUrlJob(url);
+        job->setUiDelegate(new KIO::JobUiDelegate());
+        job->start();
     });
 
     action = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
     contextMenu->addAction(action);
+
     connect(action, &QAction::triggered, this, [=]() {
-        QString nativePath = QDir::toNativeSeparators(pathInfo.absolutePath());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(nativePath));
+        QUrl url(path);
+        url.setScheme(QStringLiteral("file"));
+        KIO::highlightInFileManager({url});
     });
 
     contextMenu->addSeparator();
