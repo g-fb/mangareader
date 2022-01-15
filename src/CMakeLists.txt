@@ -24,6 +24,10 @@ target_link_libraries(mangareader
         KF5::ConfigWidgets
         KF5::CoreAddons
         KF5::I18n
+        KF5::KIOCore
+        KF5::KIOFileWidgets
+        KF5::KIOWidgets
+        KF5::KIONTLM
         KF5::XmlGui
         QArchive
 )

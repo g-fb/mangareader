@@ -46,6 +46,10 @@ find_package(KF5I18n)
 set_package_properties(KF5I18n PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/ki18n/html/index.html")
 
+find_package(KF5KIO)
+set_package_properties(KF5KIO PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/kio/html/index.html")
+
 find_package(KF5XmlGui)
 set_package_properties(KF5XmlGui PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")

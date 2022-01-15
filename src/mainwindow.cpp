@@ -36,6 +36,8 @@
 #include <QtWidgets>
 #include <QThread>
 #include <QProcess>
+#include <KFileItem>
+#include <KIO/RenameFileDialog>
 
 #include <QArchive>
 
@@ -99,8 +101,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
-    setupRenameDialog();
-
     // ==================================================
     // setup central widget
     // ==================================================
@@ -320,47 +320,6 @@ void MainWindow::setupBookmarksDockWidget()
     m_bookmarksDock->setWidget(bookmarksWidget);
 }
 
-void MainWindow::setupRenameDialog()
-{
-    // rename dialog
-    m_renameDialog = new QDialog(this, Qt::Dialog);
-    m_renameDialog->setWindowTitle(i18n("Rename"));
-    m_renameDialog->setMinimumWidth(600);
-
-    auto vLayout = new QVBoxLayout();
-    auto hLayout = new QHBoxLayout();
-    hLayout->setObjectName("hLayout");
-    hLayout->setMargin(0);
-    auto widget = new QWidget();
-    widget->setLayout(hLayout);
-    auto label = new QLabel(i18n("New name:"));
-    auto infoLabel = new QLabel();
-    infoLabel->setObjectName("infoLabel");
-    auto renameLineEdit = new QLineEdit();
-    renameLineEdit->setObjectName("renameLineEdit");
-    auto spacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    auto okButton = new QPushButton(i18n("OK"));
-    okButton->setObjectName("okButton");
-    auto cancelButton = new QPushButton(i18n("Cancel"));
-    cancelButton->setObjectName("cancelButton");
-
-    vLayout->addWidget(label);
-    vLayout->addWidget(renameLineEdit);
-    vLayout->addWidget(infoLabel);
-    vLayout->addWidget(widget);
-
-    hLayout->addItem(spacer);
-    hLayout->addWidget(okButton);
-    hLayout->addWidget(cancelButton);
-
-    m_renameDialog->setLayout(vLayout);
-
-    connect(okButton, &QPushButton::clicked,
-            this, &MainWindow::renameFile);
-    connect(cancelButton, &QPushButton::clicked,
-            m_renameDialog, &QDialog::reject);
-}
-
 void MainWindow::populateBookmarkModel()
 {
     KConfigGroup bookmarks = m_config->group("Bookmarks");
@@ -399,6 +358,8 @@ void MainWindow::populateBookmarkModel()
 
         m_bookmarksModel->appendRow(rowData << col1 << col2);
     }
+    m_bookmarksDock->setVisible(m_bookmarksModel->rowCount() > 0);
+    m_bookmarksDock->setProperty("isEmpty", !(m_bookmarksModel->rowCount() > 0));
 }
 
 void MainWindow::openMangaArchive()
@@ -817,58 +778,6 @@ void MainWindow::extractArchive(const QString& archivePath)
     });
 }
 
-void MainWindow::renameFile()
-{
-    QWidget *w1 = m_renameDialog->layout()->itemAt(1)->widget();
-    QWidget *w2 = m_renameDialog->layout()->itemAt(2)->widget();
-    auto lineEdit = qobject_cast<QLineEdit *>(w1);
-    auto infoLabel = qobject_cast<QLabel *>(w2);
-    QString path = m_renameDialog->property("path").toString();
-
-    QFileInfo pathInfo(path);
-    QFile file(path);
-    QString newName = pathInfo.absolutePath() + "/" + lineEdit->text();
-
-    if (m_currentPath == path && pathInfo.isDir()) {
-        infoLabel->setText(i18n("Can't rename open folder."));
-        return;
-    }
-    bool renameSuccessful = file.rename(newName);
-    if (renameSuccessful) {
-        if (m_currentPath == path && !pathInfo.isDir()) {
-            m_currentPath = newName;
-        }
-        // Delete bookmarks for old name
-        // and create new bookmarks for the new name
-        // keys for normal and recursive bookmarks
-        const QString &key = path;
-        const QString &recursiveKey = RECURSIVE_KEY_PREFIX + path;
-
-        // get the values for both bookmarks
-        KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
-        QString bookmark = bookmarksGroup.readEntry(key);
-        QString recursiveBookmark = bookmarksGroup.readEntry(recursiveKey);
-
-        // delete and create new bookmarks
-        if (!bookmark.isEmpty()) {
-            bookmarksGroup.deleteEntry(key);
-            bookmarksGroup.writeEntry(newName, bookmark);
-        }
-        if (!recursiveBookmark.isEmpty()) {
-            bookmarksGroup.deleteEntry(recursiveKey);
-            bookmarksGroup.writeEntry(RECURSIVE_KEY_PREFIX + newName, recursiveBookmark);
-        }
-        bookmarksGroup.config()->sync();
-
-        m_bookmarksModel->removeRows(0, m_bookmarksModel->rowCount());
-        populateBookmarkModel();
-
-        m_renameDialog->accept();
-    } else {
-        infoLabel->setText(i18n("Renaming failed"));
-    }
-}
-
 void MainWindow::treeViewContextMenu(QPoint point)
 {
     QModelIndex index = m_treeView->indexAt(point);
@@ -908,12 +817,42 @@ void MainWindow::treeViewContextMenu(QPoint point)
     });
 
     connect(rename, &QAction::triggered, this, [=]() {
-        QWidget *w = m_renameDialog->layout()->itemAt(1)->widget();
-        auto lineEdit = qobject_cast<QLineEdit *>(w);
-        lineEdit->setText(pathInfo.fileName());
-        lineEdit->setFocus(Qt::ActiveWindowFocusReason);
-        m_renameDialog->setProperty("path", path);
-        m_renameDialog->exec();
+        QUrl url(path);
+        url.setScheme("file");
+        KFileItem item(url);
+        auto renameDialog = new KIO::RenameFileDialog(KFileItemList({item}), nullptr);
+        renameDialog->open();
+        connect(renameDialog, &KIO::RenameFileDialog::renamingFinished, this, [=](const QList<QUrl> &urls) {
+            qDebug() << 22133;
+            auto newName = urls.first().toLocalFile();
+            if (m_currentPath == path && !pathInfo.isDir()) {
+                m_currentPath = newName;
+            }
+            // Delete bookmarks for old name
+            // and create new bookmarks for the new name
+            // keys for normal and recursive bookmarks
+            const QString &key = path;
+            const QString &recursiveKey = RECURSIVE_KEY_PREFIX + path;
+
+            // get the values for both bookmarks
+            KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+            QString bookmark = bookmarksGroup.readEntry(key);
+            QString recursiveBookmark = bookmarksGroup.readEntry(recursiveKey);
+
+            // delete and create new bookmarks
+            if (!bookmark.isEmpty()) {
+                bookmarksGroup.deleteEntry(key);
+                bookmarksGroup.writeEntry(newName, bookmark);
+            }
+            if (!recursiveBookmark.isEmpty()) {
+                bookmarksGroup.deleteEntry(recursiveKey);
+                bookmarksGroup.writeEntry(RECURSIVE_KEY_PREFIX + newName, recursiveBookmark);
+            }
+            bookmarksGroup.config()->sync();
+
+            m_bookmarksModel->removeRows(0, m_bookmarksModel->rowCount());
+            populateBookmarkModel();
+        });
     });
 
     connect(openPath, &QAction::triggered, this, [=]() {

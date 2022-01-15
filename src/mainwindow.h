@@ -55,7 +55,6 @@ private:
     void init();
     void setupMangaTreeDockWidget();
     void setupBookmarksDockWidget();
-    void setupRenameDialog();
     void setupActions();
     void openMangaFolder();
     void openMangaArchive();
@@ -78,7 +77,6 @@ private:
     auto isFullScreen() -> bool;
     auto populateMangaFoldersMenu() -> QMenu *;
     void populateBookmarkModel();
-    void renameFile();
 
     KSharedConfig::Ptr  m_config;
     KHamburgerMenu     *m_hamburgerMenu;
