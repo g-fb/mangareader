@@ -35,7 +35,7 @@ If you don't like flatpak you can build from source or ask the your distro to pr
 # Build
 
 ```bash
-git clone https://gitlab.com/g-fb/manga-reader
+git clone https://github.com/g-fb/mangareader
 cd manga-reader
 # append `-D CMAKE_INSTALL_PREFIX:PATH=/your/custom/path` to install to a custom location
 cmake -B build -G Ninja

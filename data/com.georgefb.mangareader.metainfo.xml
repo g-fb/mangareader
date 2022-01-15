@@ -6,8 +6,8 @@
     <launchable type="desktop-id">com.georgefb.mangareader.desktop</launchable>
     <metadata_license>CC-BY-4.0</metadata_license>
     <project_license>GPL-3.0-or-later</project_license>
-    <url type="homepage">https://gitlab.com/g-fb/mangareader</url>
-    <url type="bugtracker">https://gitlab.com/g-fb/mangareader/-/issues</url>
+    <url type="homepage">https://github.com/g-fb/mangareader</url>
+    <url type="bugtracker">https://github.com/g-fb/mangareader/issues</url>
     <url type="donation">https://github.com/sponsors/g-fb</url>
     <summary>Manga Reader for local files</summary>
     <description>
