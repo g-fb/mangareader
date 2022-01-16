@@ -48,7 +48,7 @@
         <entry name="UseResizeTimer" type="bool">
             <default>false</default>
         </entry>
-        <entry name="AutoUnrarPath" type="String">
+        <entry name="AutoUnrarPath" type="Path">
             <code>
                 QStringList unrarSearchPaths;
             #ifdef Q_OS_WIN32
@@ -59,6 +59,6 @@
             </code>
             <default code="true">autoUnrarPath</default>
         </entry>
-        <entry name="UnrarPath" type="String"></entry>
+        <entry name="UnrarPath" type="Path"></entry>
     </group>
 </kcfg>
