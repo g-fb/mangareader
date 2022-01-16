@@ -690,15 +690,37 @@ void MainWindow::extractArchive(const QString& archivePath)
     if (type.name() == "application/vnd.comicbook-rar"
             || type.name() == "application/vnd.rar") {
 
-        if (system("unrar -v") != 0) {
+        auto unrar = MangaReaderSettings::unrarPath();
+        QFileInfo fi(unrar);
+        if (unrar.isEmpty() || !fi.exists()) {
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Information);
+#ifdef Q_OS_WIN32
+            msgBox.setText("UnRAR executable was not found.\n."
+                           "It can be installed through WinRAR or independent."
+                           "When installed with WinRAR just restarting the application "
+                           "should be enough to find the executable.\n"
+                           "If installed independently you have to manually "
+                           "set the path to the UnRAR executable in the settings.");
+#else
+            msgBox.setText("UnRAR executable was not found.\n"
+                           "Install the unrar package and restart the application, "
+                           "unrar should be picked up automatically.\n"
+                           "If unrar is still not found you can set "
+                           "the path to the unrar executable manually in the settings.");
+#endif
+            auto btn = msgBox.addButton("Open Settings", QMessageBox::HelpRole);
+            btn->connect(btn, &QPushButton::clicked, this, [=]() {
+                openSettings();
+            });
+            msgBox.exec();
             return;
         }
 
-        QString processName = "unrar";
         QStringList args;
         args << "e" << archivePathInfo.absoluteFilePath() << m_tmpFolder << "-o+";
         auto process = new QProcess();
-        process->setProgram(processName);
+        process->setProgram(unrar);
         process->setArguments(args);
         process->start();
 
