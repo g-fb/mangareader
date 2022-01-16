@@ -74,6 +74,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
             : MangaReaderSettings::autoUnrarPath();
 #endif
     auto autoUnrarInfo = new QLabel(this);
+    autoUnrarInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     autoUnrarInfo->setWordWrap(true);
     autoUnrarInfo->setText(autoUnrarText);
     formLayout->addRow(i18n("Unrar path"), autoUnrarInfo);
