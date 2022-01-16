@@ -718,10 +718,10 @@ void MainWindow::extractArchive(const QString& archivePath)
                            "If unrar is still not found you can set "
                            "the path to the unrar executable manually in the settings.");
 #endif
+            msgBox.setStandardButtons(QMessageBox::Close);
+            msgBox.setEscapeButton(QMessageBox::Close);
             auto btn = msgBox.addButton("Open Settings", QMessageBox::HelpRole);
-            btn->connect(btn, &QPushButton::clicked, this, [=]() {
-                openSettings();
-            });
+            connect(btn, &QPushButton::clicked, this, &MainWindow::openSettings);
             msgBox.exec();
             return;
         }
