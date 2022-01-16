@@ -73,22 +73,22 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
                    "If unrar is still not found set the path to the unrar executable manually bellow.")
             : MangaReaderSettings::autoUnrarPath();
 #endif
-    auto autoUnrarInfo = new QLabel(this);
-    autoUnrarInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    autoUnrarInfo->setWordWrap(true);
-    autoUnrarInfo->setText(autoUnrarText);
-    formLayout->addRow(i18n("Unrar path"), autoUnrarInfo);
+    auto autoUnrarLabel = new QLabel(this);
+    autoUnrarLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    autoUnrarLabel->setWordWrap(true);
+    autoUnrarLabel->setText(autoUnrarText);
+    formLayout->addRow(i18n("Unrar path"), autoUnrarLabel);
 
-    m_unrarPathLineEdit = new KUrlRequester(this);
-    m_unrarPathLineEdit->setObjectName(QStringLiteral("kcfg_UnrarPath"));
-    m_unrarPathLineEdit->setPlaceholderText(i18n("Manual unrar path..."));
-    m_unrarPathLineEdit->setToolTip(i18n("Path to the unrar executable. "
+    m_unrarPath = new KUrlRequester(this);
+    m_unrarPath->setObjectName(QStringLiteral("kcfg_UnrarPath"));
+    m_unrarPath->setPlaceholderText(i18n("Manual unrar path..."));
+    m_unrarPath->setToolTip(i18n("Path to the unrar executable. "
                                          "The executable is needed to extract .rar and .cbr files."));
-    formLayout->addRow(QString(), m_unrarPathLineEdit);
+    formLayout->addRow(QString(), m_unrarPath);
 
-    auto unrarPathInfo = new QLabel(this);
-    unrarPathInfo->setText(i18n("User set path has priority over the auto detected one."));
-    formLayout->addRow(QString(), unrarPathInfo);
+    auto unrarPathInfoLabel = new QLabel(this);
+    unrarPathInfoLabel->setText(i18n("User set path has priority over the auto detected one."));
+    formLayout->addRow(QString(), unrarPathInfoLabel);
     formLayout->addItem(new QSpacerItem(1, 6, QSizePolicy::Fixed, QSizePolicy::Fixed));
     // end unrar
 
