@@ -48,14 +48,18 @@
         <entry name="UseResizeTimer" type="bool">
             <default>false</default>
         </entry>
-        <entry name="UnrarPath" type="String">
+        <entry name="AutoUnrarPath" type="String">
             <code>
-                QStringList unrarSearchPaths = {
+            QStringList unrarSearchPaths;
+            #ifdef Q_OS_WIN32
+                unrarSearchPaths = {
                     QStringLiteral("C:\\Program Files\\WinRAR"),
                     QStringLiteral("C:\\Program Files (x86)\\WinRAR")};
-                QString unrarPath = QStandardPaths::findExecutable(QStringLiteral("unrar"), unrarSearchPaths);
+            #endif
+                QString autoUnrarPath = QStandardPaths::findExecutable(QStringLiteral("unrar"), unrarSearchPaths);
             </code>
-            <default code="true">unrarPath</default>
+            <default code="true">autoUnrarPath</default>
         </entry>
+        <entry name="UnrarPath" type="String"></entry>
     </group>
 </kcfg>

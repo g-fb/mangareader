@@ -6,6 +6,7 @@
 #include <KColorButton>
 #include <KEditListWidget>
 #include <KLocalizedString>
+#include <KUrlRequester>
 
 #include <QCheckBox>
 #include <QFileDialog>
@@ -53,10 +54,42 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     formLayout->addRow(i18n("Extraction folder"), extractionFolderWidget);
     // end folder extraction
 
-    m_unrarPathLineEdit = new QLineEdit(this);
+
+    // unrar
+#ifdef Q_OS_WIN32
+    auto autoUnrarText = MangaReaderSettings::autoUnrarPath().isEmpty()
+            ? i18n("UnRAR executable was not found.\n"
+                   "It can be installed through WinRAR or independent."
+                   "When installed with WinRAR just restarting the application "
+                   "should be enough to find the executable.\n"
+                   "If installed independently you have to manually "
+                   "set the path to the UnRAR executable bellow.")
+            : MangaReaderSettings::autoUnrarPath();
+#else
+    auto autoUnrarText = MangaReaderSettings::autoUnrarPath().isEmpty()
+            ? i18n("UnRAR executable was not found.\n"
+                   "Install the unrar package and restart the application, "
+                   "unrar should be picked up automatically.\n"
+                   "If unrar is still not found set the path to the unrar executable manually bellow.")
+            : MangaReaderSettings::autoUnrarPath();
+#endif
+    auto autoUnrarInfo = new QLabel(this);
+    autoUnrarInfo->setText(autoUnrarText);
+    formLayout->addRow(i18n("Unrar path"), autoUnrarInfo);
+
+    m_unrarPathLineEdit = new KUrlRequester(this);
     m_unrarPathLineEdit->setObjectName(QStringLiteral("kcfg_UnrarPath"));
-    m_unrarPathLineEdit->setToolTip(i18n("Path to the unrar executable, provided by WinRAR. The executable is needed to extract .rar and .cbr files."));
-    formLayout->addRow(i18n("Unrar path"), m_unrarPathLineEdit);
+    m_unrarPathLineEdit->setPlaceholderText(i18n("Manual unrar path..."));
+    m_unrarPathLineEdit->setToolTip(i18n("Path to the unrar executable. "
+                                         "The executable is needed to extract .rar and .cbr files."));
+    formLayout->addRow(QString(), m_unrarPathLineEdit);
+
+    auto unrarPathInfo = new QLabel(this);
+    unrarPathInfo->setText(i18n("User set path has priority over the auto detected one."));
+    formLayout->addRow(QString(), unrarPathInfo);
+    formLayout->addItem(new QSpacerItem(1, 6, QSizePolicy::Fixed, QSizePolicy::Fixed));
+    // end unrar
+
 
     // upscale images
     m_upscaleImages = new QCheckBox(this);

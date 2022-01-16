@@ -690,7 +690,9 @@ void MainWindow::extractArchive(const QString& archivePath)
     if (type.name() == "application/vnd.comicbook-rar"
             || type.name() == "application/vnd.rar") {
 
-        auto unrar = MangaReaderSettings::unrarPath();
+        auto unrar = MangaReaderSettings::unrarPath().isEmpty()
+                ? MangaReaderSettings::autoUnrarPath()
+                : MangaReaderSettings::unrarPath();
         QFileInfo fi(unrar);
         if (unrar.isEmpty() || !fi.exists()) {
             QMessageBox msgBox;
