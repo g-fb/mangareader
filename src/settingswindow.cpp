@@ -59,7 +59,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
 #ifdef Q_OS_WIN32
     auto autoUnrarText = MangaReaderSettings::autoUnrarPath().isEmpty()
             ? i18n("UnRAR executable was not found.\n"
-                   "It can be installed through WinRAR or independent."
+                   "It can be installed through WinRAR or independent. "
                    "When installed with WinRAR just restarting the application "
                    "should be enough to find the executable.\n"
                    "If installed independently you have to manually "
@@ -74,6 +74,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
             : MangaReaderSettings::autoUnrarPath();
 #endif
     auto autoUnrarInfo = new QLabel(this);
+    autoUnrarInfo->setWordWrap(true);
     autoUnrarInfo->setText(autoUnrarText);
     formLayout->addRow(i18n("Unrar path"), autoUnrarInfo);
 
