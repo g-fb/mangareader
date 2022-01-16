@@ -53,6 +53,10 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     formLayout->addRow(i18n("Extraction folder"), extractionFolderWidget);
     // end folder extraction
 
+    m_unrarPathLineEdit = new QLineEdit(this);
+    m_unrarPathLineEdit->setObjectName(QStringLiteral("kcfg_UnrarPath"));
+    m_unrarPathLineEdit->setToolTip(i18n("Path to the unrar executable, provided by WinRAR. The executable is needed to extract .rar and .cbr files."));
+    formLayout->addRow(i18n("Unrar path"), m_unrarPathLineEdit);
 
     // upscale images
     m_upscaleImages = new QCheckBox(this);

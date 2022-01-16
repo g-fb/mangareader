@@ -22,6 +22,7 @@ private:
     QPushButton *m_addMangaFolderButton;
     QHash<QString, bool> changedSettings;
     QLineEdit *m_extractionFolder{nullptr};
+    QLineEdit *m_unrarPathLineEdit{nullptr};
     QCheckBox *m_upscaleImages{nullptr};
     QSpinBox *m_maxWidth{nullptr};
     QSpinBox *m_pageSpacing{nullptr};

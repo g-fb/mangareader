@@ -30,14 +30,12 @@
         </entry>
         <entry name="MangaFolders" type="PathList">
         </entry>
-
         <entry name="MenuBarVisible" type="bool">
             <default>false</default>
         </entry>
         <entry name="MainToolBarVisible" type="bool">
             <default>true</default>
         </entry>
-
         <entry name="FitHeight" type="bool">
             <default>false</default>
         </entry>
@@ -49,6 +47,15 @@
         </entry>
         <entry name="UseResizeTimer" type="bool">
             <default>false</default>
+        </entry>
+        <entry name="UnrarPath" type="String">
+            <code>
+                QStringList unrarSearchPaths = {
+                    QStringLiteral("C:\\Program Files\\WinRAR"),
+                    QStringLiteral("C:\\Program Files (x86)\\WinRAR")};
+                QString unrarPath = QStandardPaths::findExecutable(QStringLiteral("unrar"), unrarSearchPaths);
+            </code>
+            <default code="true">unrarPath</default>
         </entry>
     </group>
 </kcfg>
