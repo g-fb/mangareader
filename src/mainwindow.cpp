@@ -693,6 +693,13 @@ void MainWindow::extractArchive(const QString& archivePath)
         auto unrar = MangaReaderSettings::unrarPath().isEmpty()
                 ? MangaReaderSettings::autoUnrarPath()
                 : MangaReaderSettings::unrarPath();
+        if (unrar.startsWith("file://")) {
+#ifdef Q_OS_WIN32
+            unrar.remove(0, QString("file:///").size());
+#else
+            unrar.remove(0, QString("file://").size());
+#endif
+        }
         QFileInfo fi(unrar);
         if (unrar.isEmpty() || !fi.exists()) {
             QMessageBox msgBox;
