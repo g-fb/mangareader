@@ -50,11 +50,10 @@
         </entry>
         <entry name="AutoUnrarPath" type="String">
             <code>
-            QStringList unrarSearchPaths;
+                QStringList unrarSearchPaths;
             #ifdef Q_OS_WIN32
-                unrarSearchPaths = {
-                    QStringLiteral("C:\\Program Files\\WinRAR"),
-                    QStringLiteral("C:\\Program Files (x86)\\WinRAR")};
+                unrarSearchPaths.append(QStringLiteral("C:\\Program Files\\WinRAR"));
+                unrarSearchPaths.append(QStringLiteral("C:\\Program Files (x86)\\WinRAR"));
             #endif
                 QString autoUnrarPath = QStandardPaths::findExecutable(QStringLiteral("unrar"), unrarSearchPaths);
             </code>
