@@ -1,3 +1,9 @@
+#
+# SPDX-FileCopyrightText: 2019 George Florea Bănuș <georgefb899@gmail.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
 cmake_minimum_required(VERSION 3.10)
 project(mangareader VERSION 1.6.0 LANGUAGES CXX)
 

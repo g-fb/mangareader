@@ -1,18 +1,7 @@
 /*
- * Copyright 2019 Florea Banus George <georgefb899@gmail.com>
+ * SPDX-FileCopyrightText: 2019 George Florea Bănuș <georgefb899@gmail.com>
  *
- * This program is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #include "_debug.h"
@@ -45,7 +34,7 @@ int main(int argc, char *argv[])
     aboutData.setVersion(MANGAREADER_VERSION_STRING);
     aboutData.setShortDescription(i18n("Manga reader for local files."));
     aboutData.setLicense(KAboutLicense::GPL_V3);
-    aboutData.setCopyrightStatement(i18n("(c) 2019-2021"));
+    aboutData.setCopyrightStatement(i18n("(c) 2019-2022"));
     aboutData.setHomepage(QStringLiteral("https://github.com/g-fb/mangareader"));
     aboutData.setBugAddress(QStringLiteral("https://github.com/g-fb/mangareader/issues").toUtf8());
     aboutData.addAuthor(

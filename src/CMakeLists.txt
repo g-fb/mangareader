@@ -1,3 +1,9 @@
+#
+# SPDX-FileCopyrightText: 2021 George Florea Bănuș <georgefb899@gmail.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
 kconfig_add_kcfg_files(SETTINGS_SRCS GENERATE_MOC settings/settings.kcfgc)
 # DATA_ICONS is defined in data/CMakeLists.txt
 ecm_add_app_icon(ICONS_SRCS ICONS ${DATA_ICONS})
