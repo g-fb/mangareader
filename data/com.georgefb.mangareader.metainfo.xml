@@ -24,6 +24,20 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="1.7.0" date="2022-02-08">
+            <description>
+                <p>Features:</p>
+                <ul>
+                    <li>Added buttons in the main view to set library folder and to open manga, when no manga is loaded</li>
+                    <li>Added KHamburgerMenu, hiding the menubar will add a hamburger menu to the toolbar</li>
+                    <li>Added more actions to menubar and remove unnecessary actions</li>
+                    <li>Added setting to set the path of unrar, if it's not found in the standard locations</li>
+                    <li>Breeze style is used on Windows</li>
+                    <li>Manga library selection button is hidden when there's only one library</li>
+                    <li>Moved manga library selection to the tree dock widget</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.6.0" date="2021-12-14">
             <description>
                 <p>Add option to change the color scheme. Can be accessed from the menubar, under Settings.</p>
