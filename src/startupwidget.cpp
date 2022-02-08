@@ -25,7 +25,11 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     auto bottomHLayout = new QHBoxLayout(bottomWidget);
 
     auto image = new QLabel(this);
+#ifdef Q_OS_WIN32
+    image->setPixmap(QIcon(":/icons/mangareader").pixmap(256));
+#else
     image->setPixmap(QIcon::fromTheme("mangareader").pixmap(256));
+#endif
     image->setAlignment(Qt::AlignCenter);
 
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));

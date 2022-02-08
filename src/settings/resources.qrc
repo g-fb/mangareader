@@ -3,4 +3,7 @@
         <file>mangareaderui.rc</file>
         <file>viewui.rc</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="mangareader">../../data/icons/256-apps-mangareader.png</file>
+    </qresource>
 </RCC>
