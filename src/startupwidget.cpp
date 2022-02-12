@@ -52,7 +52,8 @@ StartUpWidget::StartUpWidget(QWidget *parent)
             this, &StartUpWidget::openMangaFolderClicked);
 
     auto openMangaArchiveButton = new QPushButton(i18n("Open Manga Archive"), this);
-    openMangaArchiveButton->setIcon(QIcon::fromTheme("application-x-archive"));
+    auto fallbackIcon = QIcon::fromTheme("package-x-generic");
+    openMangaArchiveButton->setIcon(QIcon::fromTheme("application-x-archive", fallbackIcon));
     openMangaArchiveButton->setIconSize(QSize(32, 32));
     connect(openMangaArchiveButton, &QPushButton::clicked,
             this, &StartUpWidget::openMangaArchiveClicked);
