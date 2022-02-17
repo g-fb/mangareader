@@ -92,6 +92,15 @@ private:
     int                 m_startPage{ 0 };
     bool                m_isLoadedRecursive{ false };
     const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
+    QStringList         m_supportedMimeTypes {"application/zip",
+                                              "application/vnd.comicbook+zip",
+                                              "application/x-7z-compressed",
+                                              "application/x-cb7",
+                                              "application/x-tar",
+                                              "application/x-cbt",
+                                              "application/vnd.rar",
+                                              "application/vnd.comicbook-rar",
+                                              "inode/directory"};
 };
 
 #endif // MAINWINDOW_H

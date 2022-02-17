@@ -361,7 +361,7 @@ void MainWindow::openMangaArchive()
                 this,
                 i18n("Open Archive"),
                 QDir::homePath(),
-                i18n("Archives (*.zip *.rar *.7z *.cbz *.cbt *.cbr)"));
+                i18n("Archives (*.zip *.rar *.7z *.tar *.cbz *.cbr *.cb7 *.cbt)"));
     if (file.isEmpty()) {
         return;
     }
@@ -379,6 +379,14 @@ void MainWindow::openMangaFolder()
 
 void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurrentPath)
 {
+    QMimeDatabase db;
+    QString mimetype = db.mimeTypeForFile(path).name();
+    if (!m_supportedMimeTypes.contains(mimetype)) {
+        showError(i18n("Unsuported file type: %1\n"
+                       "Only folders and .zip, .cbz, .rar, .cbr, "
+                       ".7z, .cb7, .tar, .cbt archives are supported. ", mimetype));
+        return;
+    }
     m_startUpWidget->setVisible(false);
     m_view->setVisible(true);
     // when opening an archive the files are extracted
