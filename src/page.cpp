@@ -40,17 +40,28 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
 {
     Q_UNUSED(widget);
     if (m_pixmap) {
-        QRectF frame(QPointF(0,0), m_pixmap->size());
-        qreal w = m_pixmap->width();
-        qreal h = m_pixmap->height();
+        auto w = m_pixmap->width();
+        auto h = m_pixmap->height();
 
-        QPointF pixpos = frame.center() - (QPointF(w, h) / 2);
-        QRectF border(pixpos, QSizeF(w, h));
-        border.adjust(-1, -1, 0, 0);
+        // draw border arround the image
+        if (MangaReaderSettings::pageSpacing() > 0) {
+            QRectF border(QPointF(0, 0), QSizeF(w, h));
+            border.adjust(-1, -1, 0, 0);
 
-        painter->setPen(QPen(MangaReaderSettings::borderColor()));
-        painter->drawRect(border);
+            painter->setPen(QPen(MangaReaderSettings::borderColor()));
+            painter->drawRect(border);
+        }
 
+        // draw border only on the sides
+        if (MangaReaderSettings::pageSpacing() == 0) {
+            painter->setPen(QPen(MangaReaderSettings::borderColor()));
+            painter->drawLine(0, 0, 0, h);
+            painter->drawLine(w, 0, w, h);
+        }
+
+        // set default pen, else the pen's size is included when drawing the pixmap
+        // resulting in a small gap between images
+        painter->setPen(QPen());
         painter->drawPixmap(option->exposedRect, *m_pixmap, option->exposedRect);
     }
 }
