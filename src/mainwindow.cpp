@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bookmarksView{ new QTableView() }
     , m_bookmarksModel{ new QStandardItemModel(0, 2, this) }
 {
+    setAcceptDrops(true);
     m_config = KSharedConfig::openConfig("mangareader/mangareader.conf");
 
     init();
@@ -1164,4 +1165,17 @@ auto MainWindow::isFullScreen() -> bool
 {
     return (windowState() == (Qt::WindowFullScreen | Qt::WindowMaximized))
             || (windowState() == Qt::WindowFullScreen);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasUrls()) {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    QString fileName = e->mimeData()->urls().first().toLocalFile();
+    loadImages(fileName);
 }

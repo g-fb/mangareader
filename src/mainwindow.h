@@ -66,6 +66,8 @@ private:
     auto isFullScreen() -> bool;
     auto populateMangaFoldersMenu() -> QMenu *;
     void populateBookmarkModel();
+    void dragEnterEvent(QDragEnterEvent *e) override;
+    void dropEvent(QDropEvent *e) override;
 
     KSharedConfig::Ptr  m_config;
     KHamburgerMenu     *m_hamburgerMenu;
