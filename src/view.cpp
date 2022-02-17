@@ -41,6 +41,7 @@ View::View(MainWindow *parent)
     setupActions();
     parent->guiFactory()->addClient(this);
 
+    setAcceptDrops(true);
     setDragMode(QGraphicsView::ScrollHandDrag);
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
@@ -458,4 +459,14 @@ void View::setManga(const QString &manga)
 void View::setImages(const QStringList &images)
 {
     m_images = images;
+}
+
+void View::dragEnterEvent(QDragEnterEvent *e)
+{
+    e->setDropAction(Qt::IgnoreAction);
+}
+
+void View::dropEvent(QDropEvent *e)
+{
+    Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
 }

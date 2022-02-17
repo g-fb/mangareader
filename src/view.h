@@ -36,6 +36,7 @@ signals:
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
     void addBookmark(int number);
+    void fileDropped(const QString &file);
 
 public slots:
     void onImageReady(const QImage &image, int number);
@@ -54,6 +55,8 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *e) override;
+    void dropEvent(QDropEvent *e) override;
     void createPages();
     void calculatePageSizes();
     void setPagesVisibility();

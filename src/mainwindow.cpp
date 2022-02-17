@@ -133,6 +133,9 @@ void MainWindow::init()
             m_bookmarksDock->setVisible(true);
         m_bookmarksDock->setProperty("isEmpty", false);
     });
+    connect(m_view, &View::fileDropped, this, [=] (const QString &file) {
+        loadImages(file, true);
+    });
     centralWidgetLayout->addWidget(m_view);
 
     // ==================================================
