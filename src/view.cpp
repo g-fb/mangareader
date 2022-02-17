@@ -18,6 +18,7 @@
 #include <QApplication>
 #include <QImageReader>
 #include <QMenu>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QTimer>
