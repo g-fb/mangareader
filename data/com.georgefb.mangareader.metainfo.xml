@@ -14,6 +14,7 @@
     <url type="homepage">https://github.com/g-fb/mangareader</url>
     <url type="bugtracker">https://github.com/g-fb/mangareader/issues</url>
     <url type="donation">https://github.com/sponsors/g-fb</url>
+    <developer_name>George Florea Bănuș</developer_name>
     <summary>Manga Reader for local files</summary>
     <description>
         <p>Manga reader for local files.</p>
