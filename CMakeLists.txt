@@ -5,7 +5,7 @@
 #
 
 cmake_minimum_required(VERSION 3.10)
-project(mangareader VERSION 1.7.1 LANGUAGES CXX)
+project(mangareader VERSION 1.7.2 LANGUAGES CXX)
 
 find_package(ECM 5.66 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)

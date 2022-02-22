@@ -25,6 +25,18 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="1.7.2" date="2022-02-22">
+            <description>
+                <p>Features:</p>
+                <ul>
+                    <li>Open manga (folder and archive files) through drag and drop.</li>
+                </ul>
+                <p>Bugfixes:</p>
+                <ul>
+                    <li>Don't draw border between images when page spacing is 0 (zero).</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.7.1" date="2022-02-12">
             <description>
                 <p>Bugfixes:</p>
