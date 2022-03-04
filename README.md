@@ -19,7 +19,7 @@ flatpak install flathub com.georgefb.mangareader
 flatpak run com.georgefb.mangareader
 ```
 
-If you don't like flatpak you can build from source or ask the your distro to provide a package.
+If you don't like flatpak you can build from source or ask your distro to provide a package.
 
 # Dependencies
 
