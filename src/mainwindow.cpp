@@ -911,8 +911,6 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
     QModelIndex index = m_bookmarksView->indexAt(point);
     QString path = m_bookmarksModel->data(index, PathRole).toString();
 
-    QFileInfo pathInfo(path);
-
     auto contextMenu = new QMenu();
     auto action = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
     contextMenu->addAction(action);
