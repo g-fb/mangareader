@@ -37,10 +37,10 @@ public:
         RecursiveRole
     };
 
-    void loadImages(const QString& path, bool recursive = false, bool updateCurrentPath = true);
+    void loadImages(const QString &path, bool recursive = false, bool updateCurrentPath = true);
 
 private:
-    static void showError(const QString& error);
+    static void showError(const QString &error);
     void init();
     void setupMangaTreeDockWidget();
     void setupBookmarksDockWidget();
@@ -48,7 +48,8 @@ private:
     void openMangaFolder();
     void openMangaArchive();
     void toggleFullScreen();
-    void extractArchive(const QString& archivePath);
+    void extractArchive(const QString &archivePath);
+    void extractRarArchive(const QString &archivePath);
     void treeViewContextMenu(QPoint point);
     void bookmarksViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
