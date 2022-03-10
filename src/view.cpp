@@ -308,7 +308,7 @@ void View::onImageReady(const QImage &image, int number)
         goToPage(m_startPage);
         m_startPage = 0;
     }
-    setPagesVisibility();
+//    setPagesVisibility();
 }
 
 void View::onImageResized(const QImage &image, int number)
@@ -348,7 +348,7 @@ void View::refreshPages()
         }
     }
     calculatePageSizes();
-    setPagesVisibility();
+//    setPagesVisibility();
 }
 
 auto View::isInView(int imgTop, int imgBot) -> bool
