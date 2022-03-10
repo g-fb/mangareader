@@ -129,6 +129,10 @@ void View::setupActions()
 
 void View::reset()
 {
+    qDeleteAll(m_pages);
+    m_pages.clear();
+    m_start.clear();
+    m_end.clear();
     m_requestedPages.clear();
     verticalScrollBar()->setValue(0);
 }
@@ -144,10 +148,6 @@ void View::loadImages()
 
 void View::createPages()
 {
-    qDeleteAll(m_pages);
-    m_pages.clear();
-    m_start.clear();
-    m_end.clear();
     m_start.resize(m_images.count());
     m_end.resize(m_images.count());
 
