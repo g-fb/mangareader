@@ -127,11 +127,6 @@ void View::setupActions()
     collection->addAction("prevPage", prevPage);
 }
 
-auto View::imageCount() -> int
-{
-    return m_images.count();
-}
-
 void View::reset()
 {
     m_requestedPages.clear();
@@ -145,46 +140,6 @@ void View::loadImages()
     setPagesVisibility();
 
     emit imagesLoaded();
-}
-
-void View::goToPage(int number)
-{
-    verticalScrollBar()->setValue(m_start[number]);
-}
-
-void View::setStartPage(int number)
-{
-    m_startPage = number;
-}
-
-void View::zoomIn()
-{
-    m_globalZoom += 0.1;
-    refreshPages();
-}
-
-void View::zoomOut()
-{
-    m_globalZoom -= 0.1;
-    refreshPages();
-}
-
-void View::zoomReset()
-{
-    m_globalZoom = 1.0;
-    refreshPages();
-}
-
-void View::togglePageZoom(Page *page)
-{
-    if (page->isZoomToggled()) {
-        auto zoom = page->zoom() < 1.3 ? 1.0 : page->zoom() - 0.3;
-        page->setZoom(zoom);
-    } else {
-        page->setZoom(page->zoom() + 0.3);
-    }
-    page->setIsZoomToggled(!page->isZoomToggled());
-    page->redrawImage();
 }
 
 void View::createPages()
@@ -329,6 +284,12 @@ void View::onScrollBarRangeChanged(int x, int y)
     }
 }
 
+void View::scrollContentsBy(int dx, int dy)
+{
+    QGraphicsView::scrollContentsBy(dx, dy);
+    setPagesVisibility();
+}
+
 void View::refreshPages()
 {
     // clear requested pages so they are resized too
@@ -449,10 +410,29 @@ void View::contextMenuEvent(QContextMenuEvent *event)
     }
 }
 
-void View::scrollContentsBy(int dx, int dy)
+void View::dragEnterEvent(QDragEnterEvent *e)
 {
-    QGraphicsView::scrollContentsBy(dx, dy);
-    setPagesVisibility();
+    e->setDropAction(Qt::IgnoreAction);
+}
+
+void View::dropEvent(QDropEvent *e)
+{
+    Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
+}
+
+void View::goToPage(int number)
+{
+    verticalScrollBar()->setValue(m_start[number]);
+}
+
+auto View::imageCount() -> int
+{
+    return m_images.count();
+}
+
+void View::setStartPage(int number)
+{
+    m_startPage = number;
 }
 
 void View::setManga(const QString &manga)
@@ -465,12 +445,32 @@ void View::setImages(const QStringList &images)
     m_images = images;
 }
 
-void View::dragEnterEvent(QDragEnterEvent *e)
+void View::zoomIn()
 {
-    e->setDropAction(Qt::IgnoreAction);
+    m_globalZoom += 0.1;
+    refreshPages();
 }
 
-void View::dropEvent(QDropEvent *e)
+void View::zoomOut()
 {
-    Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
+    m_globalZoom -= 0.1;
+    refreshPages();
+}
+
+void View::zoomReset()
+{
+    m_globalZoom = 1.0;
+    refreshPages();
+}
+
+void View::togglePageZoom(Page *page)
+{
+    if (page->isZoomToggled()) {
+        auto zoom = page->zoom() < 1.3 ? 1.0 : page->zoom() - 0.3;
+        page->setZoom(zoom);
+    } else {
+        page->setZoom(page->zoom() + 0.3);
+    }
+    page->setIsZoomToggled(!page->isZoomToggled());
+    page->redrawImage();
 }

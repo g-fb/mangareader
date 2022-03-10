@@ -22,13 +22,13 @@ class View : public QGraphicsView, public KXMLGUIClient
 public:
     View(MainWindow *parent);
     ~View() = default;
-    auto imageCount() -> int;
     void reset();
-    void setManga(const QString &manga);
-    void setImages(const QStringList &images);
     void loadImages();
     void goToPage(int number);
+    auto imageCount() -> int;
     void setStartPage(int number);
+    void setManga(const QString &manga);
+    void setImages(const QStringList &images);
 
 signals:
     void imagesLoaded();
@@ -49,6 +49,15 @@ public slots:
     void togglePageZoom(Page *page);
 
 private:
+    void setupActions();
+    void createPages();
+    void calculatePageSizes();
+    void setPagesVisibility();
+    void addRequest(int number);
+    void delRequest(int number);
+    auto hasRequest(int number) const -> bool;
+    void scrollContentsBy(int dx, int dy) override;
+    auto isInView  (int imgTop, int imgBot) -> bool;
     void resizeEvent(QResizeEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -57,14 +66,6 @@ private:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
-    void createPages();
-    void calculatePageSizes();
-    void setPagesVisibility();
-    void scrollContentsBy(int dx, int dy) override;
-    void addRequest(int number);
-    void delRequest(int number);
-    auto hasRequest(int number) const -> bool;
-    auto isInView  (int imgTop, int imgBot) -> bool;
 
     QGraphicsScene  *m_scene;
     QString          m_manga;
@@ -78,7 +79,6 @@ private:
     float            m_firstVisibleOffset = 0.0f;
     double           m_globalZoom = 1.0;
     QTimer          *m_resizeTimer;
-    void setupActions();
 };
 
 #endif // VIEW_H
