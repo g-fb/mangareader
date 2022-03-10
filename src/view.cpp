@@ -360,6 +360,9 @@ auto View::isInView(int imgTop, int imgBot) -> bool
 
 void View::resizeEvent(QResizeEvent *e)
 {
+    if (m_pages.isEmpty()) {
+        return;
+    }
     if (MangaReaderSettings::useResizeTimer()) {
         m_resizeTimer->start();
     } else {
