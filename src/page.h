@@ -47,8 +47,8 @@ private:
     double   m_zoom = 1.0;
     bool     m_isZoomToggled {false};
     double   m_ratio;
-    QPixmap *m_pixmap = nullptr;
-    QImage  *m_image = nullptr;
+    QPixmap  m_pixmap;
+    QImage   m_image;
 };
 
 #endif // PAGE_H

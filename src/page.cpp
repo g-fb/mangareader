@@ -39,9 +39,9 @@ void Page::setMaxWidth(int maxWidth)
 void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     Q_UNUSED(widget);
-    if (m_pixmap) {
-        auto w = m_pixmap->width();
-        auto h = m_pixmap->height();
+    if (!m_pixmap.isNull()) {
+        auto w = m_pixmap.width();
+        auto h = m_pixmap.height();
 
         // draw border arround the image
         if (MangaReaderSettings::pageSpacing() > 0) {
@@ -62,7 +62,7 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
         // set default pen, else the pen's size is included when drawing the pixmap
         // resulting in a small gap between images
         painter->setPen(QPen());
-        painter->drawPixmap(option->exposedRect, *m_pixmap, option->exposedRect);
+        painter->drawPixmap(option->exposedRect, m_pixmap, option->exposedRect);
     }
 }
 
@@ -93,29 +93,26 @@ auto Page::boundingRect() const -> QRectF
 
 auto Page::isImageDeleted() const -> bool
 {
-    return m_pixmap == nullptr;
+    return m_pixmap.isNull();
 }
 
 void Page::deleteImage()
 {
-    delete m_pixmap;
-    m_pixmap = nullptr;
-    delete m_image;
-    m_image = nullptr;
+    m_pixmap = QPixmap();
+    m_image = QImage();
 }
 
 void Page::setImage(const QImage &image)
 {
-    delete m_image;
-    m_image = new QImage(QImage(image));
+    m_image = image;
     redrawImage();
 }
 
 void Page::redrawImage()
 {
     calculateScaledSize();
-    if (m_image) {
-        Worker::instance()->processImageResize(*m_image, m_scaledSize, m_number);
+    if (!m_image.isNull()) {
+        Worker::instance()->processImageResize(m_image, m_scaledSize, m_number);
     }
 }
 
@@ -156,13 +153,13 @@ void Page::calculateScaledSize()
 void Page::redraw(const QImage &image)
 {
     // reuse existing pixmap if of right size
-    if (m_pixmap != nullptr && m_pixmap->size() == image.size()) {
-        QPainter p(m_pixmap);
+    if (!m_pixmap.isNull() && m_pixmap.size() == image.size()) {
+        QPainter p(&m_pixmap);
         p.drawImage(0, 0, image);
         p.end();
     } else {
-        delete m_pixmap;
-        m_pixmap = new QPixmap(QPixmap::fromImage(image));
+        m_pixmap = QPixmap();
+        m_pixmap = QPixmap::fromImage(image);
     }
     update();
 }
