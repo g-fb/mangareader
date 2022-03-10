@@ -284,7 +284,7 @@ void View::addRequest(int number)
         return;
     }
     m_requestedPages.append(number);
-    emit requestPage(number);
+    emit requestPage(number, m_images.at(number));
 }
 
 auto View::hasRequest(int number) const -> bool

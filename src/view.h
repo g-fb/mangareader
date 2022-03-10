@@ -32,7 +32,7 @@ public:
 
 signals:
     void imagesLoaded();
-    void requestPage(int number);
+    void requestPage(int number, const QString &path);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
     void addBookmark(int number);

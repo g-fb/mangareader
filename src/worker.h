@@ -17,10 +17,9 @@ public:
     ~Worker() = default;
 
     static auto instance() -> Worker *;
-    void setImages(const QStringList &images);
 
 public slots:
-    void processImageRequest(int);
+    void processImageRequest(int, const QString &);
     void processImageResize(const QImage &image, const QSize &size, int number);
 
 signals:
@@ -28,7 +27,6 @@ signals:
     void imageResized(const QImage &image, int number);
 
 private:
-    QStringList m_images;
     static Worker *sm_worker;
 };
 

@@ -436,7 +436,6 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     if (m_images.count() < 1) {
         return;
     }
-    m_worker->setImages(m_images);
     m_view->reset();
     m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);

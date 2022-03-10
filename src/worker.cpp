@@ -12,14 +12,9 @@
 
 Worker* Worker::sm_worker = nullptr;
 
-void Worker::setImages(const QStringList &images)
+void Worker::processImageRequest(int number, const QString &path)
 {
-    m_images = images;
-}
-
-void Worker::processImageRequest(int number)
-{
-    const QString filename = m_images.at(number);
+    const QString filename = path;
     QImage image;
     if (image.load(filename)) {
         emit imageReady(image, number);
