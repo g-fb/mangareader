@@ -12,12 +12,20 @@
 
 Worker* Worker::sm_worker = nullptr;
 
-void Worker::processImageRequest(int number, const QString &path)
+void Worker::processDriveImageRequest(int number, const QString &path)
 {
     const QString filename = path;
     QImage image;
     if (image.load(filename)) {
         Q_EMIT imageReady(image, number);
+    }
+}
+
+void Worker::processMemoryImageRequest(int number, const QByteArray &data)
+{
+    QImage image = QImage::fromData(data);
+    if (!image.isNull()) {
+        emit imageReady(image, number);
     }
 }
 

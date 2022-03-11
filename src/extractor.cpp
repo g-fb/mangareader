@@ -10,6 +10,11 @@
 #include <QArchive>
 #include <settings.h>
 
+using QArchive::DiskExtractor;
+using QArchive::MemoryExtractor;
+using QArchive::MemoryExtractorOutput;
+using QArchive::MemoryFile;
+
 Extractor::Extractor(QObject *parent)
     : QObject{parent}
 {
@@ -49,22 +54,36 @@ void Extractor::setupTmpExtractionFolder()
 
 void Extractor::extractArchive()
 {
+    switch (extractionType()) {
+    case ExtractionType::Drive: {
+        extractArchiveToDrive();
+        break;
+    }
+    case ExtractionType::Memory: {
+        extractArchiveToMemory();
+        break;
+    }
+    }
+}
+
+void Extractor::extractArchiveToDrive()
+{
     setupTmpExtractionFolder();
-    auto extractor = new QArchive::DiskExtractor(this);
+    auto extractor = new DiskExtractor(this);
     extractor->setArchive(m_archiveFile);
     extractor->setOutputDirectory(m_tmpFolder);
     extractor->setCalculateProgress(true);
     extractor->start();
 
-    connect(extractor, &QArchive::DiskExtractor::started, this, &Extractor::started);
-    connect(extractor, &QArchive::DiskExtractor::finished, this, &Extractor::finished);
+    connect(extractor, &DiskExtractor::started, this, &Extractor::started);
+    connect(extractor, &DiskExtractor::finished, this, &Extractor::finished);
 
-    connect(extractor, &QArchive::DiskExtractor::progress,
+    connect(extractor, &DiskExtractor::progress,
             this, [=](QString, int, int, qint64 bytesProcessed, qint64 bytesTotal) {
         Q_EMIT progress(bytesProcessed * 100 / bytesTotal);
     });
 
-    connect(extractor, &QArchive::DiskExtractor::error, this, [=](short err) {
+    connect(extractor, &DiskExtractor::error, this, [=](short err) {
         QMimeDatabase mimeDB;
         QMimeType type = mimeDB.mimeTypeForFile(m_archiveFile);
         if (type.name() == "application/vnd.comicbook-rar" || type.name() == "application/vnd.rar") {
@@ -72,11 +91,54 @@ void Extractor::extractArchive()
             return;
         }
 
-        QString errorMessage = i18n("Error %1: Could not open the archive.\n%2",
+        QString errorMessage = i18n("Error %1: Could not extract the archive.\n%2",
                                     QString::number(err),
                                     QArchive::errorCodeToString(err));
         Q_EMIT error(errorMessage);
     });
+}
+
+void Extractor::extractArchiveToMemory()
+{
+    auto extractor = new MemoryExtractor(m_archiveFile);
+    extractor->setCalculateProgress(true);
+    extractor->getInfo();
+    extractor->start();
+
+    connect(extractor, &MemoryExtractor::started, this, &Extractor::started);
+    QObject::connect(extractor, &MemoryExtractor::finished, this, [=](MemoryExtractorOutput *data) {
+        const QVector<MemoryFile> files = data->getFiles();
+
+        for(const auto &file : files) {
+            auto fileInfo = file.fileInformation();
+            m_memoryImages.emplace(fileInfo.value("FileName").toString(), file.buffer()->data());
+        }
+
+        Q_EMIT finishedMemory(m_memoryImages);
+        m_memoryImages.clear();
+        data->deleteLater();
+        extractor->deleteLater();
+    });
+
+    connect(extractor, &DiskExtractor::progress,
+            this, [=](QString, int, int, qint64 bytesProcessed, qint64 bytesTotal) {
+        Q_EMIT progress(bytesProcessed * 100 / bytesTotal);
+    });
+
+    QObject::connect(extractor, &MemoryExtractor::error, this, [=](short err) {
+        QMimeDatabase mimeDb;
+        QString mimeName = mimeDb.mimeTypeForFile(m_archiveFile).name();
+        if (mimeName == "application/vnd.comicbook-rar" || mimeName == "application/vnd.rar") {
+            extractRarArchive();
+            return;
+        }
+
+        QString errorMessage = i18n("Error %1: Could not extract the archive.\n%2",
+                                    QString::number(err),
+                                    QArchive::errorCodeToString(err));
+        Q_EMIT error(errorMessage);
+    });
+
 }
 
 void Extractor::extractRarArchive()
@@ -145,6 +207,11 @@ void Extractor::extractRarArchive()
     return;
 }
 
+const QString &Extractor::archiveFile() const
+{
+    return m_archiveFile;
+}
+
 void Extractor::setArchiveFile(const QString &archiveFile)
 {
     m_archiveFile = archiveFile;
@@ -171,4 +238,14 @@ QString Extractor::unrarNotFoundMessage()
                        "If unrar is still not found you can set "
                        "the path to the unrar executable manually in the settings.");
 #endif
+}
+
+Extractor::ExtractionType Extractor::extractionType() const
+{
+    return m_extractionType;
+}
+
+void Extractor::setExtractionType(ExtractionType type)
+{
+    m_extractionType = type;
 }

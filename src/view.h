@@ -15,11 +15,18 @@ class Page;
 class QGraphicsScene;
 class MainWindow;
 
+using MemoryImages = std::map<QString, QByteArray>;
+
 class View : public QGraphicsView, public KXMLGUIClient
 {
     Q_OBJECT
 
 public:
+    enum ImageType {
+        Drive,
+        Memory
+    };
+
     View(MainWindow *parent);
     ~View() = default;
     void reset();
@@ -30,9 +37,12 @@ public:
     void setManga(const QString &manga);
     void setImages(const QStringList &images);
 
+    void setMemoryImages(const MemoryImages &newMemoryImages);
+
 Q_SIGNALS:
     void imagesLoaded();
-    void requestPage(int number, const QString &path);
+    void requestDriveImage(int number, const QString &path);
+    void requestMemoryImage(int number, const QByteArray &data);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
     void addBookmark(int number);
@@ -51,6 +61,8 @@ public Q_SLOTS:
 private:
     void setupActions();
     void createPages();
+    void createPagesFromDrive();
+    void createPagesFromMemory();
     void calculatePageSizes();
     void setPagesVisibility();
     void addRequest(int number);
@@ -79,6 +91,8 @@ private:
     float            m_firstVisibleOffset = 0.0f;
     double           m_globalZoom = 1.0;
     QTimer          *m_resizeTimer{};
+    MemoryImages     m_memoryImages;
+    ImageType        m_imageType {ImageType::Memory};
 };
 
 #endif // VIEW_H

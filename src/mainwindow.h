@@ -24,6 +24,8 @@ class QFileInfo;
 class QFileSystemModel;
 class SettingsWindow;
 
+using MemoryImages = std::map<QString, QByteArray>;
+
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
@@ -39,6 +41,7 @@ public:
     };
 
     void loadImages(const QString &path, bool recursive = false, bool updateCurrentPath = true);
+    void loadImagesFromMemory(const MemoryImages &memoryImages);
 
 private:
     static void showError(const QString &error);

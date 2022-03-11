@@ -16,6 +16,7 @@
 #include <KXMLGUIFactory>
 
 #include <QApplication>
+#include <QBuffer>
 #include <QImageReader>
 #include <QMenu>
 #include <QMimeData>
@@ -66,8 +67,11 @@ View::View(MainWindow *parent)
         }
     });
 
-    connect(this, &View::requestPage,
-            Worker::instance(), &Worker::processImageRequest);
+    connect(this, &View::requestDriveImage,
+            Worker::instance(), &Worker::processDriveImageRequest);
+
+    connect(this, &View::requestMemoryImage,
+            Worker::instance(), &Worker::processMemoryImageRequest);
 
     connect(Worker::instance(), &Worker::imageReady,
             this, &View::onImageReady);
@@ -129,6 +133,7 @@ void View::setupActions()
 
 void View::reset()
 {
+    m_memoryImages.clear();
     qDeleteAll(m_pages);
     m_pages.clear();
     m_start.clear();
@@ -148,18 +153,51 @@ void View::loadImages()
 
 void View::createPages()
 {
-    m_start.resize(m_images.count());
-    m_end.resize(m_images.count());
+    switch (m_imageType) {
+    case ImageType::Drive: {
+        createPagesFromDrive();
+        break;
+    }
+    case ImageType::Memory: {
+        createPagesFromMemory();
+        break;
+    }
+    }
+}
 
-    // create page for each image
+void View::createPagesFromDrive()
+{
+    m_start.resize(m_images.size());
+    m_end.resize(m_images.size());
     for (int i = 0; i < m_images.count(); i++) {
-
         QImageReader imageReader(m_images[i]);
-        Page *p = new Page(imageReader.size(), i);
+        Page *p = new Page(imageReader.size());
+        p->setNumber(i);
         p->setView(this);
 
         m_pages.append(p);
         m_scene->addItem(p);
+    }
+}
+
+void View::createPagesFromMemory()
+{
+    m_start.resize(m_memoryImages.size());
+    m_end.resize(m_memoryImages.size());
+
+    int i {0};
+    for (auto const& [key, value] : m_memoryImages) {
+        QBuffer buffer;
+        buffer.setData(value);
+        QImageReader imageReader(&buffer);
+        Page *p = new Page(imageReader.size());
+        p->setNumber(i);
+        p->setKey(key);
+        p->setView(this);
+
+        m_pages.append(p);
+        m_scene->addItem(p);
+        ++i;
     }
 }
 
@@ -239,7 +277,16 @@ void View::addRequest(int number)
         return;
     }
     m_requestedPages.append(number);
-    Q_EMIT requestPage(number, m_images.at(number));
+    switch (m_imageType) {
+    case ImageType::Drive: {
+        Q_EMIT requestDriveImage(number, m_images.at(number));
+        break;
+    }
+    case ImageType::Memory: {
+        Q_EMIT requestMemoryImage(number, m_memoryImages.at(m_pages.at(number)->key()));
+        break;
+    }
+    }
 }
 
 auto View::hasRequest(int number) const -> bool
@@ -263,7 +310,7 @@ void View::onImageReady(const QImage &image, int number)
         goToPage(m_startPage);
         m_startPage = 0;
     }
-//    setPagesVisibility();
+    setPagesVisibility();
 }
 
 void View::onImageResized(const QImage &image, int number)
@@ -309,7 +356,7 @@ void View::refreshPages()
         }
     }
     calculatePageSizes();
-//    setPagesVisibility();
+    setPagesVisibility();
 }
 
 auto View::isInView(int imgTop, int imgBot) -> bool
@@ -418,6 +465,11 @@ void View::dragEnterEvent(QDragEnterEvent *e)
 void View::dropEvent(QDropEvent *e)
 {
     Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
+}
+
+void View::setMemoryImages(const MemoryImages &images)
+{
+    m_memoryImages = images;
 }
 
 void View::goToPage(int number)

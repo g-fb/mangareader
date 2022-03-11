@@ -15,13 +15,12 @@
 #include <QScrollBar>
 #include <QStyleOptionGraphicsItem>
 
-Page::Page(QSize sourceSize, int number, QGraphicsItem *parent)
+Page::Page(QSize sourceSize, QGraphicsItem *parent)
     : QGraphicsItem{ parent }
     , m_view{ nullptr }
     , m_scaledSize{ 0, 0 }
     , m_sourceSize{ sourceSize }
     , m_maxWidth{}
-    , m_number{ number }
     , m_ratio{}
 {
 }
@@ -64,6 +63,16 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
         painter->setPen(QPen());
         painter->drawPixmap(option->exposedRect, m_pixmap, option->exposedRect);
     }
+}
+
+const QString &Page::key() const
+{
+    return m_key;
+}
+
+void Page::setKey(const QString &newKey)
+{
+    m_key = newKey;
 }
 
 bool Page::isZoomToggled() const
@@ -172,6 +181,11 @@ void Page::setView(View *view)
 auto Page::number() -> int
 {
     return m_number;
+}
+
+void Page::setNumber(int newNumber)
+{
+    m_number = newNumber;
 }
 
 void Page::setScaledSize(QSize size)

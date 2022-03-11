@@ -19,7 +19,8 @@ public:
     static auto instance() -> Worker *;
 
 public Q_SLOTS:
-    void processImageRequest(int, const QString &);
+    void processDriveImageRequest(int, const QString &);
+    void processMemoryImageRequest(int, const QByteArray &);
     void processImageResize(const QImage &image, const QSize &size, int number);
 
 Q_SIGNALS:
