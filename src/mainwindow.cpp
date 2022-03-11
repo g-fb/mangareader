@@ -45,8 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bookmarksModel{ new QStandardItemModel(0, 2, this) }
 {
     setAcceptDrops(true);
-    m_config = KSharedConfig::openConfig("mangareader/mangareader.conf");
-
     init();
     setupActions();
     setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, "mangareaderui.rc");
@@ -75,10 +73,6 @@ MainWindow::MainWindow(QWidget *parent)
     toolBarMenuAction()->setVisible(false);
     connect(toolBar("mainToolBar"), &QToolBar::visibilityChanged,
             this, &MainWindow::setToolBarVisible);
-
-    connect(QApplication::instance(), &QApplication::aboutToQuit, this, [=]() {
-        this->~MainWindow();
-    });
 }
 
 MainWindow::~MainWindow()
@@ -89,6 +83,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
+    m_config = KSharedConfig::openConfig("mangareader/mangareader.conf");
+
     // ==================================================
     // setup extractor
     // ==================================================
@@ -198,6 +194,10 @@ void MainWindow::setupMangaTreeDockWidget()
     KConfigGroup rootGroup = m_config->group("");
     QString mangaFolder = rootGroup.readEntry("Manga Folder");
 
+    if (mangaFolder.isEmpty()) {
+        return;
+    }
+
     auto treeDockWidget = new QWidget(this);
     auto treeDockLayout = new QVBoxLayout(treeDockWidget);
 
@@ -227,12 +227,10 @@ void MainWindow::setupMangaTreeDockWidget()
     m_treeView->header()->hide();
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    if (!mangaFolder.isEmpty()) {
-        m_treeModel->setRootPath(mangaFolder);
-        m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
-        m_treeDock->setProperty("isEmpty", false);
-        m_treeDock->setWindowTitle(mangaFolder);
-    }
+    m_treeModel->setRootPath(mangaFolder);
+    m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
+    m_treeDock->setProperty("isEmpty", false);
+    m_treeDock->setWindowTitle(mangaFolder);
 
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
@@ -257,6 +255,10 @@ void MainWindow::setupMangaTreeDockWidget()
 void MainWindow::setupBookmarksDockWidget()
 {
     KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+    if (bookmarksGroup.keyList().isEmpty()) {
+        return;
+    }
+
     m_bookmarksDock->setObjectName("bookmarksDockWidget");
     m_bookmarksDock->setWindowTitle(i18n("Bookmarks"));
     m_bookmarksDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
