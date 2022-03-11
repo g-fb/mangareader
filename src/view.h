@@ -67,7 +67,7 @@ private:
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
 
-    QGraphicsScene  *m_scene;
+    QGraphicsScene  *m_scene{};
     QString          m_manga;
     QStringList      m_images;
     QVector<Page*>   m_pages;
@@ -78,7 +78,7 @@ private:
     int              m_firstVisible = -1;
     float            m_firstVisibleOffset = 0.0f;
     double           m_globalZoom = 1.0;
-    QTimer          *m_resizeTimer;
+    QTimer          *m_resizeTimer{};
 };
 
 #endif // VIEW_H

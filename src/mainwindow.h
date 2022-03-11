@@ -71,28 +71,28 @@ private:
 
     Extractor *m_extractor;
     KSharedConfig::Ptr  m_config;
-    KHamburgerMenu     *m_hamburgerMenu;
+    KHamburgerMenu     *m_hamburgerMenu{};
     QStringList         m_images;
-    View               *m_view;
-    QDockWidget        *m_treeDock;
-    QTreeView          *m_treeView;
-    QFileSystemModel   *m_treeModel;
-    QDockWidget        *m_bookmarksDock;
-    QTableView         *m_bookmarksView;
-    QStandardItemModel *m_bookmarksModel;
+    View               *m_view{};
+    QDockWidget        *m_treeDock{};
+    QTreeView          *m_treeView{};
+    QFileSystemModel   *m_treeModel{};
+    QDockWidget        *m_bookmarksDock{};
+    QTableView         *m_bookmarksView{};
+    QStandardItemModel *m_bookmarksModel{};
     Worker             *m_worker{};
     QThread            *m_thread{};
     QMenu              *m_mangaFoldersMenu{};
     QProgressBar       *m_progressBar{};
     QString             m_currentPath;
-    QPushButton        *m_selectMangaLibraryButton{nullptr};
-    SettingsWindow     *m_settingsWindow;
+    QPushButton        *m_selectMangaLibraryButton{};
+    SettingsWindow     *m_settingsWindow{};
     QDialog            *m_renameDialog{};
-    StartUpWidget      *m_startUpWidget;
-    int                 m_startPage{ 0 };
-    bool                m_isLoadedRecursive{ false };
-    const QString       RECURSIVE_KEY_PREFIX = ":recursive:";
-    QStringList         m_supportedMimeTypes {"application/zip",
+    StartUpWidget      *m_startUpWidget{};
+    int                 m_startPage{0};
+    bool                m_isLoadedRecursive{false};
+    const QString       RECURSIVE_KEY_PREFIX{":recursive:"};
+    QStringList         m_supportedMimeTypes{"application/zip",
                                               "application/vnd.comicbook+zip",
                                               "application/x-7z-compressed",
                                               "application/x-cb7",

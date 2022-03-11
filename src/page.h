@@ -39,13 +39,13 @@ private:
     auto boundingRect() const -> QRectF override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
 
-    View    *m_view;
+    View    *m_view{};
     QSize    m_scaledSize;
     QSize    m_sourceSize;
     int      m_maxWidth;
     int      m_number;
     double   m_zoom = 1.0;
-    bool     m_isZoomToggled {false};
+    bool     m_isZoomToggled{false};
     double   m_ratio;
     QPixmap  m_pixmap;
     QImage   m_image;
