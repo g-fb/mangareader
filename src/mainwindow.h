@@ -10,6 +10,7 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+class Extractor;
 class KHamburgerMenu;
 class QPushButton;
 class StartUpWidget;
@@ -48,8 +49,6 @@ private:
     void openMangaFolder();
     void openMangaArchive();
     void toggleFullScreen();
-    void extractArchive(const QString &archivePath);
-    void extractRarArchive(const QString &archivePath);
     void treeViewContextMenu(QPoint point);
     void bookmarksViewContextMenu(QPoint point);
     void hideDockWidgets(Qt::DockWidgetAreas area = Qt::AllDockWidgetAreas);
@@ -70,6 +69,7 @@ private:
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
 
+    Extractor *m_extractor;
     KSharedConfig::Ptr  m_config;
     KHamburgerMenu     *m_hamburgerMenu;
     QStringList         m_images;
@@ -84,7 +84,6 @@ private:
     QThread            *m_thread{};
     QMenu              *m_mangaFoldersMenu{};
     QProgressBar       *m_progressBar{};
-    QString             m_tmpFolder;
     QString             m_currentPath;
     QPushButton        *m_selectMangaLibraryButton{nullptr};
     SettingsWindow     *m_settingsWindow;

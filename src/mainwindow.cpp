@@ -5,6 +5,7 @@
  */
 
 #include "_debug.h"
+#include "extractor.h"
 #include "mainwindow.h"
 #include "settings.h"
 #include "settingswindow.h"
@@ -84,16 +85,39 @@ MainWindow::~MainWindow()
 {
     m_thread->quit();
     m_thread->wait();
-
-    QFileInfo file(m_tmpFolder);
-    if (file.exists() && file.isDir() && file.isWritable()) {
-        QDir dir(m_tmpFolder);
-        dir.removeRecursively();
-    }
 }
 
 void MainWindow::init()
 {
+    // ==================================================
+    // setup extractor
+    // ==================================================
+    m_extractor = new Extractor(this);
+
+    connect(m_extractor, &Extractor::started, this, [=]() {
+        m_progressBar->setVisible(true);
+    });
+    connect(m_extractor, &Extractor::progress, this, [=](int p) {
+        m_progressBar->setValue(p);
+    });
+    connect(m_extractor, &Extractor::finished, this, [=]() {
+        m_progressBar->setVisible(false);
+        loadImages(m_extractor->extractionFolder(), true);
+    });
+    connect(m_extractor, &Extractor::error, this, [=](const QString &error) {
+        showError(error);
+    });
+    connect(m_extractor, &Extractor::unrarNotFound, this, [=]() {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setText(m_extractor->unrarNotFoundMessage());
+        msgBox.setStandardButtons(QMessageBox::Close);
+        msgBox.setEscapeButton(QMessageBox::Close);
+        auto btn = msgBox.addButton("Open Settings", QMessageBox::HelpRole);
+        connect(btn, &QPushButton::clicked, this, &MainWindow::openSettings);
+        msgBox.exec();
+    });
+
     // ==================================================
     // setup central widget
     // ==================================================
@@ -407,7 +431,8 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     if (fileInfo.isFile()) {
         // extract files to a temporary location
         // when finished call this function with the temporary location and recursive = true
-        extractArchive(fileInfo.absoluteFilePath());
+        m_extractor->setArchiveFile(fileInfo.absoluteFilePath());
+        m_extractor->extractArchive();
         return;
     }
 
@@ -661,160 +686,6 @@ void MainWindow::showError(const QString& error)
     auto layout = qobject_cast<QGridLayout*>(errorWindow.layout());
     layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
     errorWindow.exec();
-}
-
-void MainWindow::extractArchive(const QString& archivePath)
-{
-    QFileInfo extractionFolder(MangaReaderSettings::extractionFolder());
-    QFileInfo archivePathInfo(archivePath);
-    if (!extractionFolder.exists() || !extractionFolder.isWritable()) {
-        showError(i18n("Extraction folder does not exist or is not writable.\n%1",
-                              MangaReaderSettings::extractionFolder()));
-        return;
-    }
-    // delete previous extracted folder
-    QFileInfo file(m_tmpFolder);
-    if (file.exists() && file.isDir() && file.isWritable()) {
-        QDir dir(m_tmpFolder);
-        dir.removeRecursively();
-    }
-    m_tmpFolder = extractionFolder.absoluteFilePath() + "/" + archivePathInfo.baseName();
-    QDir dir(m_tmpFolder);
-    if (!dir.exists()) {
-        dir.mkdir(m_tmpFolder);
-    }
-
-    // Extract rar archives with unrar
-    QMimeDatabase mimeDB;
-    QMimeType type = mimeDB.mimeTypeForFile(archivePathInfo.absoluteFilePath());
-    if (type.name() == "application/vnd.comicbook-rar" || type.name() == "application/vnd.rar") {
-        extractRarArchive(archivePathInfo.absoluteFilePath());
-        return;
-    }
-
-    auto extractor = new QArchive::DiskExtractor(this);
-    extractor->setArchive(archivePathInfo.absoluteFilePath());
-    extractor->setOutputDirectory(m_tmpFolder);
-    extractor->setCalculateProgress(true);
-    extractor->start();
-
-    m_progressBar->setVisible(true);
-    m_progressBar->setValue(0);
-    connect(extractor, &QArchive::DiskExtractor::finished, this, [=]() {
-        m_progressBar->setVisible(false);
-        loadImages(m_tmpFolder, true, false);
-    });
-
-    connect(extractor, &QArchive::DiskExtractor::progress,
-            this, [=](QString file, int entriesProcessed, int entriesTotal, qint64 bytesProcessed, qint64 bytesTotal) {
-        Q_UNUSED(file)
-        Q_UNUSED(entriesProcessed)
-        Q_UNUSED(entriesTotal)
-        m_progressBar->setValue(float(bytesProcessed) * 100 / float(bytesTotal));
-    });
-    connect(extractor, &QArchive::DiskExtractor::progress,
-            this, [=](const QString &file, int processedFiles, int totalFiles, int percent) {
-        Q_UNUSED(file)
-        Q_UNUSED(processedFiles)
-        Q_UNUSED(totalFiles)
-        m_progressBar->setValue(percent);
-    });
-    connect(extractor, &QArchive::DiskExtractor::error, this, [=](short error) {
-        showError(i18n("Error %1: Could not open the archive.\n%2",
-                              QString::number(error),
-                              QArchive::errorCodeToString(error)));
-        m_progressBar->hide();
-    });
-}
-
-void MainWindow::extractRarArchive(const QString &archivePath)
-{
-
-    auto unrar = MangaReaderSettings::unrarPath().isEmpty()
-            ? MangaReaderSettings::autoUnrarPath()
-            : MangaReaderSettings::unrarPath();
-    if (unrar.startsWith("file://")) {
-#ifdef Q_OS_WIN32
-        unrar.remove(0, QString("file:///").size());
-#else
-        unrar.remove(0, QString("file://").size());
-#endif
-    }
-    QFileInfo fi(unrar);
-    if (unrar.isEmpty() || !fi.exists()) {
-        QMessageBox msgBox;
-        msgBox.setIcon(QMessageBox::Information);
-#ifdef Q_OS_WIN32
-        msgBox.setText("UnRAR executable was not found.\n"
-                       "It can be installed through WinRAR or independent. "
-                       "When installed with WinRAR just restarting the application "
-                       "should be enough to find the executable.\n"
-                       "If installed independently you have to manually "
-                       "set the path to the UnRAR executable in the settings.");
-#else
-        msgBox.setText("UnRAR executable was not found.\n"
-                       "Install the unrar package and restart the application, "
-                       "unrar should be picked up automatically.\n"
-                       "If unrar is still not found you can set "
-                       "the path to the unrar executable manually in the settings.");
-#endif
-        msgBox.setStandardButtons(QMessageBox::Close);
-        msgBox.setEscapeButton(QMessageBox::Close);
-        auto btn = msgBox.addButton("Open Settings", QMessageBox::HelpRole);
-        connect(btn, &QPushButton::clicked, this, &MainWindow::openSettings);
-        msgBox.exec();
-        return;
-    }
-
-    QStringList args;
-    args << "e" << archivePath << m_tmpFolder << "-o+";
-    auto process = new QProcess();
-    process->setProgram(unrar);
-    process->setArguments(args);
-    process->start();
-
-    connect(process, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished,
-            this, [=]() {
-        m_progressBar->setVisible(false);
-        loadImages(m_tmpFolder, true);
-    });
-
-    connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
-        QRegularExpression re("[0-9]+[%]");
-        QRegularExpressionMatch match = re.match(process->readAllStandardOutput());
-        if (match.hasMatch()) {
-            QString matched = match.captured(0);
-            m_progressBar->setVisible(true);
-            m_progressBar->setValue(matched.remove("%").toInt());
-        }
-    });
-
-    connect(process, &QProcess::errorOccurred,
-            this, [=](QProcess::ProcessError error) {
-        QString errorMessage;
-        switch (error) {
-        case QProcess::FailedToStart:
-            errorMessage = "FailedToStart";
-            break;
-        case QProcess::Crashed:
-            errorMessage = "Crashed";
-            break;
-        case QProcess::Timedout:
-            errorMessage = "Timedout";
-            break;
-        case QProcess::WriteError:
-            errorMessage = "WriteError";
-            break;
-        case QProcess::ReadError:
-            errorMessage = "ReadError";
-            break;
-        default:
-            errorMessage = "UnknownError";
-        }
-        showError(i18n("Error: Could not open the archive. %1", errorMessage));
-    });
-
-    return;
 }
 
 void MainWindow::treeViewContextMenu(QPoint point)

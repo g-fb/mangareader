@@ -11,6 +11,7 @@ ecm_add_app_icon(ICONS_SRCS ICONS ${DATA_ICONS})
 add_executable(mangareader)
 target_sources(mangareader
     PRIVATE
+        extractor.cpp
         main.cpp
         mainwindow.cpp
         view.cpp
