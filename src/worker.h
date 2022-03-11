@@ -18,11 +18,11 @@ public:
 
     static auto instance() -> Worker *;
 
-public slots:
+public Q_SLOTS:
     void processImageRequest(int, const QString &);
     void processImageResize(const QImage &image, const QSize &size, int number);
 
-signals:
+Q_SIGNALS:
     void imageReady(QImage image, int number);
     void imageResized(const QImage &image, int number);
 

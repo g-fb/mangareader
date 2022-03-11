@@ -17,7 +17,7 @@ void Worker::processImageRequest(int number, const QString &path)
     const QString filename = path;
     QImage image;
     if (image.load(filename)) {
-        emit imageReady(image, number);
+        Q_EMIT imageReady(image, number);
     }
 }
 
@@ -25,7 +25,7 @@ void Worker::processImageResize(const QImage &image, const QSize &size, int numb
 {
     auto scaledImage = image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-    emit imageResized(scaledImage, number);
+    Q_EMIT imageResized(scaledImage, number);
 }
 
 auto Worker::instance() -> Worker *

@@ -190,7 +190,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
             return;
         }
         m_mangaFolders->insertItem(path);
-        emit m_mangaFolders->changed();
+        Q_EMIT m_mangaFolders->changed();
     });
     auto widget = new QWidget();
     auto hLayout = new QHBoxLayout(widget);

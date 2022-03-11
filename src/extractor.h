@@ -17,7 +17,7 @@ public:
     QString unrarNotFoundMessage();
 
 
-signals:
+Q_SIGNALS:
     void started();
     void finished();
     void error(const QString &);

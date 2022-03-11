@@ -143,7 +143,7 @@ void View::loadImages()
     calculatePageSizes();
     setPagesVisibility();
 
-    emit imagesLoaded();
+    Q_EMIT imagesLoaded();
 }
 
 void View::createPages()
@@ -239,7 +239,7 @@ void View::addRequest(int number)
         return;
     }
     m_requestedPages.append(number);
-    emit requestPage(number, m_images.at(number));
+    Q_EMIT requestPage(number, m_images.at(number));
 }
 
 auto View::hasRequest(int number) const -> bool
@@ -341,7 +341,7 @@ void View::mouseDoubleClickEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return;
 
-    emit doubleClicked();
+    Q_EMIT doubleClicked();
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event)
@@ -364,7 +364,7 @@ void View::mouseMoveEvent(QMouseEvent *event)
 {
     QGraphicsView::mouseMoveEvent(event);
 
-    emit mouseMoved(event);
+    Q_EMIT mouseMoved(event);
 }
 
 void View::wheelEvent(QWheelEvent *event)
@@ -404,7 +404,7 @@ void View::contextMenuEvent(QContextMenuEvent *event)
         });
 
         menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [=] {
-            emit addBookmark(page->number());
+            Q_EMIT addBookmark(page->number());
         });
         menu->popup(event->globalPos());
     }

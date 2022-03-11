@@ -30,7 +30,7 @@ public:
     void setManga(const QString &manga);
     void setImages(const QStringList &images);
 
-signals:
+Q_SIGNALS:
     void imagesLoaded();
     void requestPage(int number, const QString &path);
     void doubleClicked();
@@ -38,7 +38,7 @@ signals:
     void addBookmark(int number);
     void fileDropped(const QString &file);
 
-public slots:
+public Q_SLOTS:
     void onImageReady(const QImage &image, int number);
     void onImageResized(const QImage &image, int number);
     void onScrollBarRangeChanged(int x, int y);
