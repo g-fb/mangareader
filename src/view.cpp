@@ -258,7 +258,7 @@ void View::delRequest(int number)
 void View::onImageReady(const QImage &image, int number)
 {
     m_pages.at(number)->setImage(image);
-    calculatePageSizes();
+    //    calculatePageSizes();
     if (m_startPage > 0) {
         goToPage(m_startPage);
         m_startPage = 0;
