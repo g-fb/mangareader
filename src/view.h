@@ -22,11 +22,6 @@ class View : public QGraphicsView, public KXMLGUIClient
     Q_OBJECT
 
 public:
-    enum ImageType {
-        Drive,
-        Memory
-    };
-
     View(MainWindow *parent);
     ~View() = default;
     void reset();
@@ -92,7 +87,6 @@ private:
     double           m_globalZoom = 1.0;
     QTimer          *m_resizeTimer{};
     MemoryImages     m_memoryImages;
-    ImageType        m_imageType {ImageType::Memory};
 };
 
 #endif // VIEW_H

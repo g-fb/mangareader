@@ -32,6 +32,29 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     auto formWidget = new QWidget(this);
     auto formLayout = new QFormLayout(formWidget);
 
+    // memory extraction
+    m_useMemExtraction = new QCheckBox(this);
+    m_useMemExtraction->setObjectName(QStringLiteral("kcfg_UseMemoryExtraction"));
+    m_useMemExtraction->setText(i18n("Use memory extraction"));
+    m_useMemExtraction->setChecked(MangaReaderSettings::useMemoryExtraction());
+    connect(m_useMemExtraction, &QCheckBox::stateChanged, this, [=](int state) {
+        if (state == Qt::Checked) {
+            m_memExMaxFileSize->setDisabled(false);
+        } else {
+            m_memExMaxFileSize->setDisabled(true);
+        }
+    });
+    formLayout->addRow(i18n("Memory extraction"), m_useMemExtraction);
+
+    m_memExMaxFileSize = new QSpinBox(this);
+    m_memExMaxFileSize->setObjectName(QStringLiteral("kcfg_MemExMaxFileSize"));
+    m_memExMaxFileSize->setSuffix(QStringLiteral(" MB"));
+    m_memExMaxFileSize->setMinimum(1);
+    m_memExMaxFileSize->setMaximum(9999);
+    m_memExMaxFileSize->setValue(MangaReaderSettings::memExMaxFileSize());
+    formLayout->addRow(i18n("Max file size to extract in memory"), m_memExMaxFileSize);
+    // end memory extraction
+
     // folder extraction
     auto extractionFolderWidget = new QWidget(this);
     auto extractionFolderLayout = new QHBoxLayout(extractionFolderWidget);

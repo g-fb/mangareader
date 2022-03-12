@@ -12,6 +12,12 @@
     <include>QStandardPaths</include>
     <kcfgfile name="mangareader/mangareader.conf" />
     <group name="General">
+        <entry name="UseMemoryExtraction" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="MemExMaxFileSize" type="Int">
+            <default>500</default>
+        </entry>
         <entry name="MaxWidth" type="Int">
             <default>1200</default>
         </entry>
@@ -24,7 +30,7 @@
             </code>
             <default code="true">tmpFolder</default>
         </entry>
-        <entry name="UseCustomBackgroundColor" type="bool">
+        <entry name="UseCustomBackgroundColor" type="Bool">
             <default>false</default>
         </entry>
         <entry name="BackgroundColor" type="Color">
@@ -36,22 +42,22 @@
         </entry>
         <entry name="MangaFolders" type="PathList">
         </entry>
-        <entry name="MenuBarVisible" type="bool">
+        <entry name="MenuBarVisible" type="Bool">
             <default>false</default>
         </entry>
-        <entry name="MainToolBarVisible" type="bool">
+        <entry name="MainToolBarVisible" type="Bool">
             <default>true</default>
         </entry>
-        <entry name="FitHeight" type="bool">
+        <entry name="FitHeight" type="Bool">
             <default>false</default>
         </entry>
         <entry name="FitWidth" type="bool">
             <default>true</default>
         </entry>
-        <entry name="UpScale" type="bool">
+        <entry name="UpScale" type="Bool">
             <default>true</default>
         </entry>
-        <entry name="UseResizeTimer" type="bool">
+        <entry name="UseResizeTimer" type="Bool">
             <default>false</default>
         </entry>
         <entry name="AutoUnrarPath" type="Path">

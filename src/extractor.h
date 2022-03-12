@@ -9,12 +9,6 @@ class Extractor : public QObject
 {
     Q_OBJECT
 public:
-
-    enum ExtractionType {
-        Drive,
-        Memory
-    };
-
     explicit Extractor(QObject *parent = nullptr);
     ~Extractor();
 
@@ -24,9 +18,6 @@ public:
     void extractRarArchive();
     QString extractionFolder();
     QString unrarNotFoundMessage();
-
-    ExtractionType extractionType() const;
-    void setExtractionType(ExtractionType type);
 
     const QString &archiveFile() const;
     void setArchiveFile(const QString &archiveFile);
@@ -43,7 +34,6 @@ private:
     void setupTmpExtractionFolder();
     QString  m_archiveFile;
     QString  m_tmpFolder;
-    ExtractionType  m_extractionType {ExtractionType::Memory};
     MemoryImages m_memoryImages;
 };
 

@@ -153,15 +153,10 @@ void View::loadImages()
 
 void View::createPages()
 {
-    switch (m_imageType) {
-    case ImageType::Drive: {
-        createPagesFromDrive();
-        break;
-    }
-    case ImageType::Memory: {
+    if (MangaReaderSettings::useMemoryExtraction()) {
         createPagesFromMemory();
-        break;
-    }
+    } else {
+        createPagesFromDrive();
     }
 }
 
@@ -277,15 +272,10 @@ void View::addRequest(int number)
         return;
     }
     m_requestedPages.append(number);
-    switch (m_imageType) {
-    case ImageType::Drive: {
-        Q_EMIT requestDriveImage(number, m_images.at(number));
-        break;
-    }
-    case ImageType::Memory: {
+    if (MangaReaderSettings::useMemoryExtraction()) {
         Q_EMIT requestMemoryImage(number, m_memoryImages.at(m_pages.at(number)->key()));
-        break;
-    }
+    } else {
+        Q_EMIT requestDriveImage(number, m_images.at(number));
     }
 }
 

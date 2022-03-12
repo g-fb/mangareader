@@ -54,15 +54,10 @@ void Extractor::setupTmpExtractionFolder()
 
 void Extractor::extractArchive()
 {
-    switch (extractionType()) {
-    case ExtractionType::Drive: {
-        extractArchiveToDrive();
-        break;
-    }
-    case ExtractionType::Memory: {
+    if (MangaReaderSettings::useMemoryExtraction()) {
         extractArchiveToMemory();
-        break;
-    }
+    } else {
+        extractArchiveToDrive();
     }
 }
 
@@ -238,14 +233,4 @@ QString Extractor::unrarNotFoundMessage()
                        "If unrar is still not found you can set "
                        "the path to the unrar executable manually in the settings.");
 #endif
-}
-
-Extractor::ExtractionType Extractor::extractionType() const
-{
-    return m_extractionType;
-}
-
-void Extractor::setExtractionType(ExtractionType type)
-{
-    m_extractionType = type;
 }
