@@ -10,8 +10,6 @@
 #include <QImage>
 #include <QPainter>
 
-Worker* Worker::sm_worker = nullptr;
-
 void Worker::processDriveImageRequest(int number, const QString &path)
 {
     const QString filename = path;
@@ -38,8 +36,6 @@ void Worker::processImageResize(const QImage &image, const QSize &size, int numb
 
 auto Worker::instance() -> Worker *
 {
-    if (!sm_worker) {
-        sm_worker = new Worker();
-    }
-    return sm_worker;
+    static Worker w;
+    return &w;
 }

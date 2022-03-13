@@ -26,9 +26,6 @@ public Q_SLOTS:
 Q_SIGNALS:
     void imageReady(QImage image, int number);
     void imageResized(const QImage &image, int number);
-
-private:
-    static Worker *sm_worker;
 };
 
 #endif // WORKER_H
