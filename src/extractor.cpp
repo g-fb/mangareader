@@ -97,7 +97,6 @@ void Extractor::extractArchiveToMemory()
 {
     auto extractor = new MemoryExtractor(m_archiveFile);
     extractor->setCalculateProgress(true);
-    extractor->getInfo();
     extractor->start();
 
     connect(extractor, &MemoryExtractor::started, this, &Extractor::started);
