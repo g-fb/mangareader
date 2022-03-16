@@ -16,6 +16,11 @@ public:
     Worker() = default;
     ~Worker() = default;
 
+    Worker(const Worker &) = delete;
+    Worker &operator=(const Worker &) = delete;
+    Worker(Worker &&) = delete;
+    Worker &operator=(Worker &&) = delete;
+
     static auto instance() -> Worker *;
 
 public Q_SLOTS:

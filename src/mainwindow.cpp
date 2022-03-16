@@ -165,11 +165,10 @@ void MainWindow::init()
     // ==================================================
     // setup thread and worker
     // ==================================================
-    m_worker = Worker::instance();
     m_thread = new QThread(this);
-    m_worker->moveToThread(m_thread);
+    Worker::instance()->moveToThread(m_thread);
 //    connect(m_thread, &QThread::finished,
-//            m_worker, &Worker::deleteLater);
+//            Worker::instance(), &Worker::deleteLater);
     connect(m_thread, &QThread::finished,
             m_thread, &QThread::deleteLater);
     m_thread->start();

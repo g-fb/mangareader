@@ -83,7 +83,6 @@ private:
     QDockWidget        *m_bookmarksDock{};
     QTableView         *m_bookmarksView{};
     QStandardItemModel *m_bookmarksModel{};
-    Worker             *m_worker{};
     QThread            *m_thread{};
     QMenu              *m_mangaFoldersMenu{};
     QProgressBar       *m_progressBar{};
