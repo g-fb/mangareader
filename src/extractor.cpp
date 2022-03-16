@@ -103,15 +103,14 @@ void Extractor::extractArchiveToMemory()
     QObject::connect(extractor, &MemoryExtractor::finished, this, [=](MemoryExtractorOutput *data) {
         const QVector<MemoryFile> files = data->getFiles();
 
+        MemoryImages m_memoryImages;
         for(const auto &file : files) {
             auto fileInfo = file.fileInformation();
             m_memoryImages.emplace(fileInfo.value("FileName").toString(), file.buffer()->data());
         }
 
         Q_EMIT finishedMemory(m_memoryImages);
-        m_memoryImages.clear();
         data->deleteLater();
-        extractor->deleteLater();
     });
 
     connect(extractor, &DiskExtractor::progress,

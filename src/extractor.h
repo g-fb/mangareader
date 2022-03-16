@@ -34,7 +34,6 @@ private:
     void setupTmpExtractionFolder();
     QString  m_archiveFile;
     QString  m_tmpFolder;
-    MemoryImages m_memoryImages;
 };
 
 #endif // EXTRACTOR_H
