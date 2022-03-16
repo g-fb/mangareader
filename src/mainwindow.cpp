@@ -246,6 +246,7 @@ void MainWindow::setupMangaTreeDockWidget()
     connect(m_treeView, &QTreeView::doubleClicked, this, [=](const QModelIndex &index) {
         // get path from index
         QString path = m_treeModel->filePath(index);
+        m_startPage = 0;
         loadImages(path);
     });
     connect(m_treeView, &QTreeView::customContextMenuRequested,
@@ -411,6 +412,10 @@ void MainWindow::openMangaFolder()
 
 void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurrentPath)
 {
+    if (m_currentPath == path) {
+        m_view->goToPage(m_startPage);
+        return;
+    }
     QMimeDatabase db;
     QString mimetype = db.mimeTypeForFile(path).name();
     if (!m_supportedMimeTypes.contains(mimetype)) {
