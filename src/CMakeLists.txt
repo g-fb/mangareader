@@ -27,6 +27,7 @@ target_sources(mangareader
 target_link_libraries(mangareader
     PRIVATE
         Qt5::Widgets
+        KF5::Archive
         KF5::ConfigCore
         KF5::ConfigWidgets
         KF5::CoreAddons
@@ -39,6 +40,10 @@ target_link_libraries(mangareader
         QArchive
 )
 target_include_directories(mangareader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+if (KArchive_HAVE_LZMA)
+    target_compile_definitions(mangareader PRIVATE -DWITH_K7ZIP=1)
+endif()
 
 install(TARGETS mangareader DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES settings/mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)

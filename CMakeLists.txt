@@ -36,6 +36,10 @@ set_package_properties(Qt5Core PROPERTIES TYPE REQUIRED)
 find_package(Qt5Widgets)
 set_package_properties(Qt5Widgets PROPERTIES TYPE REQUIRED)
 
+find_package(KF5Archive)
+set_package_properties(KF5Archive PROPERTIES TYPE OPTIONAL
+    URL "https://api.kde.org/frameworks/karchive/html/index.html")
+
 find_package(KF5Config)
 set_package_properties(KF5Config PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfig/html/index.html")
