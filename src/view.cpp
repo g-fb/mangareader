@@ -299,6 +299,12 @@ void View::delRequest(int number)
 
 void View::onImageReady(const QImage &image, int number)
 {
+    // when loading another manga it can happen that the number returned by the thread
+    // is bigger than the total number of images the current manga has
+    // resulting in an index out of range crash
+    if (number > m_images.size() - 1) {
+        return;
+    }
     m_pages.at(number)->setImage(image);
     //    calculatePageSizes();
     if (m_startPage > 0) {
