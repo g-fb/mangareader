@@ -11,11 +11,10 @@
 #include <QGraphicsView>
 #include <QObject>
 
+class KArchive;
 class Page;
 class QGraphicsScene;
 class MainWindow;
-
-using MemoryImages = std::map<QString, QByteArray>;
 
 class View : public QGraphicsView, public KXMLGUIClient
 {
@@ -31,8 +30,7 @@ public:
     void setStartPage(int number);
     void setManga(const QString &manga);
     void setImages(const QStringList &images);
-
-    void setMemoryImages(const MemoryImages &newMemoryImages);
+    void setArchive(KArchive *newArchive);
 
 Q_SIGNALS:
     void imagesLoaded();
@@ -86,7 +84,7 @@ private:
     float            m_firstVisibleOffset = 0.0f;
     double           m_globalZoom = 1.0;
     QTimer          *m_resizeTimer{};
-    MemoryImages     m_memoryImages;
+    KArchive        *m_archive {};
 };
 
 #endif // VIEW_H

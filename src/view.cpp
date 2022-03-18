@@ -15,6 +15,7 @@
 #include <KLocalizedString>
 #include <KXMLGUIFactory>
 
+#include <KArchive>
 #include <QApplication>
 #include <QBuffer>
 #include <QImageReader>
@@ -133,12 +134,14 @@ void View::setupActions()
 
 void View::reset()
 {
-    m_memoryImages.clear();
+    delete m_archive;
+    m_archive = nullptr;
     qDeleteAll(m_pages);
     m_pages.clear();
     m_start.clear();
     m_end.clear();
     m_requestedPages.clear();
+    m_images.clear();
     verticalScrollBar()->setValue(0);
 }
 
@@ -177,22 +180,24 @@ void View::createPagesFromDrive()
 
 void View::createPagesFromMemory()
 {
-    m_start.resize(m_memoryImages.size());
-    m_end.resize(m_memoryImages.size());
+    m_start.resize(m_images.size());
+    m_end.resize(m_images.size());
 
-    int i {0};
-    for (auto const& [key, value] : m_memoryImages) {
-        QBuffer buffer;
-        buffer.setData(value);
-        QImageReader imageReader(&buffer);
-        Page *p = new Page(imageReader.size());
-        p->setNumber(i);
-        p->setKey(key);
-        p->setView(this);
+    QImageReader imageReader;
+    for (int i = 0; i < m_images.count(); i++) {
+        const KArchiveFile *entry = m_archive->directory()->file(m_images.at(i));
+        if (entry) {
+            imageReader.setDevice(entry->createDevice());
+            if (imageReader.canRead()) {
+                Page *p = new Page(imageReader.size());
+                p->setNumber(i);
+                p->setKey(m_images.at(i));
+                p->setView(this);
 
-        m_pages.append(p);
-        m_scene->addItem(p);
-        ++i;
+                m_pages.append(p);
+                m_scene->addItem(p);
+            }
+        }
     }
 }
 
@@ -273,7 +278,7 @@ void View::addRequest(int number)
     }
     m_requestedPages.append(number);
     if (MangaReaderSettings::useMemoryExtraction()) {
-        Q_EMIT requestMemoryImage(number, m_memoryImages.at(m_pages.at(number)->key()));
+        Q_EMIT requestMemoryImage(number, m_archive->directory()->file(m_images.at(number))->data());
     } else {
         Q_EMIT requestDriveImage(number, m_images.at(number));
     }
@@ -457,9 +462,9 @@ void View::dropEvent(QDropEvent *e)
     Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
 }
 
-void View::setMemoryImages(const MemoryImages &images)
+void View::setArchive(KArchive *newArchive)
 {
-    m_memoryImages = images;
+    m_archive = newArchive;
 }
 
 void View::goToPage(int number)

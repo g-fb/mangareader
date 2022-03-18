@@ -2,12 +2,16 @@
 
 #include <KLocalizedString>
 
+#include <KZip>
 #include <QDir>
 #include <QFileInfo>
 #include <QMimeDatabase>
 #include <QProcess>
 
+#include <K7Zip>
+#include <KTar>
 #include <QArchive>
+#include <QCollator>
 #include <settings.h>
 
 using QArchive::DiskExtractor;
@@ -95,43 +99,67 @@ void Extractor::extractArchiveToDrive()
 
 void Extractor::extractArchiveToMemory()
 {
-    auto extractor = new MemoryExtractor(m_archiveFile);
-    extractor->setCalculateProgress(true);
-    extractor->start();
+    KArchive *archive {nullptr};
+    QMimeDatabase db;
+    const QMimeType mimetype = db.mimeTypeForFile(m_archiveFile, QMimeDatabase::MatchContent);
+    if (mimetype.inherits(QStringLiteral("application/x-cbz"))
+            || mimetype.inherits(QStringLiteral("application/zip"))
+            || mimetype.inherits(QStringLiteral("application/vnd.comicbook+zip"))) {
+        archive = new KZip(m_archiveFile);
+#ifdef WITH_K7ZIP
+    } else if (mimetype.inherits(QStringLiteral("application/x-7z-compressed"))
+               || mimetype.inherits(QStringLiteral("application/x-cb7"))) {
+        archive = new K7Zip(m_archiveFile);
+#endif
+    } else if (mimetype.inherits(QStringLiteral("application/x-tar"))
+               || mimetype.inherits(QStringLiteral("application/x-cbt"))) {
+        archive = new KTar(m_archiveFile);
+    } else if (mimetype.inherits(QStringLiteral("application/x-rar"))
+               || mimetype.inherits(QStringLiteral("application/x-cbr"))
+               || mimetype.inherits(QStringLiteral("application/vnd.rar"))
+               || mimetype.inherits(QStringLiteral("application/vnd.comicbook-rar"))) {
+        extractRarArchive();
+        return;
+    } else {
+        Q_EMIT error(i18n("Could not open archive: %1", m_archiveFile));
+        return;
+    }
 
-    connect(extractor, &MemoryExtractor::started, this, &Extractor::started);
-    QObject::connect(extractor, &MemoryExtractor::finished, this, [=](MemoryExtractorOutput *data) {
-        const QVector<MemoryFile> files = data->getFiles();
+    if (!archive->open(QIODevice::ReadOnly)) {
+        delete archive;
+        archive = nullptr;
+        Q_EMIT error(i18n("Could not open archive: %1", m_archiveFile));
+        return;
+    }
 
-        MemoryImages m_memoryImages;
-        for(const auto &file : files) {
-            auto fileInfo = file.fileInformation();
-            m_memoryImages.emplace(fileInfo.value("FileName").toString(), file.buffer()->data());
+    const KArchiveDirectory *directory = archive->directory();
+    if (!directory) {
+        delete archive;
+        archive = nullptr;
+        Q_EMIT error(i18n("Could not open archive: %1", m_archiveFile));
+        return;
+    }
+
+    getImagesInArchive(QString(), archive->directory());
+    QCollator collator;
+    collator.setNumericMode(true);
+    std::sort(m_entries.begin(), m_entries.end(), collator);
+
+    Q_EMIT finishedMemory(archive, m_entries);
+    m_entries.clear();
+}
+
+void Extractor::getImagesInArchive(const QString &prefix, const KArchiveDirectory *dir)
+{
+    const QStringList entryList = dir->entries();
+    for (const QString &file : entryList) {
+        const KArchiveEntry *e = dir->entry(file);
+        if (e->isDirectory()) {
+            getImagesInArchive(prefix + file + QStringLiteral("/"), static_cast<const KArchiveDirectory *>(e));
+        } else if (e->isFile()) {
+            m_entries.append(prefix + file);
         }
-
-        Q_EMIT finishedMemory(m_memoryImages);
-        data->deleteLater();
-    });
-
-    connect(extractor, &DiskExtractor::progress,
-            this, [=](QString, int, int, qint64 bytesProcessed, qint64 bytesTotal) {
-        Q_EMIT progress(bytesProcessed * 100 / bytesTotal);
-    });
-
-    QObject::connect(extractor, &MemoryExtractor::error, this, [=](short err) {
-        QMimeDatabase mimeDb;
-        QString mimeName = mimeDb.mimeTypeForFile(m_archiveFile).name();
-        if (mimeName == "application/vnd.comicbook-rar" || mimeName == "application/vnd.rar") {
-            extractRarArchive();
-            return;
-        }
-
-        QString errorMessage = i18n("Error %1: Could not extract the archive.\n%2",
-                                    QString::number(err),
-                                    QArchive::errorCodeToString(err));
-        Q_EMIT error(errorMessage);
-    });
-
+    }
 }
 
 void Extractor::extractRarArchive()
@@ -218,17 +246,17 @@ QString Extractor::extractionFolder()
 QString Extractor::unrarNotFoundMessage()
 {
 #ifdef Q_OS_WIN32
-        return QStringLiteral("UnRAR executable was not found.\n"
-                       "It can be installed through WinRAR or independent. "
-                       "When installed with WinRAR just restarting the application "
-                       "should be enough to find the executable.\n"
-                       "If installed independently you have to manually "
-                       "set the path to the UnRAR executable in the settings.");
+    return QStringLiteral("UnRAR executable was not found.\n"
+                          "It can be installed through WinRAR or independent. "
+                          "When installed with WinRAR just restarting the application "
+                          "should be enough to find the executable.\n"
+                          "If installed independently you have to manually "
+                          "set the path to the UnRAR executable in the settings.");
 #else
-        return QStringLiteral("UnRAR executable was not found.\n"
-                       "Install the unrar package and restart the application, "
-                       "unrar should be picked up automatically.\n"
-                       "If unrar is still not found you can set "
-                       "the path to the unrar executable manually in the settings.");
+    return QStringLiteral("UnRAR executable was not found.\n"
+                          "Install the unrar package and restart the application, "
+                          "unrar should be picked up automatically.\n"
+                          "If unrar is still not found you can set "
+                          "the path to the unrar executable manually in the settings.");
 #endif
 }

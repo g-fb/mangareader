@@ -32,6 +32,7 @@
 #include <KIO/OpenUrlJob>
 #include <KIO/RenameFileDialog>
 
+#include <KArchive>
 #include <QArchive>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -100,10 +101,8 @@ void MainWindow::init()
         m_progressBar->setVisible(false);
         loadImages(m_extractor->extractionFolder(), true);
     });
-    connect(m_extractor, &Extractor::finishedMemory, this, [=](const MemoryImages &memoryImages) {
-        m_progressBar->setVisible(false);
-        loadImagesFromMemory(memoryImages);
-    });
+    connect(m_extractor, &Extractor::finishedMemory,
+            this, &MainWindow::loadImagesFromMemory);
     connect(m_extractor, &Extractor::error, this, [=](const QString &error) {
         showError(error);
     });
@@ -479,8 +478,9 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     m_startPage = 0;
 }
 
-void MainWindow::loadImagesFromMemory(const MemoryImages &memoryImages)
+void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &images)
 {
+    m_progressBar->setVisible(false);
     m_startUpWidget->setVisible(false);
 
     const QFileInfo fileInfo(m_extractor->archiveFile());
@@ -491,7 +491,8 @@ void MainWindow::loadImagesFromMemory(const MemoryImages &memoryImages)
     m_view->reset();
     m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);
-    m_view->setMemoryImages(memoryImages);
+    m_view->setImages(images);
+    m_view->setArchive(archive);
     m_view->loadImages();
     m_startPage = 0;
 }

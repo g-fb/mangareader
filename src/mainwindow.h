@@ -10,6 +10,7 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+class KArchive;
 class Extractor;
 class KHamburgerMenu;
 class QPushButton;
@@ -23,8 +24,6 @@ class Worker;
 class QFileInfo;
 class QFileSystemModel;
 class SettingsWindow;
-
-using MemoryImages = std::map<QString, QByteArray>;
 
 class MainWindow : public KXmlGuiWindow
 {
@@ -41,7 +40,7 @@ public:
     };
 
     void loadImages(const QString &path, bool recursive = false, bool updateCurrentPath = true);
-    void loadImagesFromMemory(const MemoryImages &memoryImages);
+    void loadImagesFromMemory(KArchive *archive, const QStringList &images);
 
 private:
     static void showError(const QString &error);
@@ -95,11 +94,13 @@ private:
     bool                m_isLoadedRecursive{false};
     const QString       RECURSIVE_KEY_PREFIX{":recursive:"};
     QStringList         m_supportedMimeTypes{"application/zip",
+                                             "application/x-cbz",
                                              "application/vnd.comicbook+zip",
                                              "application/x-7z-compressed",
                                              "application/x-cb7",
                                              "application/x-tar",
                                              "application/x-cbt",
+                                             "application/x-rar",
                                              "application/x-cbr",
                                              "application/vnd.rar",
                                              "application/vnd.comicbook-rar",

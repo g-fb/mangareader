@@ -3,7 +3,8 @@
 
 #include <QObject>
 
-using MemoryImages = std::map<QString, QByteArray>;
+class KArchive;
+class KArchiveDirectory;
 
 class Extractor : public QObject
 {
@@ -18,22 +19,23 @@ public:
     void extractRarArchive();
     QString extractionFolder();
     QString unrarNotFoundMessage();
-
     const QString &archiveFile() const;
     void setArchiveFile(const QString &archiveFile);
 
 Q_SIGNALS:
     void started();
     void finished();
-    void finishedMemory(const MemoryImages &);
+    void finishedMemory(KArchive *, const QStringList &);
     void error(const QString &);
     void progress(int);
     void unrarNotFound();
 
 private:
     void setupTmpExtractionFolder();
+    void getImagesInArchive(const QString &prefix, const KArchiveDirectory *dir);
     QString  m_archiveFile;
     QString  m_tmpFolder;
+    QStringList m_entries;
 };
 
 #endif // EXTRACTOR_H
