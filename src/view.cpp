@@ -473,6 +473,11 @@ void View::dropEvent(QDropEvent *e)
     Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
 }
 
+const QString &View::manga() const
+{
+    return m_manga;
+}
+
 void View::setLoadFromMemory(bool newLoadFromMemory)
 {
     m_loadFromMemory = newLoadFromMemory;

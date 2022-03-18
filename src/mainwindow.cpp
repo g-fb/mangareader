@@ -239,12 +239,15 @@ void MainWindow::setupMangaTreeDockWidget()
     action->setShortcutContext(Qt::WidgetShortcut);
     connect(action, &QAction::triggered, this, [=]() {
         QString path = m_treeModel->filePath(m_treeView->selectionModel()->currentIndex());
+        m_currentPath = path;
+        m_startPage = 0;
         loadImages(path);
     });
     m_treeView->addAction(action);
     connect(m_treeView, &QTreeView::doubleClicked, this, [=](const QModelIndex &index) {
         // get path from index
         QString path = m_treeModel->filePath(index);
+        m_currentPath = path;
         m_startPage = 0;
         loadImages(path);
     });
@@ -298,6 +301,7 @@ void MainWindow::setupBookmarksDockWidget()
             showError(i18n("The file or folder does not exist.\n%1", path));
             return;
         }
+        m_currentPath = path;
         if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
             loadImages(path, true);
         } else {
@@ -409,9 +413,9 @@ void MainWindow::openMangaFolder()
     loadImages(path, true);
 }
 
-void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurrentPath)
+void MainWindow::loadImages(const QString &path, bool recursive)
 {
-    if (m_currentPath == path) {
+    if (m_currentPath == m_view->manga()) {
         m_view->goToPage(m_startPage);
         return;
     }
@@ -423,22 +427,12 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
                        ".7z, .cb7, .tar, .cbt archives are supported. ", mimetype));
         return;
     }
-    m_startUpWidget->setVisible(false);
-    m_view->setVisible(true);
-    // when opening an archive the files are extracted
-    // to a temporary folder which is used to load the images from
-    // m_currentPath should not be set to this temporary folder
-    // m_currentPath is the file/folder opened by the user
-    if (updateCurrentPath)
-        m_currentPath = path;
-    const QFileInfo currentPathInfo(m_currentPath);
-    setWindowTitle(currentPathInfo.fileName());
 
     m_isLoadedRecursive = recursive;
     const QFileInfo fileInfo(path);
     QString mangaPath = fileInfo.absoluteFilePath();
     if (fileInfo.isFile()) {
-        // extract files to a temporary location
+        // if memory extraction is disabled it will extract files to a temporary location
         // when finished call this function with the temporary location and recursive = true
         m_extractor->setArchiveFile(fileInfo.absoluteFilePath());
         m_extractor->extractArchive();
@@ -455,10 +449,9 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     }
     while (it->hasNext()) {
         QString file = it->next();
-        QMimeDatabase db;
-        QMimeType type = db.mimeTypeForFile(file);
+        mimetype = db.mimeTypeForFile(file).name();
         // only get images
-        if (type.name().startsWith("image/")) {
+        if (mimetype.startsWith("image/")) {
             m_images.append(file);
         }
     }
@@ -470,6 +463,11 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     if (m_images.count() < 1) {
         return;
     }
+
+    const QFileInfo currentPathInfo(m_currentPath);
+    setWindowTitle(currentPathInfo.fileName());
+    m_startUpWidget->setVisible(false);
+    m_view->setVisible(true);
     m_view->reset();
     m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);
@@ -483,15 +481,14 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &imag
 {
     m_progressBar->setVisible(false);
     m_startUpWidget->setVisible(false);
+    m_view->setVisible(true);
 
     const QFileInfo fileInfo(m_extractor->archiveFile());
-    QString mangaPath = fileInfo.absoluteFilePath();
-
     setWindowTitle(fileInfo.fileName());
 
     m_view->reset();
     m_view->setStartPage(m_startPage);
-    m_view->setManga(mangaPath);
+    m_view->setManga(fileInfo.absoluteFilePath());
     m_view->setImages(images);
     m_view->setArchive(archive);
     m_view->setLoadFromMemory(true);

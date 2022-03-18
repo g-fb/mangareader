@@ -39,7 +39,7 @@ public:
         RecursiveRole
     };
 
-    void loadImages(const QString &path, bool recursive = false, bool updateCurrentPath = true);
+    void loadImages(const QString &path, bool recursive = false);
     void loadImagesFromMemory(KArchive *archive, const QStringList &images);
 
 private:

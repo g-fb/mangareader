@@ -28,11 +28,13 @@ public:
     void goToPage(int number);
     auto imageCount() -> int;
     void setStartPage(int number);
+    const QString &manga() const;
     void setManga(const QString &manga);
     void setImages(const QStringList &images);
     void setArchive(KArchive *newArchive);
 
     void setLoadFromMemory(bool newLoadFromMemory);
+
 
 Q_SIGNALS:
     void imagesLoaded();
