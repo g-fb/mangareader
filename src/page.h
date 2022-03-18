@@ -34,9 +34,6 @@ public:
     bool isZoomToggled() const;
     void setIsZoomToggled(bool isZoomToggled);
 
-    const QString &key() const;
-    void setKey(const QString &newKey);
-
     auto number() -> int;
     void setNumber(int newNumber);
 
@@ -49,7 +46,6 @@ private:
     QSize    m_sourceSize;
     int      m_maxWidth;
     int      m_number;
-    QString  m_key;
     double   m_zoom = 1.0;
     bool     m_isZoomToggled{false};
     double   m_ratio;

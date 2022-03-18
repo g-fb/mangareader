@@ -65,16 +65,6 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     }
 }
 
-const QString &Page::key() const
-{
-    return m_key;
-}
-
-void Page::setKey(const QString &newKey)
-{
-    m_key = newKey;
-}
-
 bool Page::isZoomToggled() const
 {
     return m_isZoomToggled;

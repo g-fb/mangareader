@@ -191,7 +191,6 @@ void View::createPagesFromMemory()
             if (imageReader.canRead()) {
                 Page *p = new Page(imageReader.size());
                 p->setNumber(i);
-                p->setKey(m_images.at(i));
                 p->setView(this);
 
                 m_pages.append(p);
