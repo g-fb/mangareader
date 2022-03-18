@@ -27,7 +27,6 @@ public:
 
 private:
     QCheckBox *m_useMemExtraction{nullptr};
-    QSpinBox *m_memExMaxFileSize{nullptr};
     QPushButton *m_addMangaFolderButton{nullptr};
     QHash<QString, bool> changedSettings;
     QLineEdit *m_extractionFolder{nullptr};

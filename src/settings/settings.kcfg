@@ -15,9 +15,6 @@
         <entry name="UseMemoryExtraction" type="Bool">
             <default>false</default>
         </entry>
-        <entry name="MemExMaxFileSize" type="Int">
-            <default>500</default>
-        </entry>
         <entry name="MaxWidth" type="Int">
             <default>1200</default>
         </entry>
