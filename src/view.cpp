@@ -156,47 +156,52 @@ void View::loadImages()
 
 void View::createPages()
 {
-    if (m_loadFromMemory) {
-        createPagesFromMemory();
-    } else {
-        createPagesFromDrive();
-    }
-}
-
-void View::createPagesFromDrive()
-{
-    m_start.resize(m_images.size());
-    m_end.resize(m_images.size());
-    QImageReader imageReader;
-    for (int i = 0; i < m_images.count(); i++) {
-        imageReader.setFileName(m_images.at(i));
-        Page *p = new Page(imageReader.size());
-        p->setNumber(i);
-        p->setView(this);
-
-        m_pages.append(p);
-        m_scene->addItem(p);
-    }
-}
-
-void View::createPagesFromMemory()
-{
     m_start.resize(m_images.size());
     m_end.resize(m_images.size());
 
     QImageReader imageReader;
+    QScopedPointer<QIODevice> dev;
     for (int i = 0; i < m_images.count(); i++) {
-        const KArchiveFile *entry = m_archive->directory()->file(m_images.at(i));
-        if (entry) {
-            imageReader.setDevice(entry->createDevice());
-            if (imageReader.canRead()) {
-                Page *p = new Page(imageReader.size());
-                p->setNumber(i);
-                p->setView(this);
-
-                m_pages.append(p);
-                m_scene->addItem(p);
+        if (m_loadFromMemory) {
+            const KArchiveFile *entry = m_archive->directory()->file(m_images.at(i));
+            if (!entry) {
+                continue;
             }
+            dev.reset(entry->createDevice());
+        } else {
+            std::unique_ptr<QFile> file(new QFile(m_images.at(i)));
+            if (!file->open(QIODevice::ReadOnly)) {
+                continue;
+            }
+            dev.reset(file.release());
+        }
+
+        if (dev.isNull()) {
+            continue;
+        }
+
+        imageReader.setDevice(dev.data());
+        if (!imageReader.canRead()) {
+            continue;
+        }
+
+        QSize pageSize = imageReader.size();
+        if (imageReader.transformation() & QImageIOHandler::TransformationRotate90) {
+            pageSize.transpose();
+        }
+        if (!pageSize.isValid()) {
+            const QImage i = imageReader.read();
+            if (!i.isNull()) {
+                pageSize = i.size();
+            }
+        }
+        if (pageSize.isValid()) {
+            Page *p = new Page(imageReader.size());
+            p->setNumber(i);
+            p->setView(this);
+
+            m_pages.append(p);
+            m_scene->addItem(p);
         }
     }
 }

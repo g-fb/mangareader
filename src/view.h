@@ -56,8 +56,6 @@ public Q_SLOTS:
 private:
     void setupActions();
     void createPages();
-    void createPagesFromDrive();
-    void createPagesFromMemory();
     void calculatePageSizes();
     void setPagesVisibility();
     void addRequest(int number);
