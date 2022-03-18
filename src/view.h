@@ -32,6 +32,8 @@ public:
     void setImages(const QStringList &images);
     void setArchive(KArchive *newArchive);
 
+    void setLoadFromMemory(bool newLoadFromMemory);
+
 Q_SIGNALS:
     void imagesLoaded();
     void requestDriveImage(int number, const QString &path);
@@ -85,6 +87,7 @@ private:
     double           m_globalZoom = 1.0;
     QTimer          *m_resizeTimer{};
     KArchive        *m_archive {};
+    bool m_loadFromMemory {false};
 };
 
 #endif // VIEW_H

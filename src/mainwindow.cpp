@@ -474,6 +474,7 @@ void MainWindow::loadImages(const QString& path, bool recursive, bool updateCurr
     m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);
     m_view->setImages(m_images);
+    m_view->setLoadFromMemory(false);
     m_view->loadImages();
     m_startPage = 0;
 }
@@ -493,6 +494,7 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &imag
     m_view->setManga(mangaPath);
     m_view->setImages(images);
     m_view->setArchive(archive);
+    m_view->setLoadFromMemory(true);
     m_view->loadImages();
     m_startPage = 0;
 }

@@ -118,6 +118,7 @@ void Extractor::extractArchiveToMemory()
                || mimetype.inherits(QStringLiteral("application/x-cbr"))
                || mimetype.inherits(QStringLiteral("application/vnd.rar"))
                || mimetype.inherits(QStringLiteral("application/vnd.comicbook-rar"))) {
+        setupTmpExtractionFolder();
         extractRarArchive();
         return;
     } else {

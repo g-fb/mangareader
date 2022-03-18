@@ -156,7 +156,7 @@ void View::loadImages()
 
 void View::createPages()
 {
-    if (MangaReaderSettings::useMemoryExtraction()) {
+    if (m_loadFromMemory) {
         createPagesFromMemory();
     } else {
         createPagesFromDrive();
@@ -167,8 +167,9 @@ void View::createPagesFromDrive()
 {
     m_start.resize(m_images.size());
     m_end.resize(m_images.size());
+    QImageReader imageReader;
     for (int i = 0; i < m_images.count(); i++) {
-        QImageReader imageReader(m_images[i]);
+        imageReader.setFileName(m_images.at(i));
         Page *p = new Page(imageReader.size());
         p->setNumber(i);
         p->setView(this);
@@ -276,7 +277,7 @@ void View::addRequest(int number)
         return;
     }
     m_requestedPages.append(number);
-    if (MangaReaderSettings::useMemoryExtraction()) {
+    if (m_loadFromMemory) {
         Q_EMIT requestMemoryImage(number, m_archive->directory()->file(m_images.at(number))->data());
     } else {
         Q_EMIT requestDriveImage(number, m_images.at(number));
@@ -459,6 +460,11 @@ void View::dragEnterEvent(QDragEnterEvent *e)
 void View::dropEvent(QDropEvent *e)
 {
     Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
+}
+
+void View::setLoadFromMemory(bool newLoadFromMemory)
+{
+    m_loadFromMemory = newLoadFromMemory;
 }
 
 void View::setArchive(KArchive *newArchive)
