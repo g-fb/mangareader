@@ -763,7 +763,6 @@ void MainWindow::treeViewContextMenu(QPoint point)
         auto renameDialog = new KIO::RenameFileDialog(KFileItemList({item}), nullptr);
         renameDialog->open();
         connect(renameDialog, &KIO::RenameFileDialog::renamingFinished, this, [=](const QList<QUrl> &urls) {
-            qDebug() << 22133;
             auto newName = urls.first().toLocalFile();
             if (m_currentPath == path && !pathInfo.isDir()) {
                 m_currentPath = newName;
