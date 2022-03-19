@@ -91,45 +91,60 @@ void View::setupActions()
     collection->setComponentDisplayName("View");
     collection->addAssociatedWidget(this);
 
+    auto scrollToStart = new QAction(i18n("Scroll To Start"));
+    scrollToStart->setShortcutContext(Qt::WidgetShortcut);
+    connect(scrollToStart, &QAction::triggered, this, [=]() {
+        verticalScrollBar()->setValue(verticalScrollBar()->minimum());
+    });
+    collection->setDefaultShortcut(scrollToStart, Qt::CTRL + Qt::Key_Home);
+    collection->addAction("scrollToStart", scrollToStart);
+
+    auto scrollToEnd = new QAction(i18n("Scroll To End"));
+    scrollToEnd->setShortcutContext(Qt::WidgetShortcut);
+    connect(scrollToEnd, &QAction::triggered, this, [=]() {
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    });
+    collection->setDefaultShortcut(scrollToEnd, Qt::CTRL + Qt::Key_End);
+    collection->addAction("scrollToEnd", scrollToEnd);
+
     auto scrollUp = new QAction(i18n("Scroll Up"));
-    collection->setDefaultShortcut(scrollUp, Qt::Key_Up);
     scrollUp->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollUp, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
         }
     });
+    collection->setDefaultShortcut(scrollUp, Qt::Key_Up);
+    collection->addAction("scrollUp", scrollUp);
 
     auto scrollDown = new QAction(i18n("Scroll Down"));
-    collection->setDefaultShortcut(scrollDown, Qt::Key_Down);
     scrollDown->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollDown, &QAction::triggered, this, [=]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
         }
     });
+    collection->setDefaultShortcut(scrollDown, Qt::Key_Down);
+    collection->addAction("scrollDown", scrollDown);
 
     auto nextPage = new QAction(i18n("Next Page"));
-    collection->setDefaultShortcut(nextPage, Qt::Key_Right);
     nextPage->setShortcutContext(Qt::WidgetShortcut);
     connect(nextPage, &QAction::triggered, this, [=]() {
         if (m_firstVisible < m_pages.count() - 1) {
             goToPage(m_firstVisible + 1);
         }
     });
+    collection->setDefaultShortcut(nextPage, Qt::Key_Right);
+    collection->addAction("nextPage", nextPage);
 
     auto prevPage = new QAction(i18n("Previous Page"));
-    collection->setDefaultShortcut(prevPage, Qt::Key_Left);
     prevPage->setShortcutContext(Qt::WidgetShortcut);
     connect(prevPage, &QAction::triggered, this, [=]() {
         if (m_firstVisible > 0) {
             goToPage(m_firstVisible - 1);
         }
     });
-
-    collection->addAction("scrollUp", scrollUp);
-    collection->addAction("scrollDown", scrollDown);
-    collection->addAction("nextPage", nextPage);
+    collection->setDefaultShortcut(prevPage, Qt::Key_Left);
     collection->addAction("prevPage", prevPage);
 }
 
