@@ -471,6 +471,8 @@ void MainWindow::loadImages(const QString &path, bool recursive)
         return;
     }
 
+    actionCollection()->action("focusView")->trigger();
+
     const QFileInfo currentPathInfo(m_currentPath);
     setWindowTitle(currentPathInfo.fileName());
     m_startUpWidget->setVisible(false);
@@ -489,6 +491,8 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &imag
     m_progressBar->setVisible(false);
     m_startUpWidget->setVisible(false);
     m_view->setVisible(true);
+
+    actionCollection()->action("focusView")->trigger();
 
     const QFileInfo fileInfo(m_extractor->archiveFile());
     setWindowTitle(fileInfo.fileName());
