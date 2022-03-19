@@ -32,14 +32,6 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     auto formWidget = new QWidget(this);
     auto formLayout = new QFormLayout(formWidget);
 
-    // memory extraction
-    m_useMemExtraction = new QCheckBox(this);
-    m_useMemExtraction->setObjectName(QStringLiteral("kcfg_UseMemoryExtraction"));
-    m_useMemExtraction->setText(i18n("Use memory extraction"));
-    m_useMemExtraction->setChecked(MangaReaderSettings::useMemoryExtraction());
-    formLayout->addRow(i18n("Memory extraction"), m_useMemExtraction);
-    // end memory extraction
-
 
     // unrar
 #ifdef Q_OS_WIN32

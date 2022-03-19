@@ -11,6 +11,10 @@
 #include <QPushButton>
 
 #include <KLocalizedString>
+#include <KColorSchemeManager>
+#include <KActionMenu>
+#include <KConfigGroup>
+#include <QMenu>
 
 #include <settings.h>
 
@@ -21,8 +25,10 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     auto mainVLayout = new QVBoxLayout(this);
     setLayout(mainVLayout);
 
-    auto bottomWidget = new QWidget(this);
-    auto bottomHLayout = new QHBoxLayout(bottomWidget);
+    auto firstButtonsRow = new QWidget(this);
+    auto firstButtonsRowLayout = new QHBoxLayout(firstButtonsRow);
+    auto secondButtonsRow = new QWidget(this);
+    auto secondButtonsRowLayout = new QHBoxLayout(secondButtonsRow);
 
     auto image = new QLabel(this);
 #ifdef Q_OS_WIN32
@@ -34,7 +40,8 @@ StartUpWidget::StartUpWidget(QWidget *parent)
 
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
     mainVLayout->addWidget(image);
-    mainVLayout->addWidget(bottomWidget);
+    mainVLayout->addWidget(firstButtonsRow);
+    mainVLayout->addWidget(secondButtonsRow);
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -58,9 +65,47 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     connect(openMangaArchiveButton, &QPushButton::clicked,
             this, &StartUpWidget::openMangaArchiveClicked);
 
-    bottomHLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
-    bottomHLayout->addWidget(addMangaFolderButton);
-    bottomHLayout->addWidget(openMangaFolderButton);
-    bottomHLayout->addWidget(openMangaArchiveButton);
-    bottomHLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+    firstButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+    firstButtonsRowLayout->addWidget(addMangaFolderButton);
+    firstButtonsRowLayout->addWidget(openMangaFolderButton);
+    firstButtonsRowLayout->addWidget(openMangaArchiveButton);
+    firstButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+
+    auto settingsButton = new QPushButton(i18n("Settings"), this);
+    settingsButton->setIcon(QIcon::fromTheme("configure"));
+    settingsButton->setIconSize(QSize(32, 32));
+    connect(settingsButton, &QPushButton::clicked,
+            this, &StartUpWidget::openSettingsClicked);
+
+    auto configureShortcutsButton = new QPushButton(i18n("Configure Shortcuts"), this);
+    configureShortcutsButton->setIcon(QIcon::fromTheme("input-keyboard"));
+    configureShortcutsButton->setIconSize(QSize(32, 32));
+    connect(configureShortcutsButton, &QPushButton::clicked,
+            this, &StartUpWidget::openShortcutsConfigClicked);
+
+    auto *schemes = new KColorSchemeManager(this);
+    auto config = KSharedConfig::openConfig("mangareader/mangareader.conf");
+    KConfigGroup cg(config, "UiSettings");
+    auto schemeName = cg.readEntry("ColorScheme", QString());
+
+    KActionMenu *colorSchemeAction = schemes->createSchemeSelectionMenu(schemeName, this);
+    colorSchemeAction->setPopupMode(QToolButton::InstantPopup);
+
+    auto colorSchemeChangerButton = new QPushButton(i18n("Color Scheme"), this);
+    colorSchemeChangerButton->setIcon(QIcon::fromTheme("kcolorchooser"));
+    colorSchemeChangerButton->setIconSize(QSize(32, 32));
+    colorSchemeChangerButton->setMenu(colorSchemeAction->menu());
+
+    connect(colorSchemeAction->menu(), &QMenu::triggered, this, [=](QAction *triggeredAction) {
+        KConfigGroup cg(config, "UiSettings");
+        cg.writeEntry("ColorScheme", KLocalizedString::removeAcceleratorMarker(triggeredAction->text()));
+        cg.sync();
+    });
+
+
+    secondButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+    secondButtonsRowLayout->addWidget(settingsButton);
+    secondButtonsRowLayout->addWidget(configureShortcutsButton);
+    secondButtonsRowLayout->addWidget(colorSchemeChangerButton);
+    secondButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
 }

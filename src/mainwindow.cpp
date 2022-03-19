@@ -143,6 +143,11 @@ void MainWindow::init()
             this, &MainWindow::openMangaFolder);
     connect(m_startUpWidget, &StartUpWidget::openMangaArchiveClicked,
             this, &MainWindow::openMangaArchive);
+    connect(m_startUpWidget, &StartUpWidget::openSettingsClicked,
+            this, &MainWindow::openSettings);
+    connect(m_startUpWidget, &StartUpWidget::openShortcutsConfigClicked, actionCollection(), [=]() {
+        actionCollection()->action("options_configure_keybinding")->trigger();
+    });
     centralWidgetLayout->addWidget(m_startUpWidget);
 
     // ==================================================

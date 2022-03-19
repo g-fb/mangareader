@@ -19,6 +19,8 @@ Q_SIGNALS:
     void addMangaFolderClicked();
     void openMangaFolderClicked();
     void openMangaArchiveClicked();
+    void openSettingsClicked();
+    void openShortcutsConfigClicked();
 
 };
 
