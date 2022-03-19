@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2007 Tobias Koenig <tokoe@kde.org>
  * SPDX-FileCopyrightText: 2019 George Florea Bănuș <georgefb899@gmail.com>
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
