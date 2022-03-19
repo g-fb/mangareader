@@ -29,7 +29,6 @@ private:
     QCheckBox *m_useMemExtraction{nullptr};
     QPushButton *m_addMangaFolderButton{nullptr};
     QHash<QString, bool> changedSettings;
-    QLineEdit *m_extractionFolder{nullptr};
     KUrlRequester *m_unrarPath{nullptr};
     QCheckBox *m_upscaleImages{nullptr};
     QSpinBox *m_maxWidth{nullptr};

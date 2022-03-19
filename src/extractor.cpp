@@ -7,12 +7,12 @@
 
 #include "extractor.h"
 
-
 #include <QCollator>
 #include <QDir>
 #include <QFileInfo>
 #include <QMimeDatabase>
 #include <QProcess>
+#include <QTemporaryDir>
 
 #include <KLocalizedString>
 #include <KTar>
@@ -37,33 +37,7 @@ Extractor::Extractor(QObject *parent)
 
 Extractor::~Extractor()
 {
-    QFileInfo file(m_tmpFolder);
-    if (file.exists() && file.isDir() && file.isWritable()) {
-        QDir dir(m_tmpFolder);
-        dir.removeRecursively();
-    }
-}
-
-void Extractor::setupTmpExtractionFolder()
-{
-    QFileInfo extractionFolder(MangaReaderSettings::extractionFolder());
-    QFileInfo archivePathInfo(m_archiveFile);
-    if (!extractionFolder.exists() || !extractionFolder.isWritable()) {
-        Q_EMIT error(i18n("Extraction folder does not exist or is not writable.\n%1",
-                          MangaReaderSettings::extractionFolder()));
-        return;
-    }
-    // delete previous extracted folder
-    QFileInfo file(m_tmpFolder);
-    if (file.exists() && file.isDir() && file.isWritable()) {
-        QDir dir(m_tmpFolder);
-        dir.removeRecursively();
-    }
-    m_tmpFolder = extractionFolder.absoluteFilePath() + "/" + archivePathInfo.baseName();
-    QDir dir(m_tmpFolder);
-    if (!dir.exists()) {
-        dir.mkdir(m_tmpFolder);
-    }
+    delete m_tmpFolder;
 }
 
 void Extractor::extractArchive()
@@ -77,10 +51,11 @@ void Extractor::extractArchive()
 
 void Extractor::extractArchiveToDrive()
 {
-    setupTmpExtractionFolder();
+    delete m_tmpFolder;
+    m_tmpFolder = new QTemporaryDir();
     auto extractor = new DiskExtractor(this);
     extractor->setArchive(m_archiveFile);
-    extractor->setOutputDirectory(m_tmpFolder);
+    extractor->setOutputDirectory(m_tmpFolder->path());
     extractor->setCalculateProgress(true);
     extractor->start();
 
@@ -128,7 +103,6 @@ void Extractor::extractArchiveToMemory()
                || mimetype.inherits(QStringLiteral("application/x-cbr"))
                || mimetype.inherits(QStringLiteral("application/vnd.rar"))
                || mimetype.inherits(QStringLiteral("application/vnd.comicbook-rar"))) {
-        setupTmpExtractionFolder();
         extractRarArchive();
         return;
     } else {
@@ -175,6 +149,9 @@ void Extractor::getImagesInArchive(const QString &prefix, const KArchiveDirector
 
 void Extractor::extractRarArchive()
 {
+    delete m_tmpFolder;
+    m_tmpFolder = new QTemporaryDir();
+
     auto unrar = MangaReaderSettings::unrarPath().isEmpty()
             ? MangaReaderSettings::autoUnrarPath()
             : MangaReaderSettings::unrarPath();
@@ -191,7 +168,7 @@ void Extractor::extractRarArchive()
     }
 
     QStringList args;
-    args << "e" << m_archiveFile << m_tmpFolder << "-o+";
+    args << "e" << m_archiveFile << m_tmpFolder->path() << "-o+";
     auto process = new QProcess();
     process->setProgram(unrar);
     process->setArguments(args);
@@ -251,7 +228,7 @@ void Extractor::setArchiveFile(const QString &archiveFile)
 
 QString Extractor::extractionFolder()
 {
-    return m_tmpFolder;
+    return m_tmpFolder->path();
 }
 
 QString Extractor::unrarNotFoundMessage()

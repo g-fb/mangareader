@@ -40,34 +40,6 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     formLayout->addRow(i18n("Memory extraction"), m_useMemExtraction);
     // end memory extraction
 
-    // folder extraction
-    auto extractionFolderWidget = new QWidget(this);
-    auto extractionFolderLayout = new QHBoxLayout(extractionFolderWidget);
-    m_extractionFolder = new QLineEdit(this);
-    m_extractionFolder->setObjectName(QStringLiteral("kcfg_ExtractionFolder"));
-    m_extractionFolder->setText(MangaReaderSettings::extractionFolder());
-    m_extractionFolder->setToolTip(i18n("Where to extract archives so that the archived files can be loaded."
-"\nExtracted files are deleted when loading a new manga or when closing the application."));
-
-    auto selectExtractionFolderButton = new QPushButton(extractionFolderWidget);
-    selectExtractionFolderButton->setIcon(QIcon::fromTheme("folder"));
-    selectExtractionFolderButton->setToolTip(i18n("Select a new extraction folder."));
-    connect(selectExtractionFolderButton, &QPushButton::clicked, this, [=]() {
-        QString path = QFileDialog::getExistingDirectory(
-                    this, i18n("Select extraction folder"),
-                    MangaReaderSettings::extractionFolder());
-        if (path.isEmpty()) {
-            return;
-        }
-        m_extractionFolder->setText(path);
-    });
-
-    extractionFolderLayout->addWidget(m_extractionFolder);
-    extractionFolderLayout->setMargin(0);
-    extractionFolderLayout->addWidget(selectExtractionFolderButton);
-    formLayout->addRow(i18n("Extraction folder"), extractionFolderWidget);
-    // end folder extraction
-
 
     // unrar
 #ifdef Q_OS_WIN32

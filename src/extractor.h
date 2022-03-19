@@ -9,6 +9,7 @@
 
 #include <QObject>
 
+class QTemporaryDir;
 class KArchive;
 class KArchiveDirectory;
 
@@ -37,10 +38,9 @@ Q_SIGNALS:
     void unrarNotFound();
 
 private:
-    void setupTmpExtractionFolder();
     void getImagesInArchive(const QString &prefix, const KArchiveDirectory *dir);
     QString  m_archiveFile;
-    QString  m_tmpFolder;
+    QTemporaryDir *m_tmpFolder {};
     QStringList m_entries;
 };
 
