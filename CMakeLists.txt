@@ -64,33 +64,6 @@ find_package(KF5XmlGui)
 set_package_properties(KF5XmlGui PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")
 
-find_package(QArchive)
-set_package_properties(QArchive PROPERTIES TYPE OPTIONAL
-    URL "https://github.com/antony-jr/QArchive")
-
-# Only used if find_package(QArchive) fails.
-# Wheter to use FetchContent or add_subdirectory to provide the QArchive dependency
-# there is no internet access when building packages for OpenSuse
-option(UseFetchContent
-    "Only used if find_package(QArchive) fails. Wheter to use FetchContent or add_subdirectory to provide the QArchive dependency."
-    ON)
-
-if(NOT ${QArchive_FOUND})
-    if(UseFetchContent)
-        FetchContent_Declare(
-            QArchive
-            GIT_REPOSITORY "https://github.com/antony-jr/QArchive"
-            GIT_TAG "master")
-        FetchContent_MakeAvailable(QArchive)
-    else()
-        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/QArchive)
-            add_subdirectory(QArchive)
-        else()
-            message("QArchive folder doesn't exist. https://github.com/antony-jr/QArchive")
-        endif()
-    endif()
-endif()
-
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 add_subdirectory(data)

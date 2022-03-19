@@ -37,7 +37,6 @@ target_link_libraries(mangareader
         KF5::KIOWidgets
         KF5::KIONTLM
         KF5::XmlGui
-        QArchive
 )
 target_include_directories(mangareader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 

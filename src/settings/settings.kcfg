@@ -12,9 +12,6 @@
     <include>QStandardPaths</include>
     <kcfgfile name="mangareader/mangareader.conf" />
     <group name="General">
-        <entry name="UseMemoryExtraction" type="Bool">
-            <default>true</default>
-        </entry>
         <entry name="MaxWidth" type="Int">
             <default>1200</default>
         </entry>

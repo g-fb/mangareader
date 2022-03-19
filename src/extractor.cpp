@@ -7,6 +7,8 @@
 
 #include "extractor.h"
 
+#include "settings.h"
+
 #include <QCollator>
 #include <QDir>
 #include <QFileInfo>
@@ -17,17 +19,10 @@
 #include <KLocalizedString>
 #include <KTar>
 #include <KZip>
+#include <QRegularExpression>
 #ifdef WITH_K7ZIP
 #include <K7Zip>
 #endif
-
-#include <QArchive>
-#include <settings.h>
-
-using QArchive::DiskExtractor;
-using QArchive::MemoryExtractor;
-using QArchive::MemoryExtractorOutput;
-using QArchive::MemoryFile;
 
 Extractor::Extractor(QObject *parent)
     : QObject{parent}
@@ -41,48 +36,6 @@ Extractor::~Extractor()
 }
 
 void Extractor::extractArchive()
-{
-    if (MangaReaderSettings::useMemoryExtraction()) {
-        extractArchiveToMemory();
-    } else {
-        extractArchiveToDrive();
-    }
-}
-
-void Extractor::extractArchiveToDrive()
-{
-    delete m_tmpFolder;
-    m_tmpFolder = new QTemporaryDir();
-    auto extractor = new DiskExtractor(this);
-    extractor->setArchive(m_archiveFile);
-    extractor->setOutputDirectory(m_tmpFolder->path());
-    extractor->setCalculateProgress(true);
-    extractor->start();
-
-    connect(extractor, &DiskExtractor::started, this, &Extractor::started);
-    connect(extractor, &DiskExtractor::finished, this, &Extractor::finished);
-
-    connect(extractor, &DiskExtractor::progress,
-            this, [=](QString, int, int, qint64 bytesProcessed, qint64 bytesTotal) {
-        Q_EMIT progress(bytesProcessed * 100 / bytesTotal);
-    });
-
-    connect(extractor, &DiskExtractor::error, this, [=](short err) {
-        QMimeDatabase mimeDB;
-        QMimeType type = mimeDB.mimeTypeForFile(m_archiveFile);
-        if (type.name() == "application/vnd.comicbook-rar" || type.name() == "application/vnd.rar") {
-            extractRarArchive();
-            return;
-        }
-
-        QString errorMessage = i18n("Error %1: Could not extract the archive.\n%2",
-                                    QString::number(err),
-                                    QArchive::errorCodeToString(err));
-        Q_EMIT error(errorMessage);
-    });
-}
-
-void Extractor::extractArchiveToMemory()
 {
     KArchive *archive {nullptr};
     QMimeDatabase db;

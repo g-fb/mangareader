@@ -21,8 +21,6 @@ public:
     ~Extractor();
 
     void extractArchive();
-    void extractArchiveToDrive();
-    void extractArchiveToMemory();
     void extractRarArchive();
     QString extractionFolder();
     QString unrarNotFoundMessage();

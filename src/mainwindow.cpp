@@ -33,7 +33,6 @@
 #include <KIO/RenameFileDialog>
 
 #include <KArchive>
-#include <QArchive>
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow{ parent }
