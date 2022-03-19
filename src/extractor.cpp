@@ -1,17 +1,20 @@
 #include "extractor.h"
 
-#include <KLocalizedString>
 
-#include <KZip>
+#include <QCollator>
 #include <QDir>
 #include <QFileInfo>
 #include <QMimeDatabase>
 #include <QProcess>
 
-#include <K7Zip>
+#include <KLocalizedString>
 #include <KTar>
+#include <KZip>
+#ifdef WITH_K7ZIP
+#include <K7Zip>
+#endif
+
 #include <QArchive>
-#include <QCollator>
 #include <settings.h>
 
 using QArchive::DiskExtractor;

@@ -159,8 +159,9 @@ void View::createPages()
     m_start.resize(m_images.size());
     m_end.resize(m_images.size());
 
-    QImageReader imageReader;
     QScopedPointer<QIODevice> dev;
+    QImageReader imageReader;
+    imageReader.setAutoTransform(true);
     for (int i = 0; i < m_images.count(); i++) {
         if (m_loadFromMemory) {
             const KArchiveFile *entry = m_archive->directory()->file(m_images.at(i));
