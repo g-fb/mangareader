@@ -125,15 +125,6 @@ void MainWindow::init()
     centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
     setCentralWidget(mainWidget);
 
-    m_startUpWidget = new StartUpWidget(this);
-    connect(m_startUpWidget, &StartUpWidget::addMangaFolderClicked,
-            this, [=]() {actionCollection()->action("addMangaFolder")->trigger();});
-    connect(m_startUpWidget, &StartUpWidget::openMangaFolderClicked,
-            this, &MainWindow::openMangaFolder);
-    connect(m_startUpWidget, &StartUpWidget::openMangaArchiveClicked,
-            this, &MainWindow::openMangaArchive);
-    centralWidgetLayout->addWidget(m_startUpWidget);
-
     // ==================================================
     // setup progress bar
     // ==================================================
@@ -142,6 +133,18 @@ void MainWindow::init()
     m_progressBar->setMaximum(100);
     m_progressBar->setVisible(false);
     centralWidgetLayout->addWidget(m_progressBar);
+
+    // ==================================================
+    // setup startup widget
+    // ==================================================
+    m_startUpWidget = new StartUpWidget(this);
+    connect(m_startUpWidget, &StartUpWidget::addMangaFolderClicked,
+            this, [=]() {actionCollection()->action("addMangaFolder")->trigger();});
+    connect(m_startUpWidget, &StartUpWidget::openMangaFolderClicked,
+            this, &MainWindow::openMangaFolder);
+    connect(m_startUpWidget, &StartUpWidget::openMangaArchiveClicked,
+            this, &MainWindow::openMangaArchive);
+    centralWidgetLayout->addWidget(m_startUpWidget);
 
     // ==================================================
     // setup view
