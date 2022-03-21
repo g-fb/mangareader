@@ -10,6 +10,7 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+class QComboBox;
 class KArchive;
 class Extractor;
 class KHamburgerMenu;
@@ -66,7 +67,7 @@ private:
     void toggleFitHeight();
     void toggleFitWidth();
     auto isFullScreen() -> bool;
-    auto populateMangaFoldersMenu() -> QMenu *;
+    void populateLibrarySelectionComboBox();
     void populateBookmarkModel();
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
@@ -83,10 +84,9 @@ private:
     QTableView         *m_bookmarksView{};
     QStandardItemModel *m_bookmarksModel{};
     QThread            *m_thread{};
-    QMenu              *m_mangaFoldersMenu{};
     QProgressBar       *m_progressBar{};
     QString             m_currentPath;
-    QPushButton        *m_selectMangaLibraryButton{};
+    QComboBox          *m_selectMangaLibraryComboBox{};
     SettingsWindow     *m_settingsWindow{};
     QDialog            *m_renameDialog{};
     StartUpWidget      *m_startUpWidget{};

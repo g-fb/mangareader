@@ -210,15 +210,6 @@ void MainWindow::setupMangaTreeDockWidget()
     auto treeDockWidget = new QWidget(this);
     auto treeDockLayout = new QVBoxLayout(treeDockWidget);
 
-    m_mangaFoldersMenu = new QMenu(this);
-
-    m_selectMangaLibraryButton = new QPushButton(treeDockWidget);
-    m_selectMangaLibraryButton->setText(i18n("Select Manga Library"));
-    m_selectMangaLibraryButton->setMenu(m_mangaFoldersMenu);
-    populateMangaFoldersMenu();
-
-    treeDockLayout->addWidget(m_selectMangaLibraryButton);
-
     m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     m_treeDock->setProperty("h", 0);
@@ -239,7 +230,18 @@ void MainWindow::setupMangaTreeDockWidget()
     m_treeModel->setRootPath(mangaFolder);
     m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
     m_treeDock->setProperty("isEmpty", false);
-    m_treeDock->setWindowTitle(mangaFolder);
+
+    m_selectMangaLibraryComboBox = new QComboBox(treeDockWidget);
+    connect(m_selectMangaLibraryComboBox, &QComboBox::currentTextChanged, this, [=](const QString &path) {
+        m_treeModel->setRootPath(path);
+        m_treeView->setRootIndex(m_treeModel->index(path));
+        m_treeDock->setWindowTitle(path);
+        m_config->group("").writeEntry("Manga Folder", path);
+        m_config->sync();
+    });
+    treeDockLayout->addWidget(m_selectMangaLibraryComboBox);
+    populateLibrarySelectionComboBox();
+    m_selectMangaLibraryComboBox->setCurrentText(mangaFolder);
 
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
@@ -692,26 +694,18 @@ void MainWindow::toggleFitWidth()
     m_view->zoomReset();
 }
 
-auto MainWindow::populateMangaFoldersMenu() -> QMenu *
+void MainWindow::populateLibrarySelectionComboBox()
 {
-    m_mangaFoldersMenu->clear();
+    m_selectMangaLibraryComboBox->clear();
     const QStringList mangaFolders = MangaReaderSettings::mangaFolders();
     for (const QString &mangaFolder : mangaFolders) {
-        QAction *action = m_mangaFoldersMenu->addAction(mangaFolder);
-        connect(action, &QAction::triggered, this, [=]() {
-            m_treeModel->setRootPath(mangaFolder);
-            m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
-            m_treeDock->setWindowTitle(mangaFolder);
-            m_config->group("").writeEntry("Manga Folder", mangaFolder);
-            m_config->sync();
-        });
+        m_selectMangaLibraryComboBox->addItem(mangaFolder);
     }
-    m_selectMangaLibraryButton->setVisible(false);
+    m_selectMangaLibraryComboBox->setVisible(false);
     // no point in showing if there's only one option
     if (MangaReaderSettings::mangaFolders().count() > 1) {
-        m_selectMangaLibraryButton->setVisible(true);
+        m_selectMangaLibraryComboBox->setVisible(true);
     }
-    return m_mangaFoldersMenu;
 }
 
 void MainWindow::showError(const QString& error)
@@ -1051,7 +1045,7 @@ void MainWindow::openSettings()
             m_treeDock->setProperty("isEmpty", true);
             m_config->group("").deleteEntry("Manga Folder");
         }
-        populateMangaFoldersMenu();
+        populateLibrarySelectionComboBox();
     });
     m_settingsWindow->show();
 }
