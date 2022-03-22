@@ -127,8 +127,6 @@ void Extractor::extractRarArchive()
     process->setArguments(args);
     process->start();
 
-    connect(process, &QProcess::started,
-            this, &Extractor::started);
     connect(process, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished,
             this, &Extractor::finished);
 

@@ -89,11 +89,10 @@ void MainWindow::init()
     // setup extractor
     // ==================================================
     m_extractor = new Extractor(this);
-
-    connect(m_extractor, &Extractor::started, this, [=]() {
-        m_progressBar->setVisible(true);
-    });
     connect(m_extractor, &Extractor::progress, this, [=](int p) {
+        if (m_progressBar->isHidden()) {
+            m_progressBar->setVisible(true);
+        }
         m_progressBar->setValue(p);
     });
     connect(m_extractor, &Extractor::finished, this, [=]() {
