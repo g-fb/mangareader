@@ -25,6 +25,24 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.0.0" date="2022-03-30">
+            <description>
+                <p>Features:</p>
+                <ul>
+                    <li>Archive are now loaded into memory, this is faster and avoids causing wear to SSDs. Memory usage should be about the same</li>
+                    <li>Added buttons to open settings and keyboard shortcuts editor on the start/welcome page</li>
+                    <li>Added actions to jump to beginning (Ctrl + Home) and end (Ctrl + End) of view</li>
+                    <li>Changed library selection button to a combobox/dropdown menu. Libraries can now be changed by scrolling over the combobox</li>
+                    <li>The go to page widget now immediately changes the page when it's value changes and it updates its value while scrolling through images</li>
+                    <li>The setting for extraction folder has been removed, archives (only rar) are now extracted to the temporary folder</li>
+                </ul>
+                <p>Bugfixes:</p>
+                <ul>
+                    <li>The images view is now focused after opening a manga</li>
+                    <li>Added application/x-cbr to supported mime types</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.7.2" date="2022-02-22">
             <description>
                 <p>Features:</p>
