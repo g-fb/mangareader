@@ -40,6 +40,7 @@ Q_SIGNALS:
     void imagesLoaded();
     void requestDriveImage(int number, const QString &path);
     void requestMemoryImage(int number, const QByteArray &data);
+    void currentImageChanged(int number);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
     void addBookmark(int number);

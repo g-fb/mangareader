@@ -83,6 +83,13 @@ View::View(MainWindow *parent)
 
     connect(verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &View::onScrollBarRangeChanged);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [=]() {
+        QPoint topCenter = QPoint(m_scene->width()/2, 1);
+        Page *p = qgraphicsitem_cast<Page *>(itemAt(topCenter));
+        if (p) {
+            Q_EMIT currentImageChanged(p->number());
+        }
+    });
 }
 
 void View::setupActions()

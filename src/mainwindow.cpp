@@ -593,6 +593,11 @@ void MainWindow::setupActions()
         }
     });
     connect(goToSpinBox, qOverload<int>(&QSpinBox::valueChanged), action, &QAction::trigger);
+    connect(m_view, &View::currentImageChanged, this, [=](int page) {
+        goToSpinBox->blockSignals(true);
+        goToSpinBox->setValue(page + 1);
+        goToSpinBox->blockSignals(false);
+    });
     goToSpinBox->addAction(action);
     connect(m_view, &View::imagesLoaded, this, [=]() {
         goToSpinBox->setRange(1, m_view->imageCount());
