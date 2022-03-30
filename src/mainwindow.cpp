@@ -588,8 +588,11 @@ void MainWindow::setupActions()
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
     connect(action, &QAction::triggered, this, [=]() {
-        m_view->goToPage(goToSpinBox->value() - 1);
+        if (goToSpinBox->value() < m_view->imageCount()) {
+            m_view->goToPage(goToSpinBox->value() - 1);
+        }
     });
+    connect(goToSpinBox, qOverload<int>(&QSpinBox::valueChanged), action, &QAction::trigger);
     goToSpinBox->addAction(action);
     connect(m_view, &View::imagesLoaded, this, [=]() {
         goToSpinBox->setRange(1, m_view->imageCount());
