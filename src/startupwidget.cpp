@@ -73,39 +73,17 @@ StartUpWidget::StartUpWidget(QWidget *parent)
 
     auto settingsButton = new QPushButton(i18n("Settings"), this);
     settingsButton->setIcon(QIcon::fromTheme("configure"));
-    settingsButton->setIconSize(QSize(32, 32));
     connect(settingsButton, &QPushButton::clicked,
             this, &StartUpWidget::openSettingsClicked);
 
     auto configureShortcutsButton = new QPushButton(i18n("Configure Shortcuts"), this);
     configureShortcutsButton->setIcon(QIcon::fromTheme("input-keyboard"));
-    configureShortcutsButton->setIconSize(QSize(32, 32));
     connect(configureShortcutsButton, &QPushButton::clicked,
             this, &StartUpWidget::openShortcutsConfigClicked);
-
-    auto *schemes = new KColorSchemeManager(this);
-    auto config = KSharedConfig::openConfig("mangareader/mangareader.conf");
-    KConfigGroup cg(config, "UiSettings");
-    auto schemeName = cg.readEntry("ColorScheme", QString());
-
-    KActionMenu *colorSchemeAction = schemes->createSchemeSelectionMenu(schemeName, this);
-    colorSchemeAction->setPopupMode(QToolButton::InstantPopup);
-
-    auto colorSchemeChangerButton = new QPushButton(i18n("Color Scheme"), this);
-    colorSchemeChangerButton->setIcon(QIcon::fromTheme("kcolorchooser"));
-    colorSchemeChangerButton->setIconSize(QSize(32, 32));
-    colorSchemeChangerButton->setMenu(colorSchemeAction->menu());
-
-    connect(colorSchemeAction->menu(), &QMenu::triggered, this, [=](QAction *triggeredAction) {
-        KConfigGroup cg(config, "UiSettings");
-        cg.writeEntry("ColorScheme", KLocalizedString::removeAcceleratorMarker(triggeredAction->text()));
-        cg.sync();
-    });
 
 
     secondButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
     secondButtonsRowLayout->addWidget(settingsButton);
     secondButtonsRowLayout->addWidget(configureShortcutsButton);
-    secondButtonsRowLayout->addWidget(colorSchemeChangerButton);
     secondButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
 }
