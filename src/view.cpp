@@ -514,6 +514,9 @@ void View::setArchive(KArchive *newArchive)
 
 void View::goToPage(int number)
 {
+    if (m_images.isEmpty()) {
+        return;
+    }
     verticalScrollBar()->setValue(m_start[number]);
 }
 

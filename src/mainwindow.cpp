@@ -423,7 +423,7 @@ void MainWindow::openMangaFolder()
 
 void MainWindow::loadImages(const QString &path, bool recursive)
 {
-    if (m_currentPath == m_view->manga()) {
+    if (!m_currentPath.isEmpty() && m_currentPath == m_view->manga()) {
         m_view->goToPage(m_startPage);
         return;
     }
