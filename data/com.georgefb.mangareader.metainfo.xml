@@ -25,6 +25,14 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.0.1" date="2022-04-01">
+            <description>
+                <p>Bugfixes:</p>
+                <ul>
+                    <li>Fixed opening files from file manager/terminal not working.</li>
+                </ul>
+            </description>
+        </release>
         <release version="2.0.0" date="2022-03-30">
             <description>
                 <p>Features:</p>
