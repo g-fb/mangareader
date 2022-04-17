@@ -30,7 +30,7 @@ public:
     void setStartPage(int number);
     const QString &manga() const;
     void setManga(const QString &manga);
-    void setImages(const QStringList &images);
+    void setFiles(const QStringList &files);
     void setArchive(KArchive *newArchive);
 
     void setLoadFromMemory(bool newLoadFromMemory);
@@ -77,7 +77,7 @@ private:
 
     QGraphicsScene  *m_scene{};
     QString          m_manga;
-    QStringList      m_images;
+    QStringList      m_files;
     QVector<Page*>   m_pages;
     QVector<int>     m_start;
     QVector<int>     m_end;

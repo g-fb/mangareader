@@ -447,7 +447,7 @@ void MainWindow::loadImages(const QString &path, bool recursive)
         return;
     }
 
-    m_images.clear();
+    m_files.clear();
 
     // get images from path
     auto it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::NoIteratorFlags);
@@ -460,15 +460,15 @@ void MainWindow::loadImages(const QString &path, bool recursive)
         mimetype = db.mimeTypeForFile(file).name();
         // only get images
         if (mimetype.startsWith("image/")) {
-            m_images.append(file);
+            m_files.append(file);
         }
     }
     // natural sort images
     QCollator collator;
     collator.setNumericMode(true);
-    std::sort(m_images.begin(), m_images.end(), collator);
+    std::sort(m_files.begin(), m_files.end(), collator);
 
-    if (m_images.count() < 1) {
+    if (m_files.count() < 1) {
         return;
     }
 
@@ -481,13 +481,13 @@ void MainWindow::loadImages(const QString &path, bool recursive)
     m_view->reset();
     m_view->setStartPage(m_startPage);
     m_view->setManga(mangaPath);
-    m_view->setImages(m_images);
+    m_view->setFiles(m_files);
     m_view->setLoadFromMemory(false);
     m_view->loadImages();
     m_startPage = 0;
 }
 
-void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &images)
+void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &files)
 {
     m_progressBar->setVisible(false);
     m_startUpWidget->setVisible(false);
@@ -501,7 +501,7 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &imag
     m_view->reset();
     m_view->setStartPage(m_startPage);
     m_view->setManga(fileInfo.absoluteFilePath());
-    m_view->setImages(images);
+    m_view->setFiles(files);
     m_view->setArchive(archive);
     m_view->setLoadFromMemory(true);
     m_view->loadImages();

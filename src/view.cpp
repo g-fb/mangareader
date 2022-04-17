@@ -164,7 +164,7 @@ void View::reset()
     m_start.clear();
     m_end.clear();
     m_requestedPages.clear();
-    m_images.clear();
+    m_files.clear();
     verticalScrollBar()->setValue(0);
 }
 
@@ -183,15 +183,15 @@ void View::createPages()
     QImageReader imageReader;
     imageReader.setAutoTransform(true);
     int i {0};
-    for (auto &image : m_images) {
+    for (auto &_file : m_files) {
         if (m_loadFromMemory) {
-            const KArchiveFile *entry = m_archive->directory()->file(image);
+            const KArchiveFile *entry = m_archive->directory()->file(_file);
             if (!entry) {
                 continue;
             }
             dev.reset(entry->createDevice());
         } else {
-            std::unique_ptr<QFile> file(new QFile(image));
+            std::unique_ptr<QFile> file(new QFile(_file));
             if (!file->open(QIODevice::ReadOnly)) {
                 continue;
             }
@@ -220,7 +220,7 @@ void View::createPages()
         if (pageSize.isValid()) {
             Page *p = new Page(imageReader.size());
             p->setNumber(i);
-            p->setFilename(image);
+            p->setFilename(_file);
             p->setView(this);
 
             m_pages.append(p);
@@ -539,9 +539,9 @@ void View::setManga(const QString &manga)
     m_manga = manga;
 }
 
-void View::setImages(const QStringList &images)
+void View::setFiles(const QStringList &files)
 {
-    m_images = images;
+    m_files = files;
 }
 
 void View::zoomIn()

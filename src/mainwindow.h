@@ -41,7 +41,7 @@ public:
     };
 
     void loadImages(const QString &path, bool recursive = false);
-    void loadImagesFromMemory(KArchive *archive, const QStringList &images);
+    void loadImagesFromMemory(KArchive *archive, const QStringList &files);
 
 private:
     static void showError(const QString &error);
@@ -75,7 +75,7 @@ private:
     Extractor *m_extractor;
     KSharedConfig::Ptr  m_config;
     KHamburgerMenu     *m_hamburgerMenu{};
-    QStringList         m_images;
+    QStringList         m_files;
     View               *m_view{};
     QDockWidget        *m_treeDock{};
     QTreeView          *m_treeView{};
