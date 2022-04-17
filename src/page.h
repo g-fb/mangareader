@@ -37,6 +37,9 @@ public:
     auto number() -> int;
     void setNumber(int newNumber);
 
+    const QString &filename() const;
+    void setFilename(const QString &newFilename);
+
 private:
     auto boundingRect() const -> QRectF override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
@@ -51,6 +54,7 @@ private:
     double   m_ratio;
     QPixmap  m_pixmap;
     QImage   m_image;
+    QString  m_filename;
 };
 
 #endif // PAGE_H

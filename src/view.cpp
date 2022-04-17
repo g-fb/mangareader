@@ -179,21 +179,19 @@ void View::loadImages()
 
 void View::createPages()
 {
-    m_start.resize(m_images.size());
-    m_end.resize(m_images.size());
-
     QScopedPointer<QIODevice> dev;
     QImageReader imageReader;
     imageReader.setAutoTransform(true);
-    for (int i = 0; i < m_images.count(); i++) {
+    int i {0};
+    for (auto &image : m_images) {
         if (m_loadFromMemory) {
-            const KArchiveFile *entry = m_archive->directory()->file(m_images.at(i));
+            const KArchiveFile *entry = m_archive->directory()->file(image);
             if (!entry) {
                 continue;
             }
             dev.reset(entry->createDevice());
         } else {
-            std::unique_ptr<QFile> file(new QFile(m_images.at(i)));
+            std::unique_ptr<QFile> file(new QFile(image));
             if (!file->open(QIODevice::ReadOnly)) {
                 continue;
             }
@@ -222,12 +220,16 @@ void View::createPages()
         if (pageSize.isValid()) {
             Page *p = new Page(imageReader.size());
             p->setNumber(i);
+            p->setFilename(image);
             p->setView(this);
 
             m_pages.append(p);
             m_scene->addItem(p);
         }
+        ++i;
     }
+    m_start.resize(m_pages.size());
+    m_end.resize(m_pages.size());
 }
 
 void View::calculatePageSizes()
@@ -262,6 +264,7 @@ void View::setPagesVisibility()
         // page is visible on the screen but its image not loaded
         auto page = m_pages.at(i);
         int pageNumber = page->number();
+
         if (isInView(m_start[pageNumber], m_end[pageNumber])) {
             if (page->isImageDeleted()) {
                 addRequest(pageNumber);
@@ -306,10 +309,11 @@ void View::addRequest(int number)
         return;
     }
     m_requestedPages.append(number);
+    QString filename = m_pages.at(number)->filename();
     if (m_loadFromMemory) {
-        Q_EMIT requestMemoryImage(number, m_archive->directory()->file(m_images.at(number))->data());
+        Q_EMIT requestMemoryImage(number, m_archive->directory()->file(filename)->data());
     } else {
-        Q_EMIT requestDriveImage(number, m_images.at(number));
+        Q_EMIT requestDriveImage(number, filename);
     }
 }
 
@@ -331,7 +335,7 @@ void View::onImageReady(const QImage &image, int number)
     // when loading another manga it can happen that the number returned by the thread
     // is bigger than the total number of images the current manga has
     // resulting in an index out of range crash
-    if (number > m_images.size() - 1) {
+    if (number > m_pages.size() - 1) {
         return;
     }
     m_pages.at(number)->setImage(image);
@@ -514,7 +518,7 @@ void View::setArchive(KArchive *newArchive)
 
 void View::goToPage(int number)
 {
-    if (m_images.isEmpty()) {
+    if (m_pages.isEmpty()) {
         return;
     }
     verticalScrollBar()->setValue(m_start[number]);
@@ -522,7 +526,7 @@ void View::goToPage(int number)
 
 auto View::imageCount() -> int
 {
-    return m_images.count();
+    return m_pages.count();
 }
 
 void View::setStartPage(int number)

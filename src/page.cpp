@@ -65,6 +65,16 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     }
 }
 
+const QString &Page::filename() const
+{
+    return m_filename;
+}
+
+void Page::setFilename(const QString &newFilename)
+{
+    m_filename = newFilename;
+}
+
 bool Page::isZoomToggled() const
 {
     return m_isZoomToggled;
