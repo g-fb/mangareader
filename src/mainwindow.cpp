@@ -49,23 +49,14 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, "mangareaderui.rc");
 
+    m_treeDock->setObjectName("treeDockWidget");
+    m_bookmarksDock->setObjectName("bookmarksDockWidget");
+
     if (MangaReaderSettings::mainToolBarVisible())
         showToolBars();
 
     if (MangaReaderSettings::menuBarVisible())
         menuBar()->show();
-
-    if (m_treeDock->property("isEmpty").toBool()) {
-        m_treeDock->setVisible(false);
-    } else {
-        m_treeDock->setVisible(true);
-    }
-
-    if (m_bookmarksDock->property("isEmpty").toBool()) {
-        m_bookmarksDock->setVisible(false);
-    } else {
-        m_bookmarksDock->setVisible(true);
-    }
 
     // setup toolbar
     toolBar("mainToolBar")->setFloatable(false);
@@ -190,11 +181,8 @@ void MainWindow::init()
     // setup dock widgets
     // ==================================================
     setupMangaTreeDockWidget();
-    m_treeDock->setVisible(false);
-    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
 
     setupBookmarksDockWidget();
-    addDockWidget(Qt::LeftDockWidgetArea, m_bookmarksDock);
 }
 
 void MainWindow::setupMangaTreeDockWidget()
@@ -202,17 +190,12 @@ void MainWindow::setupMangaTreeDockWidget()
     KConfigGroup rootGroup = m_config->group("");
     QString mangaFolder = rootGroup.readEntry("Manga Folder");
 
-    if (mangaFolder.isEmpty()) {
-        return;
-    }
-
     auto treeDockWidget = new QWidget(this);
     auto treeDockLayout = new QVBoxLayout(treeDockWidget);
 
-    m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     m_treeDock->setProperty("h", 0);
-    m_treeDock->setProperty("isEmpty", true);
+    m_treeDock->setProperty("isEmpty", mangaFolder.isEmpty());
 
     m_treeModel->setObjectName("mangaTree");
     m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
@@ -228,7 +211,6 @@ void MainWindow::setupMangaTreeDockWidget()
 
     m_treeModel->setRootPath(mangaFolder);
     m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
-    m_treeDock->setProperty("isEmpty", false);
 
     m_selectMangaLibraryComboBox = new QComboBox(treeDockWidget);
     connect(m_selectMangaLibraryComboBox, &QComboBox::currentTextChanged, this, [=](const QString &path) {
@@ -264,20 +246,23 @@ void MainWindow::setupMangaTreeDockWidget()
 
     treeDockLayout->addWidget(m_treeView);
     m_treeDock->setWidget(treeDockWidget);
+    addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
+    if (m_treeDock->property("isEmpty").toBool()) {
+        m_treeDock->setVisible(false);
+    } else {
+        m_treeDock->setVisible(true);
+    }
+
 }
 
 void MainWindow::setupBookmarksDockWidget()
 {
     KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
-    if (bookmarksGroup.keyList().isEmpty()) {
-        return;
-    }
 
-    m_bookmarksDock->setObjectName("bookmarksDockWidget");
     m_bookmarksDock->setWindowTitle(i18n("Bookmarks"));
     m_bookmarksDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     m_bookmarksDock->setProperty("h", 0);
-    m_bookmarksDock->setProperty("isEmpty", true);
+    m_bookmarksDock->setProperty("isEmpty", bookmarksGroup.keyList().isEmpty());
 
     m_bookmarksView->setObjectName("bookmarksTableView");
     m_bookmarksView->setModel(m_bookmarksModel);
@@ -294,9 +279,8 @@ void MainWindow::setupBookmarksDockWidget()
     tableHeader->setSectionResizeMode(0, QHeaderView::Stretch);
     tableHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
-    if (bookmarksGroup.keyList().count() > 0) {
+    if (!bookmarksGroup.keyList().isEmpty()) {
         populateBookmarkModel();
-        m_bookmarksDock->setProperty("isEmpty", false);
     }
 
     auto openBookmark = [=](const QModelIndex &index) {
@@ -355,6 +339,14 @@ void MainWindow::setupBookmarksDockWidget()
     bookmarksLayout->addWidget(deleteButton);
     bookmarksWidget->setLayout(bookmarksLayout);
     m_bookmarksDock->setWidget(bookmarksWidget);
+    addDockWidget(Qt::LeftDockWidgetArea, m_bookmarksDock);
+
+    if (m_bookmarksDock->property("isEmpty").toBool()) {
+        m_bookmarksDock->setVisible(false);
+    } else {
+        m_bookmarksDock->setVisible(true);
+    }
+
 }
 
 void MainWindow::populateBookmarkModel()
@@ -703,7 +695,9 @@ void MainWindow::toggleFitWidth()
 
 void MainWindow::populateLibrarySelectionComboBox()
 {
-    m_selectMangaLibraryComboBox->clear();
+    if (m_selectMangaLibraryComboBox == nullptr) {
+        return;
+    }
     const QStringList mangaFolders = MangaReaderSettings::mangaFolders();
     for (const QString &mangaFolder : mangaFolders) {
         m_selectMangaLibraryComboBox->addItem(mangaFolder);
