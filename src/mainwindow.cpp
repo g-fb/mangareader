@@ -401,7 +401,8 @@ void MainWindow::openMangaArchive()
     if (file.isEmpty()) {
         return;
     }
-    loadImages(file, true);
+    m_currentPath = file;
+    loadImages(file);
 }
 
 void MainWindow::openMangaFolder()
@@ -410,6 +411,7 @@ void MainWindow::openMangaFolder()
     if (path.isEmpty()) {
         return;
     }
+    m_currentPath = path;
     loadImages(path, true);
 }
 
@@ -1094,4 +1096,9 @@ void MainWindow::dropEvent(QDropEvent *e)
 {
     QString fileName = e->mimeData()->urls().first().toLocalFile();
     loadImages(fileName);
+}
+
+void MainWindow::setCurrentPath(const QString &_currentPath)
+{
+    m_currentPath = _currentPath;
 }

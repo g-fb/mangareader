@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 
     if (args.count() > 0 && !args.at(0).isEmpty()) {
         QUrl url = QUrl::fromUserInput(args.at(0), QDir::currentPath());
+        w->setCurrentPath(url.toLocalFile());
         w->loadImages(url.toLocalFile());
     }
 

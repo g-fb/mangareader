@@ -43,6 +43,8 @@ public:
     void loadImages(const QString &path, bool recursive = false);
     void loadImagesFromMemory(KArchive *archive, const QStringList &files);
 
+    void setCurrentPath(const QString &_currentPath);
+
 private:
     static void showError(const QString &error);
     void init();
