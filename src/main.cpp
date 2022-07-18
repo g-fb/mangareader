@@ -17,16 +17,16 @@
 
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+    QApplication::setStyle(QStringLiteral("breeze"));
+#endif
+
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 
     QApplication app(argc, argv);
 
     KLocalizedString::setApplicationDomain("mangareader");
-
-#ifdef Q_OS_WIN
-    QApplication::setStyle(QStringLiteral("breeze"));
-#endif
 
     KAboutData aboutData;
     aboutData.setDisplayName(i18n("Manga Reader"));
