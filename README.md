@@ -9,6 +9,14 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 
 A manga reader for local files. Works with folders and archives.
 
+# Status
+
+The application is in maintenance mode, that means only bugfixes will happen.
+
+From my point of view the application is feature complete, so no more features from me. If someone else wants to add a feature they are welcome to submit a PR, but before doing that open an issue to check if the feature is gonna be accepted.
+
+You can still make feature requests and if it's easy to implement I might add it, just don't expect them to be implemented.
+
 # Installation
 
 Easiest way to install is through [flatpak](https://flathub.org/apps/details/com.georgefb.mangareader), flatpaks should work on all distros.
