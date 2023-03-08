@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "_debug.h"
 #include "extractor.h"
 #include "mainwindow.h"
 #include "settings.h"
@@ -15,24 +14,28 @@
 
 #include <KActionCollection>
 #include <KActionMenu>
+#include <KArchive>
 #include <KColorSchemeManager>
 #include <KConfigDialog>
 #include <KConfigGroup>
-#include <KHamburgerMenu>
-#include <KLocalizedString>
-#include <KToolBar>
-#include <kconfigwidgets_version.h>
-
-#include <QtWidgets>
-#include <QThread>
-#include <QProcess>
 #include <KFileItem>
+#include <KHamburgerMenu>
+#include <kio_version.h>
+#if KIO_VERSION >= QT_VERSION_CHECK(5, 98, 0)
+#include <KIO/JobUiDelegateFactory>
+#else
 #include <KIO/JobUiDelegate>
+#endif
 #include <KIO/OpenFileManagerWindowJob>
 #include <KIO/OpenUrlJob>
 #include <KIO/RenameFileDialog>
+#include <KLocalizedString>
+#include <KToolBar>
 
-#include <KArchive>
+#include <QProcess>
+#include <QtWidgets>
+#include <QThread>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow{ parent }
@@ -505,7 +508,7 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &file
 void MainWindow::setupActions()
 {
     auto *schemes = new KColorSchemeManager(this);
-#if KCONFIGWIDGETS_VERSION >= QT_VERSION_CHECK(5, 89, 0)
+#if KIO_VERSION >= QT_VERSION_CHECK(5, 89, 0)
     schemes->setAutosaveChanges(false);
 #endif
 
@@ -803,7 +806,11 @@ void MainWindow::treeViewContextMenu(QPoint point)
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         auto job = new KIO::OpenUrlJob(url);
+#if KIO_VERSION >= QT_VERSION_CHECK(5, 98, 0)
+        job->setUiDelegate(KIO::createDefaultJobUiDelegate());
+#else
         job->setUiDelegate(new KIO::JobUiDelegate());
+#endif
         job->start();
     });
 
@@ -827,7 +834,11 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         auto job = new KIO::OpenUrlJob(url);
+#if KIO_VERSION >= QT_VERSION_CHECK(5, 98, 0)
+        job->setUiDelegate(KIO::createDefaultJobUiDelegate());
+#else
         job->setUiDelegate(new KIO::JobUiDelegate());
+#endif
         job->start();
     });
 
