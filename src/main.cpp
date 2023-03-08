@@ -17,14 +17,14 @@
 
 int main(int argc, char *argv[])
 {
-#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-    QApplication::setStyle(QStringLiteral("breeze"));
-#endif
-
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 
     QApplication app(argc, argv);
+
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+    QApplication::setStyle(QStringLiteral("breeze"));
+#endif
 
     KLocalizedString::setApplicationDomain("mangareader");
 
