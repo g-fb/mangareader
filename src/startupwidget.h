@@ -14,7 +14,7 @@ class StartUpWidget : public QWidget
     Q_OBJECT
 public:
     explicit StartUpWidget(QWidget *parent = nullptr);
-    void mouseMoveEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 Q_SIGNALS:
     void addMangaFolderClicked();
