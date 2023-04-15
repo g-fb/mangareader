@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-    QApplication::setStyle(QStringLiteral("breeze"));
+    QApplication::setStyle(QStringLiteral("Breeze"));
 #endif
 
     KLocalizedString::setApplicationDomain("mangareader");
