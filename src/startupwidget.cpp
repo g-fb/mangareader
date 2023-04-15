@@ -95,3 +95,5 @@ void StartUpWidget::mouseMoveEvent(QMouseEvent *event)
 
     Q_EMIT mouseMoved(event);
 }
+
+#include "moc_startupwidget.cpp"

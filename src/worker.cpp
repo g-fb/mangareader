@@ -38,3 +38,5 @@ auto Worker::instance() -> Worker *
     static Worker w;
     return &w;
 }
+
+#include "moc_worker.cpp"

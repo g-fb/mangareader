@@ -199,3 +199,5 @@ QString Extractor::unrarNotFoundMessage()
                           "the path to the unrar executable manually in the settings.");
 #endif
 }
+
+#include "moc_extractor.cpp"

@@ -1125,3 +1125,5 @@ void MainWindow::setCurrentPath(const QString &_currentPath)
 {
     m_currentPath = _currentPath;
 }
+
+#include "moc_mainwindow.cpp"

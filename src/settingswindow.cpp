@@ -188,3 +188,5 @@ QPushButton *SettingsWindow::addMangaFolderButton() const
 {
     return m_addMangaFolderButton;
 }
+
+#include "moc_settingswindow.cpp"

@@ -572,3 +572,5 @@ void View::togglePageZoom(Page *page)
     page->setIsZoomToggled(!page->isZoomToggled());
     page->redrawImage();
 }
+
+#include "moc_view.cpp"
