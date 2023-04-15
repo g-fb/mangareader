@@ -30,6 +30,7 @@ private:
     QPushButton *m_addMangaFolderButton{nullptr};
     QHash<QString, bool> changedSettings;
     KUrlRequester *m_unrarPath{nullptr};
+    QCheckBox *m_fullscreenStartup{nullptr};
     QCheckBox *m_upscaleImages{nullptr};
     QSpinBox *m_maxWidth{nullptr};
     QSpinBox *m_pageSpacing{nullptr};

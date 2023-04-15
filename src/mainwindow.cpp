@@ -67,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent)
     toolBarMenuAction()->setVisible(false);
     connect(toolBar("mainToolBar"), &QToolBar::visibilityChanged,
             this, &MainWindow::setToolBarVisible);
+    if (MangaReaderSettings::fullscreenOnStartup()) {
+        toggleFullScreen();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -141,6 +144,8 @@ void MainWindow::init()
     connect(m_startUpWidget, &StartUpWidget::openShortcutsConfigClicked, actionCollection(), [=]() {
         actionCollection()->action("options_configure_keybinding")->trigger();
     });
+    connect(m_startUpWidget, &StartUpWidget::mouseMoved,
+            this, &MainWindow::onMouseMoved);
     centralWidgetLayout->addWidget(m_startUpWidget);
 
     // ==================================================
@@ -656,7 +661,14 @@ void MainWindow::setupActions()
     }, actionCollection());
     KStandardAction::quit(QApplication::instance(), &QApplication::quit, actionCollection());
 
-    QAction *toggleFullScreenAction = KStandardAction::fullScreen(this, [=]() {toggleFullScreen();}, this, actionCollection());
+
+    auto *toggleFullScreenAction = new QAction();
+    toggleFullScreenAction->setText(i18n("Fullscreen"));
+    actionCollection()->addAction("fullscreen", toggleFullScreenAction);
+    actionCollection()->setDefaultShortcuts(toggleFullScreenAction, {Qt::Key_F11});
+    connect(toggleFullScreenAction, &QAction::triggered, this, [=]() {
+        toggleFullScreen();
+    });
     connect(m_view, &View::doubleClicked,
             toggleFullScreenAction, &QAction::trigger);
 }
@@ -919,13 +931,13 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
     if (event->y() < 50) {
         showDockWidgets(Qt::TopDockWidgetArea);
         showToolBars(Qt::TopToolBarArea);
-    } else if (event->y() > m_view->height() - 50) {
+    } else if (event->y() > height() - 50) {
         showDockWidgets(Qt::BottomDockWidgetArea);
         showToolBars(Qt::BottomToolBarArea);
     } else if (event->x() < 50) {
         showDockWidgets(Qt::LeftDockWidgetArea);
         showToolBars(Qt::LeftToolBarArea);
-    } else if (event->x() > m_view->width() - 50) {
+    } else if (event->x() > width() - 50) {
         showDockWidgets(Qt::RightDockWidgetArea);
         showToolBars(Qt::RightToolBarArea);
     } else {

@@ -71,6 +71,16 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     // end unrar
 
 
+    // start in fullscreen mode
+    m_fullscreenStartup = new QCheckBox(this);
+    m_fullscreenStartup->setObjectName(QStringLiteral("kcfg_FullscreenOnStartup"));
+    m_fullscreenStartup->setText(i18n("Start in fullscreen mode"));
+    m_fullscreenStartup->setChecked(MangaReaderSettings::fullscreenOnStartup());
+    m_fullscreenStartup->setToolTip(i18n("Enter fullscreen mode when the application starts."));
+    formLayout->addRow(QLatin1String(), m_fullscreenStartup);
+    // end start in fullscreen mode
+
+
     // upscale images
     m_upscaleImages = new QCheckBox(this);
     m_upscaleImages->setObjectName(QStringLiteral("kcfg_UpScale"));

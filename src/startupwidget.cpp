@@ -21,6 +21,7 @@
 StartUpWidget::StartUpWidget(QWidget *parent)
     : QWidget{parent}
 {
+    setMouseTracking(true);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     auto mainVLayout = new QVBoxLayout(this);
     setLayout(mainVLayout);
@@ -86,4 +87,11 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     secondButtonsRowLayout->addWidget(settingsButton);
     secondButtonsRowLayout->addWidget(configureShortcutsButton);
     secondButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+}
+
+void StartUpWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    QWidget::mouseMoveEvent(event);
+
+    Q_EMIT mouseMoved(event);
 }
