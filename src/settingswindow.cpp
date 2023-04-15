@@ -6,7 +6,6 @@
 
 #include "settingswindow.h"
 
-#include "_debug.h"
 #include "settings.h"
 
 #include <KColorButton>
