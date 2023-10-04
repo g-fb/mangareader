@@ -175,7 +175,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     });
     auto widget = new QWidget();
     auto hLayout = new QHBoxLayout(widget);
-    hLayout->setMargin(0);
+    hLayout->setContentsMargins(0, 0, 0, 0);
     hLayout->addWidget(m_addMangaFolderButton);
     hLayout->addStretch(1);
     m_mangaFolders->layout()->addWidget(widget);
