@@ -42,7 +42,7 @@ if (KArchive_HAVE_LZMA)
 endif()
 
 install(TARGETS mangareader DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES settings/mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
-install(FILES settings/viewui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
+install(FILES settings/mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/mangareader)
+install(FILES settings/viewui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/mangareader)
 
 install(FILES settings/settings.kcfg DESTINATION ${KDE_INSTALL_KCFGDIR})
