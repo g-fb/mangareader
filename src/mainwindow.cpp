@@ -16,6 +16,7 @@
 #include <KActionMenu>
 #include <KArchive>
 #include <KColorSchemeManager>
+#include <KColorSchemeMenu>
 #include <KConfigDialog>
 #include <KConfigGroup>
 #include <KFileItem>
@@ -521,7 +522,7 @@ void MainWindow::setupActions()
     auto schemeName = cg.readEntry("ColorScheme", QString());
     schemes->activateScheme(schemes->indexForScheme(schemeName));
 
-    auto colorSchemeAction = schemes->createSchemeSelectionMenu(schemeName, this);
+    auto colorSchemeAction = KColorSchemeMenu::createMenu(schemes, this);
     colorSchemeAction->setPopupMode(QToolButton::InstantPopup);
     actionCollection()->addAction("colorSchemeChooser", colorSchemeAction);
 
