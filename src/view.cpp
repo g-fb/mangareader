@@ -12,12 +12,13 @@
 #include "settings.h"
 
 #include <KActionCollection>
+#include <KArchive>
 #include <KLocalizedString>
 #include <KXMLGUIFactory>
 
-#include <KArchive>
 #include <QApplication>
 #include <QBuffer>
+#include <QFile>
 #include <QImageReader>
 #include <QMenu>
 #include <QMimeData>
