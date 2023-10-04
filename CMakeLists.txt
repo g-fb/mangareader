@@ -29,38 +29,38 @@ ecm_setup_version(${PROJECT_VERSION}
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 
-find_package(Qt6Core)
-set_package_properties(Qt6Core PROPERTIES TYPE REQUIRED)
+find_package(Qt${QT_MAJOR_VERSION}Core)
+set_package_properties(Qt${QT_MAJOR_VERSION}Core PROPERTIES TYPE REQUIRED)
 
-find_package(Qt6Widgets)
-set_package_properties(Qt6Widgets PROPERTIES TYPE REQUIRED)
+find_package(Qt${QT_MAJOR_VERSION}Widgets)
+set_package_properties(Qt${QT_MAJOR_VERSION}Widgets PROPERTIES TYPE REQUIRED)
 
-find_package(KF6Archive)
-set_package_properties(KF6Archive PROPERTIES TYPE OPTIONAL
+find_package(KF${QT_MAJOR_VERSION}Archive)
+set_package_properties(KF${QT_MAJOR_VERSION}Archive PROPERTIES TYPE OPTIONAL
     URL "https://api.kde.org/frameworks/karchive/html/index.html")
 
-find_package(KF6Config)
-set_package_properties(KF6Config PROPERTIES TYPE REQUIRED
+find_package(KF${QT_MAJOR_VERSION}Config)
+set_package_properties(KF${QT_MAJOR_VERSION}Config PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfig/html/index.html")
 
-find_package(KF6ConfigWidgets)
-set_package_properties(KF6ConfigWidgets PROPERTIES TYPE REQUIRED
+find_package(KF${QT_MAJOR_VERSION}ConfigWidgets)
+set_package_properties(KF${QT_MAJOR_VERSION}ConfigWidgets PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfigwidgets/html/index.html")
 
-find_package(KF6CoreAddons)
-set_package_properties(KF6CoreAddons PROPERTIES TYPE REQUIRED
+find_package(KF${QT_MAJOR_VERSION}CoreAddons)
+set_package_properties(KF${QT_MAJOR_VERSION}CoreAddons PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kcoreaddons/html/index.html")
 
-find_package(KF6I18n)
-set_package_properties(KF6I18n PROPERTIES TYPE REQUIRED
+find_package(KF${QT_MAJOR_VERSION}I18n)
+set_package_properties(KF${QT_MAJOR_VERSION}I18n PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/ki18n/html/index.html")
 
-find_package(KF6KIO)
-set_package_properties(KF6KIO PROPERTIES TYPE REQUIRED
+find_package(KF${QT_MAJOR_VERSION}KIO)
+set_package_properties(KF${QT_MAJOR_VERSION}KIO PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kio/html/index.html")
 
-find_package(KF6XmlGui)
-set_package_properties(KF6XmlGui PROPERTIES TYPE REQUIRED
+find_package(KF${QT_MAJOR_VERSION}XmlGui)
+set_package_properties(KF${QT_MAJOR_VERSION}XmlGui PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
