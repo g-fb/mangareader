@@ -929,16 +929,16 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
     if(!isFullScreen()) {
         return;
     }
-    if (event->y() < 50) {
+    if (event->pos().y() < 50) {
         showDockWidgets(Qt::TopDockWidgetArea);
         showToolBars(Qt::TopToolBarArea);
-    } else if (event->y() > height() - 50) {
+    } else if (event->pos().y() > height() - 50) {
         showDockWidgets(Qt::BottomDockWidgetArea);
         showToolBars(Qt::BottomToolBarArea);
-    } else if (event->x() < 50) {
+    } else if (event->pos().x() < 50) {
         showDockWidgets(Qt::LeftDockWidgetArea);
         showToolBars(Qt::LeftToolBarArea);
-    } else if (event->x() > width() - 50) {
+    } else if (event->pos().x() > width() - 50) {
         showDockWidgets(Qt::RightDockWidgetArea);
         showToolBars(Qt::RightToolBarArea);
     } else {
