@@ -535,7 +535,7 @@ void MainWindow::setupActions()
     auto focusMangaTree = new QAction();
     focusMangaTree->setText(i18n("Focus Manga Tree"));
     actionCollection()->addAction("focusTree", focusMangaTree);
-    actionCollection()->setDefaultShortcuts(focusMangaTree, {Qt::Key_N, Qt::CTRL + Qt::Key_N});
+    actionCollection()->setDefaultShortcuts(focusMangaTree, {Qt::Key_N, Qt::CTRL | Qt::Key_N});
     connect(focusMangaTree, &QAction::triggered, this, [=]() {
         m_treeView->setFocus();
     });
@@ -543,7 +543,7 @@ void MainWindow::setupActions()
     auto focusBookmarksTable = new QAction();
     focusBookmarksTable->setText(i18n("Focus Manga Bookmarks"));
     actionCollection()->addAction("focusBookmarksTable", focusBookmarksTable);
-    actionCollection()->setDefaultShortcuts(focusBookmarksTable, {Qt::Key_B, Qt::CTRL + Qt::Key_B});
+    actionCollection()->setDefaultShortcuts(focusBookmarksTable, {Qt::Key_B, Qt::CTRL | Qt::Key_B});
     connect(focusBookmarksTable, &QAction::triggered, this, [=]() {
         m_bookmarksView->setFocus();
     });
@@ -551,7 +551,7 @@ void MainWindow::setupActions()
     auto focusView = new QAction();
     focusView->setText(i18n("Focus Manga Viewer"));
     actionCollection()->addAction("focusView", focusView);
-    actionCollection()->setDefaultShortcuts(focusView, {Qt::Key_V, Qt::CTRL + Qt::Key_V});
+    actionCollection()->setDefaultShortcuts(focusView, {Qt::Key_V, Qt::CTRL | Qt::Key_V});
     connect(focusView, &QAction::triggered, this, [=]() {
         m_view->setFocus();
     });
@@ -560,7 +560,7 @@ void MainWindow::setupActions()
     addMangaFolderAction->setText(i18n("&Add Manga Library Folder"));
     addMangaFolderAction->setIcon(QIcon::fromTheme("folder-add"));
     actionCollection()->addAction("addMangaFolder", addMangaFolderAction);
-    actionCollection()->setDefaultShortcut(addMangaFolderAction, Qt::CTRL + Qt::Key_A);
+    actionCollection()->setDefaultShortcut(addMangaFolderAction, Qt::CTRL | Qt::Key_A);
     connect(addMangaFolderAction, &QAction::triggered, this, [=]() {
         openSettings();
         m_settingsWindow->addMangaFolderButton()->click();
@@ -570,7 +570,7 @@ void MainWindow::setupActions()
     openMangaFolder->setText(i18n("&Open Manga Folder"));
     openMangaFolder->setIcon(QIcon::fromTheme("folder-open"));
     actionCollection()->addAction("openMangaFolder", openMangaFolder);
-    actionCollection()->setDefaultShortcut(openMangaFolder, Qt::CTRL + Qt::Key_O);
+    actionCollection()->setDefaultShortcut(openMangaFolder, Qt::CTRL | Qt::Key_O);
     connect(openMangaFolder, &QAction::triggered,
             this, &MainWindow::openMangaFolder);
 
@@ -578,7 +578,7 @@ void MainWindow::setupActions()
     openMangaArchive->setText(i18n("&Open Manga Archive"));
     openMangaArchive->setIcon(QIcon::fromTheme("application-zip"));
     actionCollection()->addAction("openMangaArchive", openMangaArchive);
-    actionCollection()->setDefaultShortcut(openMangaArchive, Qt::CTRL + Qt::SHIFT + Qt::Key_O);
+    actionCollection()->setDefaultShortcut(openMangaArchive, Qt::CTRL | Qt::SHIFT | Qt::Key_O);
     connect(openMangaArchive, &QAction::triggered,
             this, &MainWindow::openMangaArchive);
 
@@ -623,7 +623,7 @@ void MainWindow::setupActions()
     resetZoom->setIcon(QIcon::fromTheme("view-zoom-original-symbolic"));
     connect(resetZoom, &QAction::triggered,
             m_view, &View::zoomReset);
-    actionCollection()->setDefaultShortcut(resetZoom, Qt::CTRL + Qt::Key_0);
+    actionCollection()->setDefaultShortcut(resetZoom, Qt::CTRL | Qt::Key_0);
     actionCollection()->addAction("resetZoom", resetZoom);
 
     auto fitToHeightAction = new QAction();
