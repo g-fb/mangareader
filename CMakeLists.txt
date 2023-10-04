@@ -22,45 +22,45 @@ include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(FeatureSummary)
 
-kde_enable_exceptions()
-
 ecm_setup_version(${PROJECT_VERSION}
     VARIABLE_PREFIX MANGAREADER
     VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/mangareader-version.h"
 )
 
-find_package(Qt5Core)
-set_package_properties(Qt5Core PROPERTIES TYPE REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 
-find_package(Qt5Widgets)
-set_package_properties(Qt5Widgets PROPERTIES TYPE REQUIRED)
+find_package(Qt6Core)
+set_package_properties(Qt6Core PROPERTIES TYPE REQUIRED)
 
-find_package(KF5Archive)
-set_package_properties(KF5Archive PROPERTIES TYPE OPTIONAL
+find_package(Qt6Widgets)
+set_package_properties(Qt6Widgets PROPERTIES TYPE REQUIRED)
+
+find_package(KF6Archive)
+set_package_properties(KF6Archive PROPERTIES TYPE OPTIONAL
     URL "https://api.kde.org/frameworks/karchive/html/index.html")
 
-find_package(KF5Config)
-set_package_properties(KF5Config PROPERTIES TYPE REQUIRED
+find_package(KF6Config)
+set_package_properties(KF6Config PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfig/html/index.html")
 
-find_package(KF5ConfigWidgets)
-set_package_properties(KF5ConfigWidgets PROPERTIES TYPE REQUIRED
+find_package(KF6ConfigWidgets)
+set_package_properties(KF6ConfigWidgets PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfigwidgets/html/index.html")
 
-find_package(KF5CoreAddons)
-set_package_properties(KF5CoreAddons PROPERTIES TYPE REQUIRED
+find_package(KF6CoreAddons)
+set_package_properties(KF6CoreAddons PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kcoreaddons/html/index.html")
 
-find_package(KF5I18n)
-set_package_properties(KF5I18n PROPERTIES TYPE REQUIRED
+find_package(KF6I18n)
+set_package_properties(KF6I18n PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/ki18n/html/index.html")
 
-find_package(KF5KIO)
-set_package_properties(KF5KIO PROPERTIES TYPE REQUIRED
+find_package(KF6KIO)
+set_package_properties(KF6KIO PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kio/html/index.html")
 
-find_package(KF5XmlGui)
-set_package_properties(KF5XmlGui PROPERTIES TYPE REQUIRED
+find_package(KF6XmlGui)
+set_package_properties(KF6XmlGui PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

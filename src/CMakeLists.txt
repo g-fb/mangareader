@@ -26,14 +26,14 @@ target_sources(mangareader
 
 target_link_libraries(mangareader
     PRIVATE
-        Qt5::Widgets
-        KF5::Archive
-        KF5::ConfigCore
-        KF5::ConfigWidgets
-        KF5::CoreAddons
-        KF5::I18n
-        KF5::KIOWidgets
-        KF5::XmlGui
+        Qt${QT_MAJOR_VERSION}::Widgets
+        KF${QT_MAJOR_VERSION}::Archive
+        KF${QT_MAJOR_VERSION}::ConfigCore
+        KF${QT_MAJOR_VERSION}::ConfigWidgets
+        KF${QT_MAJOR_VERSION}::CoreAddons
+        KF${QT_MAJOR_VERSION}::I18n
+        KF${QT_MAJOR_VERSION}::KIOWidgets
+        KF${QT_MAJOR_VERSION}::XmlGui
 )
 target_include_directories(mangareader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -44,4 +44,5 @@ endif()
 install(TARGETS mangareader DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES settings/mangareaderui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
 install(FILES settings/viewui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mangareader)
-install(FILES settings/settings.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+message("dir: ${KDE_INSTALL_KCFGDIR}")
+install(FILES settings/settings.kcfg DESTINATION ${KDE_INSTALL_KCFGDIR})
