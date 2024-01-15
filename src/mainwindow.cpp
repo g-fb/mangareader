@@ -500,13 +500,12 @@ void MainWindow::loadImages(const QString &path, bool recursive)
     m_files.clear();
 
     // get images from path
-    auto it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::NoIteratorFlags);
-    if (recursive) {
-        delete it;
-        it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::Subdirectories);
-    }
-    while (it->hasNext()) {
-        QString file = it->next();
+    QDirIterator::IteratorFlags flags = recursive
+        ? QDirIterator::Subdirectories
+        : QDirIterator::NoIteratorFlags;
+    QDirIterator it(mangaPath, QDir::Files, flags);
+    while (it.hasNext()) {
+        QString file = it.next();
         mimetype = db.mimeTypeForFile(file).name();
         // only get images
         if (mimetype.startsWith("image/")) {
