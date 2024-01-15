@@ -33,6 +33,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    enum OpenDirection {
+        Next,
+        Previous
+    };
+
     enum {
         IndexRole = Qt::UserRole,
         KeyRole,
@@ -53,6 +58,7 @@ private:
     void setupActions();
     void openMangaFolder();
     void openMangaArchive();
+    void openAdjacentArchive(OpenDirection direction);
     void toggleFullScreen();
     void treeViewContextMenu(QPoint point);
     void bookmarksViewContextMenu(QPoint point);

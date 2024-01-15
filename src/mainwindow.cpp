@@ -424,6 +424,55 @@ void MainWindow::openMangaFolder()
     loadImages(path, true);
 }
 
+void MainWindow::openAdjacentArchive(OpenDirection direction)
+{
+    if (m_currentPath.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(m_currentPath);
+    QDirIterator it(fileInfo.absolutePath(), QDir::Files);
+    QMimeDatabase db;
+    m_files.clear();
+
+    while (it.hasNext()) {
+        QString file = it.next();
+        QString mimetype = db.mimeTypeForFile(file).name();
+        if (m_supportedMimeTypes.contains(mimetype)) {
+            m_files.append(file);
+        }
+    }
+
+    if (m_files.empty()) {
+        return;
+    }
+
+    QCollator collator;
+    collator.setNumericMode(true);
+    std::sort(m_files.begin(), m_files.end(), collator);
+
+    int index = m_files.indexOf(fileInfo.absoluteFilePath());
+    if (index == -1) {
+        return;
+    }
+    switch (direction) {
+    case OpenDirection::Next:
+        if (index == m_files.count() - 1) {
+            return;
+        }
+        index++;
+        break;
+    case OpenDirection::Previous:
+        if (index == 0) {
+            return;
+        }
+        index--;
+    }
+
+    m_currentPath = m_files[index];
+    loadImages(m_currentPath);
+}
+
 void MainWindow::loadImages(const QString &path, bool recursive)
 {
     if (!m_currentPath.isEmpty() && m_currentPath == m_view->manga()) {
@@ -453,13 +502,12 @@ void MainWindow::loadImages(const QString &path, bool recursive)
     m_files.clear();
 
     // get images from path
-    auto it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::NoIteratorFlags);
-    if (recursive) {
-        delete it;
-        it = new QDirIterator(mangaPath, QDir::Files, QDirIterator::Subdirectories);
-    }
-    while (it->hasNext()) {
-        QString file = it->next();
+    QDirIterator::IteratorFlags flags = recursive
+        ? QDirIterator::Subdirectories
+        : QDirIterator::NoIteratorFlags;
+    QDirIterator it(mangaPath, QDir::Files, flags);
+    while (it.hasNext()) {
+        QString file = it.next();
         mimetype = db.mimeTypeForFile(file).name();
         // only get images
         if (mimetype.startsWith("image/")) {
@@ -581,6 +629,22 @@ void MainWindow::setupActions()
     actionCollection()->setDefaultShortcut(openMangaArchive, Qt::CTRL | Qt::SHIFT | Qt::Key_O);
     connect(openMangaArchive, &QAction::triggered,
             this, &MainWindow::openMangaArchive);
+
+    auto openPreviousArchive = new QAction();
+    openPreviousArchive->setText(i18n("&Open Previous Archive"));
+    actionCollection()->addAction("openPreviousArchive", openPreviousArchive);
+    actionCollection()->setDefaultShortcut(openPreviousArchive, Qt::CTRL | Qt::Key_Up);
+    connect(openPreviousArchive, &QAction::triggered, this, [&]() {
+        openAdjacentArchive(OpenDirection::Previous);
+    });
+
+    auto openNextArchive = new QAction();
+    openNextArchive->setText(i18n("&Open Next Archive"));
+    actionCollection()->addAction("openNextArchive", openNextArchive);
+    actionCollection()->setDefaultShortcut(openNextArchive, Qt::CTRL | Qt::Key_Down);
+    connect(openNextArchive, &QAction::triggered, this, [&]() {
+        openAdjacentArchive(OpenDirection::Next);
+    });
 
     auto goToLayout = new QHBoxLayout();
     goToLayout->setSpacing(0);
