@@ -134,6 +134,22 @@ void View::setupActions()
     collection->setDefaultShortcut(scrollDown, Qt::Key_Down);
     collection->addAction("scrollDown", scrollDown);
 
+    auto scrollUpOneScreen = new QAction(i18n("Scroll Up One Screen"));
+    scrollUpOneScreen->setShortcutContext(Qt::WidgetShortcut);
+    connect(scrollUpOneScreen, &QAction::triggered, this, [=]() {
+        verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
+    });
+    collection->setDefaultShortcuts(scrollUpOneScreen, {Qt::Key_PageUp, Qt::SHIFT | Qt::Key_Space});
+    collection->addAction("scrollUpOneScreen", scrollUpOneScreen);
+
+    auto scrollDownOneScreen = new QAction(i18n("Scroll Down One Screen"));
+    scrollDownOneScreen->setShortcutContext(Qt::WidgetShortcut);
+    connect(scrollDownOneScreen, &QAction::triggered, this, [=]() {
+        verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
+    });
+    collection->setDefaultShortcuts(scrollDownOneScreen, {Qt::Key_PageDown, Qt::Key_Space});
+    collection->addAction("scrollDownOneScreen", scrollDownOneScreen);
+
     auto nextPage = new QAction(i18n("Next Page"));
     nextPage->setShortcutContext(Qt::WidgetShortcut);
     connect(nextPage, &QAction::triggered, this, [=]() {
