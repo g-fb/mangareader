@@ -110,6 +110,11 @@ void Page::deleteImage()
     m_image = QImage();
 }
 
+const QImage &Page::image() const
+{
+    return m_image;
+}
+
 void Page::setImage(const QImage &image)
 {
     m_image = image;
