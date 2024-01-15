@@ -424,6 +424,53 @@ void MainWindow::openMangaFolder()
     loadImages(path, true);
 }
 
+void MainWindow::openCloseArchive(bool next)
+{
+    if (m_currentPath.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(m_currentPath);
+    QDirIterator it(fileInfo.absolutePath(), QDir::Files);
+    QMimeDatabase db;
+    m_files.clear();
+
+    while (it.hasNext()) {
+        QString file = it.next();
+        QString mimetype = db.mimeTypeForFile(file).name();
+        if (m_supportedMimeTypes.contains(mimetype)) {
+            m_files.append(file);
+        }
+    }
+
+    if (m_files.empty()) {
+        return;
+    }
+
+    QCollator collator;
+    collator.setNumericMode(true);
+    std::sort(m_files.begin(), m_files.end(), collator);
+
+    int index = m_files.indexOf(fileInfo.absoluteFilePath());
+    if (index == -1) {
+        return;
+    }
+    if (next) {
+        if (index == m_files.count() - 1) {
+            return;
+        }
+        index++;
+    } else {
+        if (index == 0) {
+            return;
+        }
+        index--;
+    }
+
+    m_currentPath = m_files[index];
+    loadImages(m_currentPath);
+}
+
 void MainWindow::loadImages(const QString &path, bool recursive)
 {
     if (!m_currentPath.isEmpty() && m_currentPath == m_view->manga()) {
@@ -581,6 +628,22 @@ void MainWindow::setupActions()
     actionCollection()->setDefaultShortcut(openMangaArchive, Qt::CTRL | Qt::SHIFT | Qt::Key_O);
     connect(openMangaArchive, &QAction::triggered,
             this, &MainWindow::openMangaArchive);
+
+    auto openPreviousArchive = new QAction();
+    openPreviousArchive->setText(i18n("&Open Previous Archive"));
+    actionCollection()->addAction("openPreviousArchive", openPreviousArchive);
+    actionCollection()->setDefaultShortcut(openPreviousArchive, Qt::CTRL | Qt::Key_Up);
+    connect(openPreviousArchive, &QAction::triggered, this, [&]() {
+        openCloseArchive(false);
+    });
+
+    auto openNextArchive = new QAction();
+    openNextArchive->setText(i18n("&Open Next Archive"));
+    actionCollection()->addAction("openNextArchive", openNextArchive);
+    actionCollection()->setDefaultShortcut(openNextArchive, Qt::CTRL | Qt::Key_Down);
+    connect(openNextArchive, &QAction::triggered, this, [&]() {
+        openCloseArchive(true);
+    });
 
     auto goToLayout = new QHBoxLayout();
     goToLayout->setSpacing(0);

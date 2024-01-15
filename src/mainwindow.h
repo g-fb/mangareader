@@ -53,6 +53,7 @@ private:
     void setupActions();
     void openMangaFolder();
     void openMangaArchive();
+    void openCloseArchive(bool next);
     void toggleFullScreen();
     void treeViewContextMenu(QPoint point);
     void bookmarksViewContextMenu(QPoint point);
