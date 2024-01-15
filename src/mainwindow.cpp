@@ -424,7 +424,7 @@ void MainWindow::openMangaFolder()
     loadImages(path, true);
 }
 
-void MainWindow::openCloseArchive(bool next)
+void MainWindow::openAdjacentArchive(OpenDirection direction)
 {
     if (m_currentPath.isEmpty()) {
         return;
@@ -455,12 +455,14 @@ void MainWindow::openCloseArchive(bool next)
     if (index == -1) {
         return;
     }
-    if (next) {
+    switch (direction) {
+    case OpenDirection::Next:
         if (index == m_files.count() - 1) {
             return;
         }
         index++;
-    } else {
+        break;
+    case OpenDirection::Previous:
         if (index == 0) {
             return;
         }
@@ -633,7 +635,7 @@ void MainWindow::setupActions()
     actionCollection()->addAction("openPreviousArchive", openPreviousArchive);
     actionCollection()->setDefaultShortcut(openPreviousArchive, Qt::CTRL | Qt::Key_Up);
     connect(openPreviousArchive, &QAction::triggered, this, [&]() {
-        openCloseArchive(false);
+        openAdjacentArchive(OpenDirection::Previous);
     });
 
     auto openNextArchive = new QAction();
@@ -641,7 +643,7 @@ void MainWindow::setupActions()
     actionCollection()->addAction("openNextArchive", openNextArchive);
     actionCollection()->setDefaultShortcut(openNextArchive, Qt::CTRL | Qt::Key_Down);
     connect(openNextArchive, &QAction::triggered, this, [&]() {
-        openCloseArchive(true);
+        openAdjacentArchive(OpenDirection::Next);
     });
 
     auto goToLayout = new QHBoxLayout();
