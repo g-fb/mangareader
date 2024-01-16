@@ -19,6 +19,7 @@ public:
     ~Page();
     void setView(View *view);
     void setMaxWidth(int maxWidth);
+    const QImage &image() const;
     void setImage(const QImage &image);
     void redrawImage();
     void calculateScaledSize();

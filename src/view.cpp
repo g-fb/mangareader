@@ -18,6 +18,7 @@
 
 #include <QApplication>
 #include <QBuffer>
+#include <QClipboard>
 #include <QFile>
 #include <QImageReader>
 #include <QMenu>
@@ -502,6 +503,10 @@ void View::contextMenuEvent(QContextMenuEvent *event)
 
         menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [=] {
             Q_EMIT addBookmark(page->number());
+        });
+
+        menu->addAction(QIcon::fromTheme("selection-make-bitmap-copy"), i18n("Copy Image"), this, [=] {
+            QApplication::clipboard()->setImage(page->image());
         });
         menu->popup(event->globalPos());
     }
