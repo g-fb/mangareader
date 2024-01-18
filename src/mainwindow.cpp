@@ -314,7 +314,7 @@ void MainWindow::setupBookmarksDockWidget()
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
     connect(action, &QAction::triggered, this, [=]() {
-        if (m_bookmarksView->selectionModel()->selectedRows().count() > 1) {
+        if (m_bookmarksView->selectionModel()->selectedRows().count() == 0) {
             return;
         }
         QModelIndex index = m_bookmarksView->selectionModel()->selectedRows().first();
