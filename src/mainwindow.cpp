@@ -666,8 +666,11 @@ void MainWindow::setupActions()
         goToSpinBox->blockSignals(false);
     });
     goToSpinBox->addAction(action);
-    connect(m_view, &View::imagesLoaded, this, [=]() {
+    connect(m_view, &View::imagesLoaded, this, [=](int page) {
+        goToSpinBox->blockSignals(true);
         goToSpinBox->setRange(1, m_view->imageCount());
+        goToSpinBox->setValue(page + 1);
+        goToSpinBox->blockSignals(false);
     });
     auto goToButton = new QToolButton();
     goToButton->setText(i18n("Go to page"));

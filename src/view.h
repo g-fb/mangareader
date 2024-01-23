@@ -37,7 +37,7 @@ public:
 
 
 Q_SIGNALS:
-    void imagesLoaded();
+    void imagesLoaded(int number);
     void requestDriveImage(int number, const QString &path);
     void requestMemoryImage(int number, const QByteArray &data);
     void currentImageChanged(int number);
