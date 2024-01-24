@@ -188,10 +188,9 @@ void View::reset()
 void View::loadImages()
 {
     createPages();
+    Q_EMIT imagesLoaded(m_startPage);
     calculatePageSizes();
     setPagesVisibility();
-
-    Q_EMIT imagesLoaded();
 }
 
 void View::createPages()
