@@ -655,7 +655,7 @@ void MainWindow::setupActions()
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
     connect(action, &QAction::triggered, this, [=]() {
-        if (goToSpinBox->value() < m_view->imageCount()) {
+        if (goToSpinBox->value() <= m_view->imageCount()) {
             m_view->goToPage(goToSpinBox->value() - 1);
         }
     });
