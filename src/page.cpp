@@ -14,6 +14,8 @@
 #include <QScrollBar>
 #include <QStyleOptionGraphicsItem>
 
+#include <cmath>
+
 Page::Page(QSize sourceSize, QGraphicsItem *parent)
     : QGraphicsItem{ parent }
     , m_view{ nullptr }
@@ -154,12 +156,13 @@ void Page::calculateScaledSize()
         m_ratio = 1.0;
     }
 
-    m_scaledSize = QSize(static_cast<qint64>(imageWidth * m_ratio), static_cast<qint64>(imageHeight * m_ratio));
+    m_scaledSize = QSize(static_cast<qint64>(std::ceil(imageWidth * m_ratio)),
+                         static_cast<qint64>(std::ceil(imageHeight * m_ratio)));
 
     if (m_zoom != 1.0) {
         m_ratio = static_cast<double>(m_scaledSize.width() * m_zoom) / imageWidth;
-        m_scaledSize = QSize(static_cast<qint64>(m_scaledSize.width() * m_zoom),
-                             static_cast<qint64>(m_scaledSize.height() * m_zoom));
+        m_scaledSize = QSize(static_cast<qint64>(std::ceil(m_scaledSize.width() * m_zoom)),
+                             static_cast<qint64>(std::ceil(m_scaledSize.height() * m_zoom)));
     }
 }
 
