@@ -46,7 +46,7 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
         // draw border arround the image
         if (MangaReaderSettings::pageSpacing() > 0) {
             QRectF border(QPointF(0, 0), QSizeF(w, h));
-            border.adjust(-1, -1, 0, 0);
+            border.adjust(-1, -1, 1, 1);
 
             painter->setPen(QPen(MangaReaderSettings::borderColor()));
             painter->drawRect(border);
@@ -55,8 +55,8 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
         // draw border only on the sides
         if (MangaReaderSettings::pageSpacing() == 0) {
             painter->setPen(QPen(MangaReaderSettings::borderColor()));
-            painter->drawLine(0, 0, 0, h);
-            painter->drawLine(w, 0, w, h);
+            painter->drawLine(-1, 0, -1, h);
+            painter->drawLine(w+1, 0, w+1, h);
         }
 
         // set default pen, else the pen's size is included when drawing the pixmap
