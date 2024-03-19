@@ -25,6 +25,22 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.2.0" date="2024-03-19">
+            <description>
+                <p>Ported to Qt6.</p>
+                <p>Features:</p>
+                <ul>
+                    <li>Actions to scroll one page up or down</li>
+                    <li>Actions open next or previous archive in the same folder</li>
+                    <li>Context menu option to copy image</li>
+                </ul>
+                <p>Bugfixes:</p>
+                <ul>
+                    <li>Page number not being reset when a manga is opened</li>
+                    <li>Not being able to go to the last page via the "go to page" widget</li>
+                </ul>
+            </description>
+        </release>
         <release version="2.1.0" date="2023-04-15">
             <description>
                 <p>Features:</p>
