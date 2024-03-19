@@ -22,7 +22,7 @@ void Worker::processMemoryImageRequest(int number, const QByteArray &data)
 {
     QImage image = QImage::fromData(data);
     if (!image.isNull()) {
-        emit imageReady(image, number);
+        Q_EMIT imageReady(image, number);
     }
 }
 

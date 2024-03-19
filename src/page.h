@@ -43,16 +43,16 @@ public:
 
 private:
     auto boundingRect() const -> QRectF override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     View    *m_view{};
     QSize    m_scaledSize;
     QSize    m_sourceSize;
-    int      m_maxWidth;
-    int      m_number;
-    double   m_zoom = 1.0;
+    int      m_maxWidth{-1};
+    int      m_number{-1};
+    double   m_zoom{1.0};
     bool     m_isZoomToggled{false};
-    double   m_ratio;
+    double   m_ratio{1.0};
     QPixmap  m_pixmap;
     QImage   m_image;
     QString  m_filename;

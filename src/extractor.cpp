@@ -108,11 +108,11 @@ void Extractor::extractRarArchive()
     auto unrar = MangaReaderSettings::unrarPath().isEmpty()
             ? MangaReaderSettings::autoUnrarPath()
             : MangaReaderSettings::unrarPath();
-    if (unrar.startsWith("file://")) {
+    if (unrar.startsWith(u"file://"_qs)) {
 #ifdef Q_OS_WIN32
-        unrar.remove(0, QString("file:///").size());
+        unrar.remove(0, QString(u"file:///"_qs).size());
 #else
-        unrar.remove(0, QString("file://").size());
+        unrar.remove(0, QString(u"file://"_qs).size());
 #endif
     }
     QFileInfo fi(unrar);
@@ -121,7 +121,7 @@ void Extractor::extractRarArchive()
     }
 
     QStringList args;
-    args << "e" << m_archiveFile << m_tmpFolder->path() << "-o+";
+    args << u"e"_qs << m_archiveFile << m_tmpFolder->path() << u"-o+"_qs;
     auto process = new QProcess();
     process->setProgram(unrar);
     process->setArguments(args);
@@ -131,11 +131,11 @@ void Extractor::extractRarArchive()
             this, &Extractor::finished);
 
     connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
-        QRegularExpression re("[0-9]+[%]");
-        QRegularExpressionMatch match = re.match(process->readAllStandardOutput());
+        QRegularExpression re(u"[0-9]+[%]"_qs);
+        QRegularExpressionMatch match = re.match(QString::fromUtf8(process->readAllStandardOutput()));
         if (match.hasMatch()) {
             QString matched = match.captured(0);
-            Q_EMIT progress(matched.remove("%").toInt());
+            Q_EMIT progress(matched.remove(u"%"_qs).toInt());
         }
     });
 
@@ -144,22 +144,22 @@ void Extractor::extractRarArchive()
         QString errorMessage;
         switch (err) {
         case QProcess::FailedToStart:
-            errorMessage = "FailedToStart";
+            errorMessage = u"FailedToStart"_qs;
             break;
         case QProcess::Crashed:
-            errorMessage = "Crashed";
+            errorMessage = u"Crashed"_qs;
             break;
         case QProcess::Timedout:
-            errorMessage = "Timedout";
+            errorMessage = u"Timedout"_qs;
             break;
         case QProcess::WriteError:
-            errorMessage = "WriteError";
+            errorMessage = u"WriteError"_qs;
             break;
         case QProcess::ReadError:
-            errorMessage = "ReadError";
+            errorMessage = u"ReadError"_qs;
             break;
         default:
-            errorMessage = "UnknownError";
+            errorMessage = u"UnknownError"_qs;
         }
         Q_EMIT error(i18n("Error: Could not open the archive. %1", errorMessage));
     });

@@ -24,8 +24,6 @@ int main(int argc, char *argv[])
         qputenv("QT_QPA_PLATFORM", "windows:darkmode=1");
     }
 #endif
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 
     QApplication app(argc, argv);
 
@@ -61,7 +59,7 @@ int main(int argc, char *argv[])
     const QStringList args = parser.positionalArguments();
 
     auto w = new MainWindow();
-    w->setWindowIcon(QIcon::fromTheme("mangareader"));
+    w->setWindowIcon(QIcon::fromTheme(u"mangareader"_qs));
     w->show();
 
     if (args.count() > 0 && !args.at(0).isEmpty()) {

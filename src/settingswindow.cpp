@@ -164,7 +164,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     formLayout->addRow(i18n("Manga folders"), m_mangaFolders);
 
     m_addMangaFolderButton = new QPushButton(i18n("Select and add manga folder"));
-    m_addMangaFolderButton->setIcon(QIcon::fromTheme("folder-add"));
+    m_addMangaFolderButton->setIcon(QIcon::fromTheme(u"folder-add"_qs));
     connect(m_addMangaFolderButton, &QPushButton::clicked, this, [=]() {
         QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"));
         if (path.isEmpty()) {

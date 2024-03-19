@@ -35,6 +35,7 @@ public:
 
     void setLoadFromMemory(bool newLoadFromMemory);
 
+    bool event(QEvent *event) override;
 
 Q_SIGNALS:
     void imagesLoaded(int number);

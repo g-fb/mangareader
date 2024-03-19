@@ -5,14 +5,16 @@
 #
 
 cmake_minimum_required(VERSION 3.10)
-project(mangareader VERSION 2.1.0 LANGUAGES CXX)
+project(mangareader VERSION 2.2.0 LANGUAGES CXX)
 
-find_package(ECM 5.66 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(QT_MIN_VERSION 6.6.0)
+set(KF6_MIN_VERSION 6.0.0)
+
+find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(KDEInstallDirs)
 include(ECMInstallIcons)
@@ -27,40 +29,38 @@ ecm_setup_version(${PROJECT_VERSION}
     VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/mangareader-version.h"
 )
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
+find_package(Qt6Core ${QT_MIN_VERSION})
+set_package_properties(Qt6Core PROPERTIES TYPE REQUIRED)
 
-find_package(Qt${QT_MAJOR_VERSION}Core)
-set_package_properties(Qt${QT_MAJOR_VERSION}Core PROPERTIES TYPE REQUIRED)
+find_package(Qt6Widgets ${QT_MIN_VERSION})
+set_package_properties(Qt6Widgets PROPERTIES TYPE REQUIRED)
 
-find_package(Qt${QT_MAJOR_VERSION}Widgets)
-set_package_properties(Qt${QT_MAJOR_VERSION}Widgets PROPERTIES TYPE REQUIRED)
-
-find_package(KF${QT_MAJOR_VERSION}Archive)
-set_package_properties(KF${QT_MAJOR_VERSION}Archive PROPERTIES TYPE OPTIONAL
+find_package(KF6Archive ${KF6_MIN_VERSION})
+set_package_properties(KF6Archive PROPERTIES TYPE OPTIONAL
     URL "https://api.kde.org/frameworks/karchive/html/index.html")
 
-find_package(KF${QT_MAJOR_VERSION}Config)
-set_package_properties(KF${QT_MAJOR_VERSION}Config PROPERTIES TYPE REQUIRED
+find_package(KF6Config ${KF6_MIN_VERSION})
+set_package_properties(KF6Config PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfig/html/index.html")
 
-find_package(KF${QT_MAJOR_VERSION}ConfigWidgets)
-set_package_properties(KF${QT_MAJOR_VERSION}ConfigWidgets PROPERTIES TYPE REQUIRED
+find_package(KF6ConfigWidgets ${KF6_MIN_VERSION})
+set_package_properties(KF6ConfigWidgets PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfigwidgets/html/index.html")
 
-find_package(KF${QT_MAJOR_VERSION}CoreAddons)
-set_package_properties(KF${QT_MAJOR_VERSION}CoreAddons PROPERTIES TYPE REQUIRED
+find_package(KF6CoreAddons ${KF6_MIN_VERSION})
+set_package_properties(KF6CoreAddons PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kcoreaddons/html/index.html")
 
-find_package(KF${QT_MAJOR_VERSION}I18n)
-set_package_properties(KF${QT_MAJOR_VERSION}I18n PROPERTIES TYPE REQUIRED
+find_package(KF6I18n ${KF6_MIN_VERSION})
+set_package_properties(KF6I18n PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/ki18n/html/index.html")
 
-find_package(KF${QT_MAJOR_VERSION}KIO)
-set_package_properties(KF${QT_MAJOR_VERSION}KIO PROPERTIES TYPE REQUIRED
+find_package(KF6KIO ${KF6_MIN_VERSION})
+set_package_properties(KF6KIO PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kio/html/index.html")
 
-find_package(KF${QT_MAJOR_VERSION}XmlGui)
-set_package_properties(KF${QT_MAJOR_VERSION}XmlGui PROPERTIES TYPE REQUIRED
+find_package(KF6XmlGui ${KF6_MIN_VERSION})
+set_package_properties(KF6XmlGui PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

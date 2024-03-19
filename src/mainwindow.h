@@ -100,19 +100,19 @@ private:
     StartUpWidget      *m_startUpWidget{};
     int                 m_startPage{0};
     bool                m_isLoadedRecursive{false};
-    const QString       RECURSIVE_KEY_PREFIX{":recursive:"};
-    QStringList         m_supportedMimeTypes{"application/zip",
-                                             "application/x-cbz",
-                                             "application/vnd.comicbook+zip",
-                                             "application/x-7z-compressed",
-                                             "application/x-cb7",
-                                             "application/x-tar",
-                                             "application/x-cbt",
-                                             "application/x-rar",
-                                             "application/x-cbr",
-                                             "application/vnd.rar",
-                                             "application/vnd.comicbook-rar",
-                                             "inode/directory"};
+    const QString       RECURSIVE_KEY_PREFIX{u":recursive:"_qs};
+    QStringList         m_supportedMimeTypes{u"application/zip"_qs,
+                                             u"application/x-cbz"_qs,
+                                             u"application/vnd.comicbook+zip"_qs,
+                                             u"application/x-7z-compressed"_qs,
+                                             u"application/x-cb7"_qs,
+                                             u"application/x-tar"_qs,
+                                             u"application/x-cbt"_qs,
+                                             u"application/x-rar"_qs,
+                                             u"application/x-cbr"_qs,
+                                             u"application/vnd.rar"_qs,
+                                             u"application/vnd.comicbook-rar"_qs,
+                                             u"inode/directory"_qs};
 };
 
 #endif // MAINWINDOW_H

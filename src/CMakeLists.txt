@@ -26,14 +26,14 @@ target_sources(mangareader
 
 target_link_libraries(mangareader
     PRIVATE
-        Qt${QT_MAJOR_VERSION}::Widgets
-        KF${QT_MAJOR_VERSION}::Archive
-        KF${QT_MAJOR_VERSION}::ConfigCore
-        KF${QT_MAJOR_VERSION}::ConfigWidgets
-        KF${QT_MAJOR_VERSION}::CoreAddons
-        KF${QT_MAJOR_VERSION}::I18n
-        KF${QT_MAJOR_VERSION}::KIOWidgets
-        KF${QT_MAJOR_VERSION}::XmlGui
+        Qt6::Widgets
+        KF6::Archive
+        KF6::ConfigCore
+        KF6::ConfigWidgets
+        KF6::CoreAddons
+        KF6::I18n
+        KF6::KIOWidgets
+        KF6::XmlGui
 )
 target_include_directories(mangareader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 

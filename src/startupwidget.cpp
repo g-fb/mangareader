@@ -35,7 +35,7 @@ StartUpWidget::StartUpWidget(QWidget *parent)
 #ifdef Q_OS_WIN32
     image->setPixmap(QIcon(":/icons/mangareader").pixmap(256));
 #else
-    image->setPixmap(QIcon::fromTheme("mangareader").pixmap(256));
+    image->setPixmap(QIcon::fromTheme(u"mangareader"_qs).pixmap(256));
 #endif
     image->setAlignment(Qt::AlignCenter);
 
@@ -47,21 +47,21 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     auto addMangaFolderButton = new QPushButton(i18n("Add Manga Library Folder"), this);
-    addMangaFolderButton->setIcon(QIcon::fromTheme("folder"));
+    addMangaFolderButton->setIcon(QIcon::fromTheme(u"folder"_qs));
     addMangaFolderButton->setIconSize(QSize(32, 32));
     addMangaFolderButton->setVisible(MangaReaderSettings::mangaFolders().isEmpty());
     connect(addMangaFolderButton, &QPushButton::clicked,
             this, &StartUpWidget::addMangaFolderClicked);
 
     auto openMangaFolderButton = new QPushButton(i18n("Open Manga Folder"), this);
-    openMangaFolderButton->setIcon(QIcon::fromTheme("folder"));
+    openMangaFolderButton->setIcon(QIcon::fromTheme(u"folder"_qs));
     openMangaFolderButton->setIconSize(QSize(32, 32));
     connect(openMangaFolderButton, &QPushButton::clicked,
             this, &StartUpWidget::openMangaFolderClicked);
 
     auto openMangaArchiveButton = new QPushButton(i18n("Open Manga Archive"), this);
-    auto fallbackIcon = QIcon::fromTheme("package-x-generic");
-    openMangaArchiveButton->setIcon(QIcon::fromTheme("application-x-archive", fallbackIcon));
+    auto fallbackIcon = QIcon::fromTheme(u"package-x-generic"_qs);
+    openMangaArchiveButton->setIcon(QIcon::fromTheme(u"application-x-archive"_qs, fallbackIcon));
     openMangaArchiveButton->setIconSize(QSize(32, 32));
     connect(openMangaArchiveButton, &QPushButton::clicked,
             this, &StartUpWidget::openMangaArchiveClicked);
@@ -73,12 +73,12 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     firstButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
 
     auto settingsButton = new QPushButton(i18n("Settings"), this);
-    settingsButton->setIcon(QIcon::fromTheme("configure"));
+    settingsButton->setIcon(QIcon::fromTheme(u"configure"_qs));
     connect(settingsButton, &QPushButton::clicked,
             this, &StartUpWidget::openSettingsClicked);
 
     auto configureShortcutsButton = new QPushButton(i18n("Configure Shortcuts"), this);
-    configureShortcutsButton->setIcon(QIcon::fromTheme("input-keyboard"));
+    configureShortcutsButton->setIcon(QIcon::fromTheme(u"input-keyboard"_qs));
     connect(configureShortcutsButton, &QPushButton::clicked,
             this, &StartUpWidget::openShortcutsConfigClicked);
 

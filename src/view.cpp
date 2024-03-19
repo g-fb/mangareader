@@ -37,7 +37,7 @@ View::View(MainWindow *parent)
     m_resizeTimer->setInterval(100);
     m_resizeTimer->setSingleShot(true);
     connect(m_resizeTimer, &QTimer::timeout, this, [=]() {
-        for (Page *p : qAsConst(m_pages)) {
+        for (Page *p : std::as_const(m_pages)) {
             p->redrawImage();
         }
         calculatePageSizes();
@@ -61,14 +61,6 @@ View::View(MainWindow *parent)
 
     m_scene = new QGraphicsScene(this);
     setScene(m_scene);
-
-    connect(qApp, &QApplication::paletteChanged, this, [=]() {
-        if (MangaReaderSettings::useCustomBackgroundColor()) {
-            setBackgroundBrush(MangaReaderSettings::backgroundColor());
-        } else {
-            setBackgroundBrush(QPalette().base());
-        }
-    });
 
     connect(this, &View::requestDriveImage,
             Worker::instance(), &Worker::processDriveImageRequest);
@@ -96,7 +88,7 @@ View::View(MainWindow *parent)
 void View::setupActions()
 {
     KActionCollection *collection = actionCollection();
-    collection->setComponentDisplayName("View");
+    collection->setComponentDisplayName(u"View"_qs);
     collection->addAssociatedWidget(this);
 
     auto scrollToStart = new QAction(i18n("Scroll To Start"));
@@ -104,16 +96,16 @@ void View::setupActions()
     connect(scrollToStart, &QAction::triggered, this, [=]() {
         verticalScrollBar()->setValue(verticalScrollBar()->minimum());
     });
-    collection->setDefaultShortcut(scrollToStart, Qt::CTRL + Qt::Key_Home);
-    collection->addAction("scrollToStart", scrollToStart);
+    collection->setDefaultShortcut(scrollToStart, Qt::CTRL | Qt::Key_Home);
+    collection->addAction(u"scrollToStart"_qs, scrollToStart);
 
     auto scrollToEnd = new QAction(i18n("Scroll To End"));
     scrollToEnd->setShortcutContext(Qt::WidgetShortcut);
     connect(scrollToEnd, &QAction::triggered, this, [=]() {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
-    collection->setDefaultShortcut(scrollToEnd, Qt::CTRL + Qt::Key_End);
-    collection->addAction("scrollToEnd", scrollToEnd);
+    collection->setDefaultShortcut(scrollToEnd, Qt::CTRL | Qt::Key_End);
+    collection->addAction(u"scrollToEnd"_qs, scrollToEnd);
 
     auto scrollUp = new QAction(i18n("Scroll Up"));
     scrollUp->setShortcutContext(Qt::WidgetShortcut);
@@ -123,7 +115,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(scrollUp, Qt::Key_Up);
-    collection->addAction("scrollUp", scrollUp);
+    collection->addAction(u"scrollUp"_qs, scrollUp);
 
     auto scrollDown = new QAction(i18n("Scroll Down"));
     scrollDown->setShortcutContext(Qt::WidgetShortcut);
@@ -133,7 +125,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(scrollDown, Qt::Key_Down);
-    collection->addAction("scrollDown", scrollDown);
+    collection->addAction(u"scrollDown"_qs, scrollDown);
 
     auto scrollUpOneScreen = new QAction(i18n("Scroll Up One Screen"));
     scrollUpOneScreen->setShortcutContext(Qt::WidgetShortcut);
@@ -141,7 +133,7 @@ void View::setupActions()
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
     });
     collection->setDefaultShortcuts(scrollUpOneScreen, {Qt::Key_PageUp, Qt::SHIFT | Qt::Key_Space});
-    collection->addAction("scrollUpOneScreen", scrollUpOneScreen);
+    collection->addAction(u"scrollUpOneScreen"_qs, scrollUpOneScreen);
 
     auto scrollDownOneScreen = new QAction(i18n("Scroll Down One Screen"));
     scrollDownOneScreen->setShortcutContext(Qt::WidgetShortcut);
@@ -149,7 +141,7 @@ void View::setupActions()
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
     });
     collection->setDefaultShortcuts(scrollDownOneScreen, {Qt::Key_PageDown, Qt::Key_Space});
-    collection->addAction("scrollDownOneScreen", scrollDownOneScreen);
+    collection->addAction(u"scrollDownOneScreen"_qs, scrollDownOneScreen);
 
     auto nextPage = new QAction(i18n("Next Page"));
     nextPage->setShortcutContext(Qt::WidgetShortcut);
@@ -159,7 +151,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(nextPage, Qt::Key_Right);
-    collection->addAction("nextPage", nextPage);
+    collection->addAction(u"nextPage"_qs, nextPage);
 
     auto prevPage = new QAction(i18n("Previous Page"));
     prevPage->setShortcutContext(Qt::WidgetShortcut);
@@ -169,7 +161,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(prevPage, Qt::Key_Left);
-    collection->addAction("prevPage", prevPage);
+    collection->addAction(u"prevPage"_qs, prevPage);
 }
 
 void View::reset()
@@ -398,7 +390,7 @@ void View::refreshPages()
     }
 
     if (maximumWidth() != MangaReaderSettings::maxWidth()) {
-        for (Page *page: qAsConst(m_pages)) {
+        for (Page *page: std::as_const(m_pages)) {
             page->setZoom(m_globalZoom);
             if (!page->isImageDeleted()) {
                 page->deleteImage();
@@ -424,7 +416,7 @@ void View::resizeEvent(QResizeEvent *e)
     if (MangaReaderSettings::useResizeTimer()) {
         m_resizeTimer->start();
     } else {
-        for (Page *p : qAsConst(m_pages)) {
+        for (Page *p : std::as_const(m_pages)) {
             p->redrawImage();
         }
         calculatePageSizes();
@@ -445,12 +437,13 @@ void View::mouseReleaseEvent(QMouseEvent *event)
 {
     QGraphicsView::mouseReleaseEvent(event);
 
-    if (event->button() != Qt::MiddleButton)
+    if (event->button() != Qt::MiddleButton) {
         return;
+    }
 
-    QPoint position = mapFromGlobal(event->globalPos());
+    QPointF position = mapFromGlobal(event->globalPosition());
     Page *page;
-    if (QGraphicsItem *item = itemAt(position)) {
+    if (QGraphicsItem *item = itemAt(position.toPoint())) {
         page = qgraphicsitem_cast<Page *>(item);
         togglePageZoom(page);
     }
@@ -493,18 +486,18 @@ void View::contextMenuEvent(QContextMenuEvent *event)
                 ? i18n("Zoom Out")
                 : i18n("Zoom In");
         QIcon zoomActionIcon = page->isZoomToggled()
-                ? QIcon::fromTheme("zoom-out")
-                : QIcon::fromTheme("zoom-in");
+                ? QIcon::fromTheme(u"zoom-out"_qs)
+                : QIcon::fromTheme(u"zoom-in"_qs);
         menu->addAction(zoomActionIcon, zoomActionText, this, [=]() {
             togglePageZoom(page);
             calculatePageSizes();
         });
 
-        menu->addAction(QIcon::fromTheme("folder-bookmark"), i18n("Set Bookmark"), this, [=] {
+        menu->addAction(QIcon::fromTheme(u"folder-bookmark"_qs), i18n("Set Bookmark"), this, [=] {
             Q_EMIT addBookmark(page->number());
         });
 
-        menu->addAction(QIcon::fromTheme("selection-make-bitmap-copy"), i18n("Copy Image"), this, [=] {
+        menu->addAction(QIcon::fromTheme(u"selection-make-bitmap-copy"_qs), i18n("Copy Image"), this, [=] {
             QApplication::clipboard()->setImage(page->image());
         });
         menu->popup(event->globalPos());
@@ -529,6 +522,23 @@ const QString &View::manga() const
 void View::setLoadFromMemory(bool newLoadFromMemory)
 {
     m_loadFromMemory = newLoadFromMemory;
+}
+
+bool View::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::PaletteChange:
+        if (MangaReaderSettings::useCustomBackgroundColor()) {
+            setBackgroundBrush(MangaReaderSettings::backgroundColor());
+        } else {
+            setBackgroundBrush(QPalette().base());
+        }
+        break;
+    default:
+        break;
+
+    }
+    return QGraphicsView::event(event);
 }
 
 void View::setArchive(KArchive *newArchive)

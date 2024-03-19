@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     setAcceptDrops(true);
     init();
     setupActions();
-    setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, "mangareaderui.rc");
+    setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, u"mangareaderui.rc"_qs);
 
     m_treeDock->setObjectName("treeDockWidget");
     m_bookmarksDock->setObjectName("bookmarksDockWidget");
@@ -63,10 +63,10 @@ MainWindow::MainWindow(QWidget *parent)
         menuBar()->show();
 
     // setup toolbar
-    toolBar("mainToolBar")->setFloatable(false);
+    toolBar(u"mainToolBar"_qs)->setFloatable(false);
     toolBarMenuAction()->setEnabled(false);
     toolBarMenuAction()->setVisible(false);
-    connect(toolBar("mainToolBar"), &QToolBar::visibilityChanged,
+    connect(toolBar(u"mainToolBar"_qs), &QToolBar::visibilityChanged,
             this, &MainWindow::setToolBarVisible);
     if (MangaReaderSettings::fullscreenOnStartup()) {
         toggleFullScreen();
@@ -81,7 +81,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
-    m_config = KSharedConfig::openConfig("mangareader/mangareader.conf");
+    m_config = KSharedConfig::openConfig(u"mangareader/mangareader.conf"_qs);
 
     // ==================================================
     // setup extractor
@@ -108,7 +108,7 @@ void MainWindow::init()
         msgBox.setText(m_extractor->unrarNotFoundMessage());
         msgBox.setStandardButtons(QMessageBox::Close);
         msgBox.setEscapeButton(QMessageBox::Close);
-        auto btn = msgBox.addButton("Open Settings", QMessageBox::HelpRole);
+        auto btn = msgBox.addButton(u"Open Settings"_qs, QMessageBox::HelpRole);
         connect(btn, &QPushButton::clicked, this, &MainWindow::openSettings);
         msgBox.exec();
     });
@@ -135,7 +135,7 @@ void MainWindow::init()
     // ==================================================
     m_startUpWidget = new StartUpWidget(this);
     connect(m_startUpWidget, &StartUpWidget::addMangaFolderClicked,
-            this, [=]() {actionCollection()->action("addMangaFolder")->trigger();});
+            this, [=]() {actionCollection()->action(u"addMangaFolder"_qs)->trigger();});
     connect(m_startUpWidget, &StartUpWidget::openMangaFolderClicked,
             this, &MainWindow::openMangaFolder);
     connect(m_startUpWidget, &StartUpWidget::openMangaArchiveClicked,
@@ -143,7 +143,7 @@ void MainWindow::init()
     connect(m_startUpWidget, &StartUpWidget::openSettingsClicked,
             this, &MainWindow::openSettings);
     connect(m_startUpWidget, &StartUpWidget::openShortcutsConfigClicked, actionCollection(), [=]() {
-        actionCollection()->action("options_configure_keybinding")->trigger();
+        actionCollection()->action(u"options_configure_keybinding"_qs)->trigger();
     });
     connect(m_startUpWidget, &StartUpWidget::mouseMoved,
             this, &MainWindow::onMouseMoved);
@@ -196,7 +196,7 @@ void MainWindow::init()
 
 void MainWindow::setupMangaTreeDockWidget()
 {
-    KConfigGroup rootGroup = m_config->group("");
+    KConfigGroup rootGroup = m_config->group(QString());
     QString mangaFolder = rootGroup.readEntry("Manga Folder");
 
     auto treeDockWidget = new QWidget(this);
@@ -208,7 +208,10 @@ void MainWindow::setupMangaTreeDockWidget()
 
     m_treeModel->setObjectName("mangaTree");
     m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
-    m_treeModel->setNameFilters(QStringList() << "*.zip" << "*.7z" << "*.cbz" << "*.cbt" << "*.cbr" << "*.cb7" << "*.rar");
+    m_treeModel->setNameFilters(QStringList() << u"*.zip"_qs << u"*.cbz"_qs
+                                              << u"*.rar"_qs << u"*.cbr"_qs
+                                              << u"*.7z"_qs  << u"*.cb7"_qs
+                                              << u"*.tar"_qs << u"*.cbt"_qs);
     m_treeModel->setNameFilterDisables(false);
 
     m_treeView->setModel(m_treeModel);
@@ -226,7 +229,7 @@ void MainWindow::setupMangaTreeDockWidget()
         m_treeModel->setRootPath(path);
         m_treeView->setRootIndex(m_treeModel->index(path));
         m_treeDock->setWindowTitle(path);
-        m_config->group("").writeEntry("Manga Folder", path);
+        m_config->group(QString()).writeEntry("Manga Folder", path);
         m_config->sync();
     });
     treeDockLayout->addWidget(m_selectMangaLibraryComboBox);
@@ -266,7 +269,7 @@ void MainWindow::setupMangaTreeDockWidget()
 
 void MainWindow::setupBookmarksDockWidget()
 {
-    KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+    KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_qs);
 
     m_bookmarksDock->setWindowTitle(i18n("Bookmarks"));
     m_bookmarksDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
@@ -360,7 +363,7 @@ void MainWindow::setupBookmarksDockWidget()
 
 void MainWindow::populateBookmarkModel()
 {
-    KConfigGroup bookmarks = m_config->group("Bookmarks");
+    KConfigGroup bookmarks = m_config->group(u"Bookmarks"_qs);
     const QStringList keys = bookmarks.keyList();
     for (const QString &key : keys) {
         QString pageIndex = bookmarks.readEntry(key);
@@ -373,11 +376,11 @@ void MainWindow::populateBookmarkModel()
         QList<QStandardItem *> rowData;
         QMimeDatabase db;
         QMimeType type = db.mimeTypeForFile(pathInfo.absoluteFilePath());
-        QIcon icon = QIcon::fromTheme("folder");
-        if (type.name().startsWith("application/")) {
-            icon = QIcon::fromTheme("application-zip");
+        QIcon icon = QIcon::fromTheme(u"folder"_qs);
+        if (type.name().startsWith(u"application/"_qs)) {
+            icon = QIcon::fromTheme(u"application-zip"_qs);
         }
-        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? "(r) " : QString();
+        QString displayPrefix = (key.startsWith(RECURSIVE_KEY_PREFIX)) ? u"(r) "_qs : QString();
 
         auto col1 = new QStandardItem(pathInfo.fileName().prepend(displayPrefix));
         col1->setData(icon, Qt::DecorationRole);
@@ -510,7 +513,7 @@ void MainWindow::loadImages(const QString &path, bool recursive)
         QString file = it.next();
         mimetype = db.mimeTypeForFile(file).name();
         // only get images
-        if (mimetype.startsWith("image/")) {
+        if (mimetype.startsWith(u"image/"_qs)) {
             m_files.append(file);
         }
     }
@@ -523,7 +526,7 @@ void MainWindow::loadImages(const QString &path, bool recursive)
         return;
     }
 
-    actionCollection()->action("focusView")->trigger();
+    actionCollection()->action(u"focusView"_qs)->trigger();
 
     const QFileInfo currentPathInfo(m_currentPath);
     setWindowTitle(currentPathInfo.fileName());
@@ -544,7 +547,7 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &file
     m_startUpWidget->setVisible(false);
     m_view->setVisible(true);
 
-    actionCollection()->action("focusView")->trigger();
+    actionCollection()->action(u"focusView"_qs)->trigger();
 
     const QFileInfo fileInfo(m_extractor->archiveFile());
     setWindowTitle(fileInfo.fileName());
@@ -566,23 +569,23 @@ void MainWindow::setupActions()
     schemes->setAutosaveChanges(false);
 #endif
 
-    KConfigGroup cg(m_config, "UiSettings");
+    KConfigGroup cg(m_config, u"UiSettings"_qs);
     auto schemeName = cg.readEntry("ColorScheme", QString());
     schemes->activateScheme(schemes->indexForScheme(schemeName));
 
     auto colorSchemeAction = KColorSchemeMenu::createMenu(schemes, this);
     colorSchemeAction->setPopupMode(QToolButton::InstantPopup);
-    actionCollection()->addAction("colorSchemeChooser", colorSchemeAction);
+    actionCollection()->addAction(u"colorSchemeChooser"_qs, colorSchemeAction);
 
     connect(colorSchemeAction->menu(), &QMenu::triggered, this, [=](QAction *triggeredAction) {
-        KConfigGroup cg(m_config, "UiSettings");
+        KConfigGroup cg(m_config, u"UiSettings"_qs);
         cg.writeEntry("ColorScheme", KLocalizedString::removeAcceleratorMarker(triggeredAction->text()));
         cg.sync();
     });
 
     auto focusMangaTree = new QAction();
     focusMangaTree->setText(i18n("Focus Manga Tree"));
-    actionCollection()->addAction("focusTree", focusMangaTree);
+    actionCollection()->addAction(u"focusTree"_qs, focusMangaTree);
     actionCollection()->setDefaultShortcuts(focusMangaTree, {Qt::Key_N, Qt::CTRL | Qt::Key_N});
     connect(focusMangaTree, &QAction::triggered, this, [=]() {
         m_treeView->setFocus();
@@ -590,7 +593,7 @@ void MainWindow::setupActions()
 
     auto focusBookmarksTable = new QAction();
     focusBookmarksTable->setText(i18n("Focus Manga Bookmarks"));
-    actionCollection()->addAction("focusBookmarksTable", focusBookmarksTable);
+    actionCollection()->addAction(u"focusBookmarksTable"_qs, focusBookmarksTable);
     actionCollection()->setDefaultShortcuts(focusBookmarksTable, {Qt::Key_B, Qt::CTRL | Qt::Key_B});
     connect(focusBookmarksTable, &QAction::triggered, this, [=]() {
         m_bookmarksView->setFocus();
@@ -598,7 +601,7 @@ void MainWindow::setupActions()
 
     auto focusView = new QAction();
     focusView->setText(i18n("Focus Manga Viewer"));
-    actionCollection()->addAction("focusView", focusView);
+    actionCollection()->addAction(u"focusView"_qs, focusView);
     actionCollection()->setDefaultShortcuts(focusView, {Qt::Key_V, Qt::CTRL | Qt::Key_V});
     connect(focusView, &QAction::triggered, this, [=]() {
         m_view->setFocus();
@@ -606,8 +609,8 @@ void MainWindow::setupActions()
 
     auto addMangaFolderAction = new QAction(this);
     addMangaFolderAction->setText(i18n("&Add Manga Library Folder"));
-    addMangaFolderAction->setIcon(QIcon::fromTheme("folder-add"));
-    actionCollection()->addAction("addMangaFolder", addMangaFolderAction);
+    addMangaFolderAction->setIcon(QIcon::fromTheme(u"folder-add"_qs));
+    actionCollection()->addAction(u"addMangaFolder"_qs, addMangaFolderAction);
     actionCollection()->setDefaultShortcut(addMangaFolderAction, Qt::CTRL | Qt::Key_A);
     connect(addMangaFolderAction, &QAction::triggered, this, [=]() {
         openSettings();
@@ -616,23 +619,23 @@ void MainWindow::setupActions()
 
     auto openMangaFolder = new QAction(this);
     openMangaFolder->setText(i18n("&Open Manga Folder"));
-    openMangaFolder->setIcon(QIcon::fromTheme("folder-open"));
-    actionCollection()->addAction("openMangaFolder", openMangaFolder);
+    openMangaFolder->setIcon(QIcon::fromTheme(u"folder-open"_qs));
+    actionCollection()->addAction(u"openMangaFolder"_qs, openMangaFolder);
     actionCollection()->setDefaultShortcut(openMangaFolder, Qt::CTRL | Qt::Key_O);
     connect(openMangaFolder, &QAction::triggered,
             this, &MainWindow::openMangaFolder);
 
     auto openMangaArchive = new QAction(this);
     openMangaArchive->setText(i18n("&Open Manga Archive"));
-    openMangaArchive->setIcon(QIcon::fromTheme("application-zip"));
-    actionCollection()->addAction("openMangaArchive", openMangaArchive);
+    openMangaArchive->setIcon(QIcon::fromTheme(u"application-zip"_qs));
+    actionCollection()->addAction(u"openMangaArchive"_qs, openMangaArchive);
     actionCollection()->setDefaultShortcut(openMangaArchive, Qt::CTRL | Qt::SHIFT | Qt::Key_O);
     connect(openMangaArchive, &QAction::triggered,
             this, &MainWindow::openMangaArchive);
 
     auto openPreviousArchive = new QAction();
     openPreviousArchive->setText(i18n("&Open Previous Archive"));
-    actionCollection()->addAction("openPreviousArchive", openPreviousArchive);
+    actionCollection()->addAction(u"openPreviousArchive"_qs, openPreviousArchive);
     actionCollection()->setDefaultShortcut(openPreviousArchive, Qt::CTRL | Qt::Key_Up);
     connect(openPreviousArchive, &QAction::triggered, this, [&]() {
         openAdjacentArchive(OpenDirection::Previous);
@@ -640,7 +643,7 @@ void MainWindow::setupActions()
 
     auto openNextArchive = new QAction();
     openNextArchive->setText(i18n("&Open Next Archive"));
-    actionCollection()->addAction("openNextArchive", openNextArchive);
+    actionCollection()->addAction(u"openNextArchive"_qs, openNextArchive);
     actionCollection()->setDefaultShortcut(openNextArchive, Qt::CTRL | Qt::Key_Down);
     connect(openNextArchive, &QAction::triggered, this, [&]() {
         openAdjacentArchive(OpenDirection::Next);
@@ -683,28 +686,28 @@ void MainWindow::setupActions()
     auto goToAction = new QWidgetAction(this);
     goToAction->setDefaultWidget(goTowidget);
     goToAction->setText(i18n("Go To Page"));
-    actionCollection()->addAction("goToPage", goToAction);
+    actionCollection()->addAction(u"goToPage"_qs, goToAction);
 
     auto resetZoom = new QAction();
     resetZoom->setText(i18n("Zoom Reset"));
-    resetZoom->setIcon(QIcon::fromTheme("view-zoom-original-symbolic"));
+    resetZoom->setIcon(QIcon::fromTheme(u"view-zoom-original-symbolic"_qs));
     connect(resetZoom, &QAction::triggered,
             m_view, &View::zoomReset);
     actionCollection()->setDefaultShortcut(resetZoom, Qt::CTRL | Qt::Key_0);
-    actionCollection()->addAction("resetZoom", resetZoom);
+    actionCollection()->addAction(u"resetZoom"_qs, resetZoom);
 
     auto fitToHeightAction = new QAction();
     fitToHeightAction->setText(i18n("Fit height"));
     fitToHeightAction->setToolTip(i18n("Image height is resized to view's height.\n"
                                        "If the image height is smaller than the view height\n"
                                        "the image will only be upscaled if the scale up setting is enabled."));
-    QIcon fallbackIcon = QIcon::fromTheme("zoom-fit-height");
-    fitToHeightAction->setIcon(QIcon::fromTheme("fitheight", fallbackIcon));
+    QIcon fallbackIcon = QIcon::fromTheme(u"zoom-fit-height"_qs);
+    fitToHeightAction->setIcon(QIcon::fromTheme(u"fitheight"_qs, fallbackIcon));
     fitToHeightAction->setCheckable(true);
     fitToHeightAction->setChecked(MangaReaderSettings::fitHeight());
     connect(fitToHeightAction, &QAction::triggered,
             this, &MainWindow::toggleFitHeight);
-    actionCollection()->addAction("fitToHeightAction", fitToHeightAction);
+    actionCollection()->addAction(u"fitToHeightAction"_qs, fitToHeightAction);
 
     auto fitToWidthAction = new QAction();
     fitToWidthAction->setText(i18n("Fit width"));
@@ -712,27 +715,27 @@ void MainWindow::setupActions()
                                       "If the image width is smaller than the max width\n"
                                       "the image will only be upscaled if the scale up setting is enabled.\n"
                                       "Set max width to 9999 to have the image fill all available space."));
-    fallbackIcon = QIcon::fromTheme("zoom-fit-width");
-    fitToWidthAction->setIcon(QIcon::fromTheme("fitwidth", fallbackIcon));
+    fallbackIcon = QIcon::fromTheme(u"zoom-fit-width"_qs);
+    fitToWidthAction->setIcon(QIcon::fromTheme(u"fitwidth"_qs, fallbackIcon));
     fitToWidthAction->setCheckable(true);
     fitToWidthAction->setChecked(MangaReaderSettings::fitWidth());
     connect(fitToWidthAction, &QAction::triggered,
             this, &MainWindow::toggleFitWidth);
-    actionCollection()->addAction("fitToWidthAction", fitToWidthAction);
+    actionCollection()->addAction(u"fitToWidthAction"_qs, fitToWidthAction);
 
     KStandardAction::zoomIn(m_view, &View::zoomIn, actionCollection());
     KStandardAction::zoomOut(m_view, &View::zoomOut, actionCollection());
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
     KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
     KStandardAction::donate(this, [=]() {
-        QDesktopServices::openUrl(QUrl("https://github.com/sponsors/g-fb"));
+        QDesktopServices::openUrl(QUrl(u"https://github.com/sponsors/g-fb"_qs));
     }, actionCollection());
     KStandardAction::quit(QApplication::instance(), &QApplication::quit, actionCollection());
 
 
     auto *toggleFullScreenAction = new QAction();
     toggleFullScreenAction->setText(i18n("Fullscreen"));
-    actionCollection()->addAction("fullscreen", toggleFullScreenAction);
+    actionCollection()->addAction(u"fullscreen"_qs, toggleFullScreenAction);
     actionCollection()->setDefaultShortcuts(toggleFullScreenAction, {Qt::Key_F11});
     connect(toggleFullScreenAction, &QAction::triggered, this, [=]() {
         toggleFullScreen();
@@ -758,7 +761,7 @@ void MainWindow::setToolBarVisible(bool visible)
     if (isFullScreen())
         return;
 
-    QToolBar *tb = toolBar("mainToolBar");
+    QToolBar *tb = toolBar(u"mainToolBar"_qs);
     tb->setVisible(visible);
     MangaReaderSettings::setMainToolBarVisible(visible);
     MangaReaderSettings::self()->save();
@@ -815,19 +818,19 @@ void MainWindow::treeViewContextMenu(QPoint point)
     auto menu = new QMenu();
     menu->setMinimumWidth(200);
 
-    auto load = new QAction(QIcon::fromTheme("arrow-down"), i18n("Load"));
+    auto load = new QAction(QIcon::fromTheme(u"arrow-down"_qs), i18n("Load"));
     m_treeView->addAction(load);
 
-    auto loadRecursive = new QAction(QIcon::fromTheme("arrow-down-double"), i18n("Load recursive"));
+    auto loadRecursive = new QAction(QIcon::fromTheme(u"arrow-down-double"_qs), i18n("Load recursive"));
     m_treeView->addAction(loadRecursive);
 
-    auto rename = new QAction(QIcon::fromTheme("edit-rename"), i18n("Rename"));
+    auto rename = new QAction(QIcon::fromTheme(u"edit-rename"_qs), i18n("Rename"));
     m_treeView->addAction(rename);
 
-    auto openPath = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
+    auto openPath = new QAction(QIcon::fromTheme(u"unknown"_qs), i18n("Open"));
     m_treeView->addAction(openPath);
 
-    auto openContainingFolder = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
+    auto openContainingFolder = new QAction(QIcon::fromTheme(u"folder-open"_qs), i18n("Open containing folder"));
     m_treeView->addAction(openContainingFolder);
 
     menu->addAction(load);
@@ -846,7 +849,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
 
     connect(rename, &QAction::triggered, this, [=]() {
         QUrl url(path);
-        url.setScheme("file");
+        url.setScheme(u"file"_qs);
         KFileItem item(url);
         auto renameDialog = new KIO::RenameFileDialog(KFileItemList({item}), nullptr);
         renameDialog->open();
@@ -862,7 +865,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
             const QString &recursiveKey = RECURSIVE_KEY_PREFIX + path;
 
             // get the values for both bookmarks
-            KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+            KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_qs);
             QString bookmark = bookmarksGroup.readEntry(key);
             QString recursiveBookmark = bookmarksGroup.readEntry(recursiveKey);
 
@@ -908,7 +911,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
     QString path = m_bookmarksModel->data(index, PathRole).toString();
 
     auto contextMenu = new QMenu();
-    auto action = new QAction(QIcon::fromTheme("unknown"), i18n("Open"));
+    auto action = new QAction(QIcon::fromTheme(u"unknown"_qs), i18n("Open"));
     contextMenu->addAction(action);
     connect(action, &QAction::triggered, this, [=]() {
         QUrl url(path);
@@ -922,7 +925,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
         job->start();
     });
 
-    action = new QAction(QIcon::fromTheme("folder-open"), i18n("Open containing folder"));
+    action = new QAction(QIcon::fromTheme(u"folder-open"_qs), i18n("Open containing folder"));
     contextMenu->addAction(action);
 
     connect(action, &QAction::triggered, this, [=]() {
@@ -933,7 +936,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
 
     contextMenu->addSeparator();
 
-    action = new QAction(QIcon::fromTheme("delete"), i18n("Delete Selected Bookmark(s)"));
+    action = new QAction(QIcon::fromTheme(u"delete"_qs), i18n("Delete Selected Bookmark(s)"));
     contextMenu->addAction(action);
     connect(action, &QAction::triggered, this, [=]() {
         deleteBookmarks(m_bookmarksView);
@@ -1022,7 +1025,7 @@ void MainWindow::onAddBookmark(int pageIndex)
     QString key = mangaInfo.absoluteFilePath().prepend(keyPrefix);
     // get the bookmark from the config file
     m_config->reparseConfiguration();
-    KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+    KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_qs);
     QString bookmark = bookmarksGroup.readEntry(key);
     // if the bookmark from the config is the same
     // as the one to be saved return
@@ -1048,14 +1051,14 @@ void MainWindow::onAddBookmark(int pageIndex)
     // determine icon for bookmark (folder or archive)
     QMimeDatabase db;
     QMimeType type = db.mimeTypeForFile(mangaInfo.absoluteFilePath());
-    QIcon icon = QIcon::fromTheme("folder");
-    if (type.name().startsWith("application/")) {
-        icon = QIcon::fromTheme("application-zip");
+    QIcon icon = QIcon::fromTheme(u"folder"_qs);
+    if (type.name().startsWith(u"application/"_qs)) {
+        icon = QIcon::fromTheme(u"application-zip"_qs);
     }
 
     // add bookmark to tableView
     QList<QStandardItem *> rowData;
-    QString displayPrefix = (m_isLoadedRecursive) ? "(r) " : "";
+    QString displayPrefix = (m_isLoadedRecursive) ? u"(r) "_qs : QString();
 
     auto *col1 = new QStandardItem(mangaInfo.fileName().prepend(displayPrefix));
     col1->setData(icon, Qt::DecorationRole);
@@ -1107,7 +1110,7 @@ void MainWindow::deleteBookmarks(QTableView *tableView)
             key = key.prepend(RECURSIVE_KEY_PREFIX);
         }
         m_config->reparseConfiguration();
-        KConfigGroup bookmarksGroup = m_config->group("Bookmarks");
+        KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_qs);
         bookmarksGroup.deleteEntry(key);
         bookmarksGroup.config()->sync();
         tableView->model()->removeRow(rows.at(i));
@@ -1121,7 +1124,7 @@ void MainWindow::openSettings()
 
     connect(m_settingsWindow, &SettingsWindow::settingsChanged, m_view, &View::refreshPages);
     connect(m_settingsWindow, &SettingsWindow::settingsChanged, this, [=]() {
-        QString mangaFolder = m_config->group("").readEntry("Manga Folder");
+        QString mangaFolder = m_config->group(QString()).readEntry("Manga Folder");
         if (MangaReaderSettings::mangaFolders().count() > 0) {
             // if current manga folder is empty or not in the manga folders list
             // set first folder in manga folders list as current
@@ -1131,13 +1134,13 @@ void MainWindow::openSettings()
                 m_treeView->setRootIndex(m_treeModel->index(firstMangaFolder));
                 m_treeDock->setVisible(true);
                 m_treeDock->setProperty("isEmpty", false);
-                m_config->group("").writeEntry("Manga Folder", firstMangaFolder);
+                m_config->group(QString()).writeEntry("Manga Folder", firstMangaFolder);
                 m_config->sync();
             }
         } else {
             m_treeDock->setVisible(false);
             m_treeDock->setProperty("isEmpty", true);
-            m_config->group("").deleteEntry("Manga Folder");
+            m_config->group(QString()).deleteEntry("Manga Folder");
         }
         populateLibrarySelectionComboBox();
     });
