@@ -33,7 +33,7 @@ StartUpWidget::StartUpWidget(QWidget *parent)
 
     auto image = new QLabel(this);
 #ifdef Q_OS_WIN32
-    image->setPixmap(QIcon(":/icons/mangareader").pixmap(256));
+    image->setPixmap(QIcon(u":/icons/mangareader"_qs).pixmap(256));
 #else
     image->setPixmap(QIcon::fromTheme(u"mangareader"_qs).pixmap(256));
 #endif
