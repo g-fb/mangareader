@@ -4,13 +4,30 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "extractor.h"
 #include "mainwindow.h"
-#include "settings.h"
-#include "settingswindow.h"
-#include "startupwidget.h"
-#include "view.h"
-#include "worker.h"
+
+#include <QApplication>
+#include <QCollator>
+#include <QComboBox>
+#include <QDesktopServices>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QFileSystemModel>
+#include <QHeaderView>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QMimeData>
+#include <QMimeDatabase>
+#include <QMouseEvent>
+#include <QProcess>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QStandardItemModel>
+#include <QTableView>
+#include <QThread>
+#include <QTreeView>
+#include <QVBoxLayout>
 
 #include <KActionCollection>
 #include <KActionMenu>
@@ -22,21 +39,19 @@
 #include <KFileItem>
 #include <KHamburgerMenu>
 #include <kio_version.h>
-#if KIO_VERSION >= QT_VERSION_CHECK(5, 98, 0)
 #include <KIO/JobUiDelegateFactory>
-#else
-#include <KIO/JobUiDelegate>
-#endif
 #include <KIO/OpenFileManagerWindowJob>
 #include <KIO/OpenUrlJob>
 #include <KIO/RenameFileDialog>
 #include <KLocalizedString>
 #include <KToolBar>
 
-#include <QProcess>
-#include <QtWidgets>
-#include <QThread>
-
+#include "extractor.h"
+#include "settings.h"
+#include "settingswindow.h"
+#include "startupwidget.h"
+#include "view.h"
+#include "worker.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow{ parent }
@@ -565,9 +580,7 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &file
 void MainWindow::setupActions()
 {
     auto *schemes = new KColorSchemeManager(this);
-#if KIO_VERSION >= QT_VERSION_CHECK(5, 89, 0)
     schemes->setAutosaveChanges(false);
-#endif
 
     KConfigGroup cg(m_config, u"UiSettings"_qs);
     auto schemeName = cg.readEntry("ColorScheme", QString());
@@ -889,11 +902,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         auto job = new KIO::OpenUrlJob(url);
-#if KIO_VERSION >= QT_VERSION_CHECK(5, 98, 0)
         job->setUiDelegate(KIO::createDefaultJobUiDelegate());
-#else
-        job->setUiDelegate(new KIO::JobUiDelegate());
-#endif
         job->start();
     });
 
@@ -917,11 +926,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         auto job = new KIO::OpenUrlJob(url);
-#if KIO_VERSION >= QT_VERSION_CHECK(5, 98, 0)
         job->setUiDelegate(KIO::createDefaultJobUiDelegate());
-#else
-        job->setUiDelegate(new KIO::JobUiDelegate());
-#endif
         job->start();
     });
 

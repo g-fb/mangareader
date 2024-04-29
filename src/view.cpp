@@ -5,16 +5,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "mainwindow.h"
-#include "page.h"
 #include "view.h"
-#include "worker.h"
-#include "settings.h"
-
-#include <KActionCollection>
-#include <KArchive>
-#include <KLocalizedString>
-#include <KXMLGUIFactory>
 
 #include <QApplication>
 #include <QBuffer>
@@ -26,6 +17,16 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QTimer>
+
+#include <KActionCollection>
+#include <KArchive>
+#include <KLocalizedString>
+#include <KXMLGUIFactory>
+
+#include "mainwindow.h"
+#include "page.h"
+#include "settings.h"
+#include "worker.h"
 
 View::View(MainWindow *parent)
     : QGraphicsView{ parent }

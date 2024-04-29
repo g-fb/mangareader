@@ -6,19 +6,19 @@
 
 #include "settingswindow.h"
 
-#include "settings.h"
-
-#include <KColorButton>
-#include <KEditListWidget>
-#include <KLocalizedString>
-#include <KUrlRequester>
-
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+
+#include <KColorButton>
+#include <KEditListWidget>
+#include <KLocalizedString>
+#include <KUrlRequester>
+
+#include "settings.h"
 
 SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     : KConfigDialog(parent, QStringLiteral("settings"), skeleton)

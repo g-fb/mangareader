@@ -5,9 +5,6 @@
  */
 
 #include "settings.h"
-#include "page.h"
-#include "view.h"
-#include "worker.h"
 
 #include <QPainter>
 #include <QRectF>
@@ -15,6 +12,10 @@
 #include <QStyleOptionGraphicsItem>
 
 #include <cmath>
+
+#include "page.h"
+#include "view.h"
+#include "worker.h"
 
 Page::Page(QSize sourceSize, QGraphicsItem *parent)
     : QGraphicsItem{ parent }

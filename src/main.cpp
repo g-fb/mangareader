@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "mainwindow.h"
-#include "mangareader-version.h"
-
-#include <KAboutData>
-#include <KLocalizedString>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDir>
 #include <QUrl>
+
+#include <KAboutData>
+#include <KLocalizedString>
+
+#include "mainwindow.h"
+#include "mangareader-version.h"
 
 int main(int argc, char *argv[])
 {

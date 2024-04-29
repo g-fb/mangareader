@@ -7,8 +7,6 @@
 
 #include "extractor.h"
 
-#include "settings.h"
-
 #include <QCollator>
 #include <QDir>
 #include <QFileInfo>
@@ -23,6 +21,8 @@
 #ifdef WITH_K7ZIP
 #include <K7Zip>
 #endif
+
+#include "settings.h"
 
 Extractor::Extractor(QObject *parent)
     : QObject{parent}

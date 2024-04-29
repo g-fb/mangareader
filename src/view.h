@@ -7,9 +7,9 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <KXMLGUIClient>
 #include <QGraphicsView>
 #include <QObject>
+#include <KXMLGUIClient>
 
 class KArchive;
 class Page;

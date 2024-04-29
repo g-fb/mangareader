@@ -8,15 +8,15 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMenu>
 #include <QPushButton>
 
 #include <KLocalizedString>
 #include <KColorSchemeManager>
 #include <KActionMenu>
 #include <KConfigGroup>
-#include <QMenu>
 
-#include <settings.h>
+#include "settings.h"
 
 StartUpWidget::StartUpWidget(QWidget *parent)
     : QWidget{parent}
