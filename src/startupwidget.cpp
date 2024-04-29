@@ -32,10 +32,11 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     auto secondButtonsRowLayout = new QHBoxLayout(secondButtonsRow);
 
     auto image = new QLabel(this);
+    QIcon qrcIcon = QIcon(u":/icons/mangareader"_qs);
 #ifdef Q_OS_WIN32
-    image->setPixmap(QIcon(u":/icons/mangareader"_qs).pixmap(256));
+    image->setPixmap(qrcIcon.pixmap(256));
 #else
-    image->setPixmap(QIcon::fromTheme(u"mangareader"_qs).pixmap(256));
+    image->setPixmap(QIcon::fromTheme(u"mangareader"_qs, qrcIcon).pixmap(256));
 #endif
     image->setAlignment(Qt::AlignCenter);
 
