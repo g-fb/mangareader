@@ -25,6 +25,14 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.2.1" date="2024-04-30">
+            <description>
+                <p>Bugfixes:</p>
+                <ul>
+                    <li>Dock widgets not remembering their position</li>
+                </ul>
+            </description>
+        </release>
         <release version="2.2.0" date="2024-03-19">
             <description>
                 <p>Ported to Qt6.</p>
