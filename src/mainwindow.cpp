@@ -53,8 +53,6 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, u"mangareaderui.rc"_qs);
 
-    m_treeDock->setObjectName("treeDockWidget");
-    m_bookmarksDock->setObjectName("bookmarksDockWidget");
 
     if (MangaReaderSettings::mainToolBarVisible())
         showToolBars();
@@ -202,6 +200,7 @@ void MainWindow::setupMangaTreeDockWidget()
     auto treeDockWidget = new QWidget(this);
     auto treeDockLayout = new QVBoxLayout(treeDockWidget);
 
+    m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     m_treeDock->setProperty("h", 0);
     m_treeDock->setProperty("isEmpty", mangaFolder.isEmpty());
@@ -271,6 +270,7 @@ void MainWindow::setupBookmarksDockWidget()
 {
     KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_qs);
 
+    m_bookmarksDock->setObjectName("bookmarksDockWidget");
     m_bookmarksDock->setWindowTitle(i18n("Bookmarks"));
     m_bookmarksDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     m_bookmarksDock->setProperty("h", 0);
