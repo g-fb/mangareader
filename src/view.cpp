@@ -11,6 +11,7 @@
 #include <QBuffer>
 #include <QClipboard>
 #include <QFile>
+#include <QFileInfo>
 #include <QImageReader>
 #include <QMenu>
 #include <QMimeData>
@@ -188,11 +189,14 @@ void View::loadImages()
 
 void View::createPages()
 {
+    QFileInfo fi;
     QScopedPointer<QIODevice> dev;
     QImageReader imageReader;
     imageReader.setAutoTransform(true);
     int i {0};
     for (auto &_file : m_files) {
+        fi.setFile(_file);
+        imageReader.setFormat(fi.suffix().toUtf8());
         if (m_loadFromMemory) {
             const KArchiveFile *entry = m_archive->directory()->file(_file);
             if (!entry) {
