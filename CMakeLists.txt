@@ -7,27 +7,16 @@
 cmake_minimum_required(VERSION 3.10)
 project(mangareader VERSION 2.2.1 LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_MIN_VERSION 6.6.0)
 set(KF6_MIN_VERSION 6.0.0)
 
-find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-include(KDEInstallDirs)
-include(ECMInstallIcons)
-include(ECMAddAppIcon)
-include(ECMSetupVersion)
-include(KDECMakeSettings)
-include(KDECompilerSettings NO_POLICY_SCOPE)
 include(FeatureSummary)
 
-ecm_setup_version(${PROJECT_VERSION}
-    VARIABLE_PREFIX MANGAREADER
-    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/mangareader-version.h"
-)
+find_package(ECM ${KF6_MIN_VERSION} NO_MODULE)
+set_package_properties(ECM PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/ecm/"
+    DESCRIPTION "extra cmake modules")
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(Qt6Core ${QT_MIN_VERSION})
 set_package_properties(Qt6Core PROPERTIES TYPE REQUIRED)
@@ -64,6 +53,18 @@ set_package_properties(KF6XmlGui PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kxmlgui/html/index.html")
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+include(KDEInstallDirs)
+include(ECMInstallIcons)
+include(ECMAddAppIcon)
+include(ECMSetupVersion)
+include(KDECMakeSettings)
+include(KDECompilerSettings NO_POLICY_SCOPE)
+
+ecm_setup_version(${PROJECT_VERSION}
+    VARIABLE_PREFIX MANGAREADER
+    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/mangareader-version.h"
+)
 
 add_subdirectory(data)
 add_subdirectory(src)
