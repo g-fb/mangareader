@@ -31,19 +31,7 @@ If you don't like flatpak you can build from source or ask your distro to provid
 
 # Dependencies
 
-- Extra CMake Modules
-- Qt5 Widgets
-- KF5 XmlGui
-- KF5 ConfigCore
-- KF5 CoreAddons
-- KF5 I18n
-- libarchive
-
----------------------------------
-
-- c++ compiler
-- cmake
-- git
+Dependencies will be printed by `cmake` when building.
 
 # Build
 
