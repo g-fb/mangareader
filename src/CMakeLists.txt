@@ -28,6 +28,7 @@ target_link_libraries(mangareader
     PRIVATE
         Qt6::Widgets
         KF6::Archive
+        KF6::ColorScheme
         KF6::ConfigCore
         KF6::ConfigWidgets
         KF6::CoreAddons

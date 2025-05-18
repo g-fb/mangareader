@@ -20,6 +20,8 @@
 
 #include "settings.h"
 
+using namespace Qt::StringLiterals;
+
 SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     : KConfigDialog(parent, QStringLiteral("settings"), skeleton)
 {
@@ -128,7 +130,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     useCustomBackgroundColor->setText(i18n("Use custom background color"));
     useCustomBackgroundColor->setChecked(MangaReaderSettings::useCustomBackgroundColor());
     useCustomBackgroundColor->setToolTip(i18n("When unchecked the background uses the system color."));
-    connect(useCustomBackgroundColor, &QCheckBox::stateChanged, this, [=]() {
+    connect(useCustomBackgroundColor, &QCheckBox::checkStateChanged, this, [=]() {
         m_backgroundColor->setEnabled(useCustomBackgroundColor->isChecked());
     });
     formLayout->addRow(QLatin1String(), useCustomBackgroundColor);
@@ -164,7 +166,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     formLayout->addRow(i18n("Manga folders"), m_mangaFolders);
 
     m_addMangaFolderButton = new QPushButton(i18n("Select and add manga folder"));
-    m_addMangaFolderButton->setIcon(QIcon::fromTheme(u"folder-add"_qs));
+    m_addMangaFolderButton->setIcon(QIcon::fromTheme(u"folder-add"_s));
     connect(m_addMangaFolderButton, &QPushButton::clicked, this, [=]() {
         QString path = QFileDialog::getExistingDirectory(this, i18n("Select manga folder"));
         if (path.isEmpty()) {

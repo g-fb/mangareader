@@ -26,6 +26,8 @@ class QFileInfo;
 class QFileSystemModel;
 class SettingsWindow;
 
+using namespace Qt::StringLiterals;
+
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
@@ -100,19 +102,19 @@ private:
     StartUpWidget      *m_startUpWidget{};
     int                 m_startPage{0};
     bool                m_isLoadedRecursive{false};
-    const QString       RECURSIVE_KEY_PREFIX{u":recursive:"_qs};
-    QStringList         m_supportedMimeTypes{u"application/zip"_qs,
-                                             u"application/x-cbz"_qs,
-                                             u"application/vnd.comicbook+zip"_qs,
-                                             u"application/x-7z-compressed"_qs,
-                                             u"application/x-cb7"_qs,
-                                             u"application/x-tar"_qs,
-                                             u"application/x-cbt"_qs,
-                                             u"application/x-rar"_qs,
-                                             u"application/x-cbr"_qs,
-                                             u"application/vnd.rar"_qs,
-                                             u"application/vnd.comicbook-rar"_qs,
-                                             u"inode/directory"_qs};
+    const QString       RECURSIVE_KEY_PREFIX{u":recursive:"_s};
+    QStringList         m_supportedMimeTypes{u"application/zip"_s,
+                                             u"application/x-cbz"_s,
+                                             u"application/vnd.comicbook+zip"_s,
+                                             u"application/x-7z-compressed"_s,
+                                             u"application/x-cb7"_s,
+                                             u"application/x-tar"_s,
+                                             u"application/x-cbt"_s,
+                                             u"application/x-rar"_s,
+                                             u"application/x-cbr"_s,
+                                             u"application/vnd.rar"_s,
+                                             u"application/vnd.comicbook-rar"_s,
+                                             u"inode/directory"_s};
 };
 
 #endif // MAINWINDOW_H

@@ -18,6 +18,8 @@
 
 #include "settings.h"
 
+using namespace Qt::StringLiterals;
+
 StartUpWidget::StartUpWidget(QWidget *parent)
     : QWidget{parent}
 {
@@ -32,11 +34,11 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     auto secondButtonsRowLayout = new QHBoxLayout(secondButtonsRow);
 
     auto image = new QLabel(this);
-    QIcon qrcIcon = QIcon(u":/icons/mangareader"_qs);
+    QIcon qrcIcon = QIcon(u":/icons/mangareader"_s);
 #ifdef Q_OS_WIN32
     image->setPixmap(qrcIcon.pixmap(256));
 #else
-    image->setPixmap(QIcon::fromTheme(u"mangareader"_qs, qrcIcon).pixmap(256));
+    image->setPixmap(QIcon::fromTheme(u"mangareader"_s, qrcIcon).pixmap(256));
 #endif
     image->setAlignment(Qt::AlignCenter);
 
@@ -48,21 +50,21 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     mainVLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     auto addMangaFolderButton = new QPushButton(i18n("Add Manga Library Folder"), this);
-    addMangaFolderButton->setIcon(QIcon::fromTheme(u"folder"_qs));
+    addMangaFolderButton->setIcon(QIcon::fromTheme(u"folder"_s));
     addMangaFolderButton->setIconSize(QSize(32, 32));
     addMangaFolderButton->setVisible(MangaReaderSettings::mangaFolders().isEmpty());
     connect(addMangaFolderButton, &QPushButton::clicked,
             this, &StartUpWidget::addMangaFolderClicked);
 
     auto openMangaFolderButton = new QPushButton(i18n("Open Manga Folder"), this);
-    openMangaFolderButton->setIcon(QIcon::fromTheme(u"folder"_qs));
+    openMangaFolderButton->setIcon(QIcon::fromTheme(u"folder"_s));
     openMangaFolderButton->setIconSize(QSize(32, 32));
     connect(openMangaFolderButton, &QPushButton::clicked,
             this, &StartUpWidget::openMangaFolderClicked);
 
     auto openMangaArchiveButton = new QPushButton(i18n("Open Manga Archive"), this);
-    auto fallbackIcon = QIcon::fromTheme(u"package-x-generic"_qs);
-    openMangaArchiveButton->setIcon(QIcon::fromTheme(u"application-x-archive"_qs, fallbackIcon));
+    auto fallbackIcon = QIcon::fromTheme(u"package-x-generic"_s);
+    openMangaArchiveButton->setIcon(QIcon::fromTheme(u"application-x-archive"_s, fallbackIcon));
     openMangaArchiveButton->setIconSize(QSize(32, 32));
     connect(openMangaArchiveButton, &QPushButton::clicked,
             this, &StartUpWidget::openMangaArchiveClicked);
@@ -74,12 +76,12 @@ StartUpWidget::StartUpWidget(QWidget *parent)
     firstButtonsRowLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
 
     auto settingsButton = new QPushButton(i18n("Settings"), this);
-    settingsButton->setIcon(QIcon::fromTheme(u"configure"_qs));
+    settingsButton->setIcon(QIcon::fromTheme(u"configure"_s));
     connect(settingsButton, &QPushButton::clicked,
             this, &StartUpWidget::openSettingsClicked);
 
     auto configureShortcutsButton = new QPushButton(i18n("Configure Shortcuts"), this);
-    configureShortcutsButton->setIcon(QIcon::fromTheme(u"input-keyboard"_qs));
+    configureShortcutsButton->setIcon(QIcon::fromTheme(u"input-keyboard"_s));
     connect(configureShortcutsButton, &QPushButton::clicked,
             this, &StartUpWidget::openShortcutsConfigClicked);
 

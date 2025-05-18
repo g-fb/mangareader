@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     const QStringList args = parser.positionalArguments();
 
     auto w = new MainWindow();
-    w->setWindowIcon(QIcon::fromTheme(u"mangareader"_qs));
+    w->setWindowIcon(QIcon::fromTheme(u"mangareader"_s));
     w->show();
 
     if (args.count() > 0 && !args.at(0).isEmpty()) {

@@ -90,7 +90,7 @@ View::View(MainWindow *parent)
 void View::setupActions()
 {
     KActionCollection *collection = actionCollection();
-    collection->setComponentDisplayName(u"View"_qs);
+    collection->setComponentDisplayName(u"View"_s);
     collection->addAssociatedWidget(this);
 
     auto scrollToStart = new QAction(i18n("Scroll To Start"));
@@ -99,7 +99,7 @@ void View::setupActions()
         verticalScrollBar()->setValue(verticalScrollBar()->minimum());
     });
     collection->setDefaultShortcut(scrollToStart, Qt::CTRL | Qt::Key_Home);
-    collection->addAction(u"scrollToStart"_qs, scrollToStart);
+    collection->addAction(u"scrollToStart"_s, scrollToStart);
 
     auto scrollToEnd = new QAction(i18n("Scroll To End"));
     scrollToEnd->setShortcutContext(Qt::WidgetShortcut);
@@ -107,7 +107,7 @@ void View::setupActions()
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
     collection->setDefaultShortcut(scrollToEnd, Qt::CTRL | Qt::Key_End);
-    collection->addAction(u"scrollToEnd"_qs, scrollToEnd);
+    collection->addAction(u"scrollToEnd"_s, scrollToEnd);
 
     auto scrollUp = new QAction(i18n("Scroll Up"));
     scrollUp->setShortcutContext(Qt::WidgetShortcut);
@@ -117,7 +117,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(scrollUp, Qt::Key_Up);
-    collection->addAction(u"scrollUp"_qs, scrollUp);
+    collection->addAction(u"scrollUp"_s, scrollUp);
 
     auto scrollDown = new QAction(i18n("Scroll Down"));
     scrollDown->setShortcutContext(Qt::WidgetShortcut);
@@ -127,7 +127,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(scrollDown, Qt::Key_Down);
-    collection->addAction(u"scrollDown"_qs, scrollDown);
+    collection->addAction(u"scrollDown"_s, scrollDown);
 
     auto scrollUpOneScreen = new QAction(i18n("Scroll Up One Screen"));
     scrollUpOneScreen->setShortcutContext(Qt::WidgetShortcut);
@@ -135,7 +135,7 @@ void View::setupActions()
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
     });
     collection->setDefaultShortcuts(scrollUpOneScreen, {Qt::Key_PageUp, Qt::SHIFT | Qt::Key_Space});
-    collection->addAction(u"scrollUpOneScreen"_qs, scrollUpOneScreen);
+    collection->addAction(u"scrollUpOneScreen"_s, scrollUpOneScreen);
 
     auto scrollDownOneScreen = new QAction(i18n("Scroll Down One Screen"));
     scrollDownOneScreen->setShortcutContext(Qt::WidgetShortcut);
@@ -143,7 +143,7 @@ void View::setupActions()
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
     });
     collection->setDefaultShortcuts(scrollDownOneScreen, {Qt::Key_PageDown, Qt::Key_Space});
-    collection->addAction(u"scrollDownOneScreen"_qs, scrollDownOneScreen);
+    collection->addAction(u"scrollDownOneScreen"_s, scrollDownOneScreen);
 
     auto nextPage = new QAction(i18n("Next Page"));
     nextPage->setShortcutContext(Qt::WidgetShortcut);
@@ -153,7 +153,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(nextPage, Qt::Key_Right);
-    collection->addAction(u"nextPage"_qs, nextPage);
+    collection->addAction(u"nextPage"_s, nextPage);
 
     auto prevPage = new QAction(i18n("Previous Page"));
     prevPage->setShortcutContext(Qt::WidgetShortcut);
@@ -163,7 +163,7 @@ void View::setupActions()
         }
     });
     collection->setDefaultShortcut(prevPage, Qt::Key_Left);
-    collection->addAction(u"prevPage"_qs, prevPage);
+    collection->addAction(u"prevPage"_s, prevPage);
 }
 
 void View::reset()
@@ -491,18 +491,18 @@ void View::contextMenuEvent(QContextMenuEvent *event)
                 ? i18n("Zoom Out")
                 : i18n("Zoom In");
         QIcon zoomActionIcon = page->isZoomToggled()
-                ? QIcon::fromTheme(u"zoom-out"_qs)
-                : QIcon::fromTheme(u"zoom-in"_qs);
+                ? QIcon::fromTheme(u"zoom-out"_s)
+                : QIcon::fromTheme(u"zoom-in"_s);
         menu->addAction(zoomActionIcon, zoomActionText, this, [=]() {
             togglePageZoom(page);
             calculatePageSizes();
         });
 
-        menu->addAction(QIcon::fromTheme(u"folder-bookmark"_qs), i18n("Set Bookmark"), this, [=] {
+        menu->addAction(QIcon::fromTheme(u"folder-bookmark"_s), i18n("Set Bookmark"), this, [=] {
             Q_EMIT addBookmark(page->number());
         });
 
-        menu->addAction(QIcon::fromTheme(u"selection-make-bitmap-copy"_qs), i18n("Copy Image"), this, [=] {
+        menu->addAction(QIcon::fromTheme(u"selection-make-bitmap-copy"_s), i18n("Copy Image"), this, [=] {
             QApplication::clipboard()->setImage(page->image());
         });
         menu->popup(event->globalPos());

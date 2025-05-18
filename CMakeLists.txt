@@ -28,6 +28,10 @@ find_package(KF6Archive ${KF6_MIN_VERSION})
 set_package_properties(KF6Archive PROPERTIES TYPE OPTIONAL
     URL "https://api.kde.org/frameworks/karchive/html/index.html")
 
+find_package(KF6ColorScheme ${KF6_MIN_VERSION})
+set_package_properties(KF6ColorScheme PROPERTIES TYPE REQUIRED
+    URL "https://api.kde.org/frameworks/kcolorscheme/html/index.html")
+
 find_package(KF6Config ${KF6_MIN_VERSION})
 set_package_properties(KF6Config PROPERTIES TYPE REQUIRED
     URL "https://api.kde.org/frameworks/kconfig/html/index.html")
