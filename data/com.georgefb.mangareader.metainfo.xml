@@ -271,4 +271,11 @@
         </screenshot>
     </screenshots>
     <content_rating type="oars-1.0" />
+    <keywords>
+        <keyword>manga reader</keyword>
+        <keyword>manga viewer</keyword>
+        <keyword>local file viewer</keyword>
+        <keyword>pdf manga</keyword>
+        <keyword>comic book reader</keyword>
+    </keywords>
 </component>
