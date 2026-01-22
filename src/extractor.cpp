@@ -132,7 +132,7 @@ void Extractor::extractRarArchive()
     connect(process, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished,
             this, &Extractor::finished);
 
-    connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
+    connect(process, &QProcess::readyReadStandardOutput, this, [this, process]() {
         QRegularExpression re(u"[0-9]+[%]"_s);
         QRegularExpressionMatch match = re.match(QString::fromUtf8(process->readAllStandardOutput()));
         if (match.hasMatch()) {
@@ -142,7 +142,7 @@ void Extractor::extractRarArchive()
     });
 
     connect(process, &QProcess::errorOccurred,
-            this, [=](QProcess::ProcessError err) {
+            this, [this](QProcess::ProcessError err) {
         QString errorMessage;
         switch (err) {
         case QProcess::FailedToStart:

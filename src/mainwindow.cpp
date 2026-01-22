@@ -101,22 +101,22 @@ void MainWindow::init()
     // setup extractor
     // ==================================================
     m_extractor = new Extractor(this);
-    connect(m_extractor, &Extractor::progress, this, [=](int p) {
+    connect(m_extractor, &Extractor::progress, this, [this](int p) {
         if (m_progressBar->isHidden()) {
             m_progressBar->setVisible(true);
         }
         m_progressBar->setValue(p);
     });
-    connect(m_extractor, &Extractor::finished, this, [=]() {
+    connect(m_extractor, &Extractor::finished, this, [this]() {
         m_progressBar->setVisible(false);
         loadImages(m_extractor->extractionFolder(), true);
     });
     connect(m_extractor, &Extractor::finishedMemory,
             this, &MainWindow::loadImagesFromMemory);
-    connect(m_extractor, &Extractor::error, this, [=](const QString &error) {
+    connect(m_extractor, &Extractor::error, this, [](const QString &error) {
         showError(error);
     });
-    connect(m_extractor, &Extractor::unrarNotFound, this, [=]() {
+    connect(m_extractor, &Extractor::unrarNotFound, this, [this]() {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Information);
         msgBox.setText(m_extractor->unrarNotFoundMessage());
@@ -149,14 +149,14 @@ void MainWindow::init()
     // ==================================================
     m_startUpWidget = new StartUpWidget(this);
     connect(m_startUpWidget, &StartUpWidget::addMangaFolderClicked,
-            this, [=]() {actionCollection()->action(u"addMangaFolder"_s)->trigger();});
+            this, [this]() {actionCollection()->action(u"addMangaFolder"_s)->trigger();});
     connect(m_startUpWidget, &StartUpWidget::openMangaFolderClicked,
             this, &MainWindow::openMangaFolder);
     connect(m_startUpWidget, &StartUpWidget::openMangaArchiveClicked,
             this, &MainWindow::openMangaArchive);
     connect(m_startUpWidget, &StartUpWidget::openSettingsClicked,
             this, &MainWindow::openSettings);
-    connect(m_startUpWidget, &StartUpWidget::openShortcutsConfigClicked, actionCollection(), [=]() {
+    connect(m_startUpWidget, &StartUpWidget::openShortcutsConfigClicked, actionCollection(), [this]() {
         actionCollection()->action(u"options_configure_keybinding"_s)->trigger();
     });
     connect(m_startUpWidget, &StartUpWidget::mouseMoved,
@@ -171,12 +171,12 @@ void MainWindow::init()
             this, &MainWindow::onAddBookmark);
     connect(m_view, &View::mouseMoved,
             this, &MainWindow::onMouseMoved);
-    connect(m_view, &View::addBookmark, this, [=]() {
+    connect(m_view, &View::addBookmark, this, [this]() {
         if (!isFullScreen())
             m_bookmarksDock->setVisible(true);
         m_bookmarksDock->setProperty("isEmpty", false);
     });
-    connect(m_view, &View::fileDropped, this, [=] (const QString &file) {
+    connect(m_view, &View::fileDropped, this, [this] (const QString &file) {
         loadImages(file, true);
     });
     centralWidgetLayout->addWidget(m_view);
@@ -240,7 +240,7 @@ void MainWindow::setupMangaTreeDockWidget()
     m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
 
     m_selectMangaLibraryComboBox = new QComboBox(treeDockWidget);
-    connect(m_selectMangaLibraryComboBox, &QComboBox::currentTextChanged, this, [=](const QString &path) {
+    connect(m_selectMangaLibraryComboBox, &QComboBox::currentTextChanged, this, [this](const QString &path) {
         m_treeModel->setRootPath(path);
         m_treeView->setRootIndex(m_treeModel->index(path));
         m_treeDock->setWindowTitle(path);
@@ -254,14 +254,14 @@ void MainWindow::setupMangaTreeDockWidget()
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
-    connect(action, &QAction::triggered, this, [=]() {
+    connect(action, &QAction::triggered, this, [this]() {
         QString path = m_treeModel->filePath(m_treeView->selectionModel()->currentIndex());
         m_currentPath = path;
         m_startPage = 0;
         loadImages(path);
     });
     m_treeView->addAction(action);
-    connect(m_treeView, &QTreeView::doubleClicked, this, [=](const QModelIndex &index) {
+    connect(m_treeView, &QTreeView::doubleClicked, this, [this](const QModelIndex &index) {
         // get path from index
         QString path = m_treeModel->filePath(index);
         m_currentPath = path;
@@ -311,7 +311,7 @@ void MainWindow::setupBookmarksDockWidget()
         populateBookmarkModel();
     }
 
-    auto openBookmark = [=](const QModelIndex &index) {
+    auto openBookmark = [this](const QModelIndex &index) {
         QModelIndex cellIndex = m_bookmarksModel->index(index.row(), 1);
         m_startPage  = m_bookmarksModel->data(cellIndex, IndexRole).toInt();
         QString path = m_bookmarksModel->data(cellIndex, PathRole).toString();
@@ -332,7 +332,7 @@ void MainWindow::setupBookmarksDockWidget()
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
-    connect(action, &QAction::triggered, this, [=]() {
+    connect(action, &QAction::triggered, this, [this, openBookmark]() {
         if (m_bookmarksView->selectionModel()->selectedRows().count() == 0) {
             return;
         }
@@ -341,14 +341,14 @@ void MainWindow::setupBookmarksDockWidget()
     });
     m_bookmarksView->addAction(action);
 
-    connect(m_bookmarksModel, &QAbstractItemModel::rowsRemoved, this, [=]() {
+    connect(m_bookmarksModel, &QAbstractItemModel::rowsRemoved, this, [this]() {
         if (m_bookmarksModel->rowCount() == 0) {
             m_bookmarksDock->setVisible(false);
             m_bookmarksDock->setProperty("isEmpty", true);
         }
     });
 
-    connect(m_bookmarksView, &QTableView::doubleClicked, this, [=](const QModelIndex &index) {
+    connect(m_bookmarksView, &QTableView::doubleClicked, this, [openBookmark](const QModelIndex &index) {
         openBookmark(index);
     });
 
@@ -357,7 +357,7 @@ void MainWindow::setupBookmarksDockWidget()
 
     auto deleteButton = new QPushButton();
     deleteButton->setText(i18n("Delete Selected Bookmarks"));
-    connect(deleteButton, &QPushButton::clicked, this, [=]() {
+    connect(deleteButton, &QPushButton::clicked, this, [this]() {
         deleteBookmarks(m_bookmarksView);
     });
 
@@ -591,7 +591,7 @@ void MainWindow::setupActions()
     colorSchemeAction->setPopupMode(QToolButton::InstantPopup);
     actionCollection()->addAction(u"colorSchemeChooser"_s, colorSchemeAction);
 
-    connect(colorSchemeAction->menu(), &QMenu::triggered, this, [=](QAction *triggeredAction) {
+    connect(colorSchemeAction->menu(), &QMenu::triggered, this, [this](QAction *triggeredAction) {
         KConfigGroup cg(m_config, u"UiSettings"_s);
         cg.writeEntry("ColorScheme", KLocalizedString::removeAcceleratorMarker(triggeredAction->text()));
         cg.sync();
@@ -601,7 +601,7 @@ void MainWindow::setupActions()
     focusMangaTree->setText(i18n("Focus Manga Tree"));
     actionCollection()->addAction(u"focusTree"_s, focusMangaTree);
     actionCollection()->setDefaultShortcuts(focusMangaTree, {Qt::Key_N, Qt::CTRL | Qt::Key_N});
-    connect(focusMangaTree, &QAction::triggered, this, [=]() {
+    connect(focusMangaTree, &QAction::triggered, this, [this]() {
         m_treeView->setFocus();
     });
 
@@ -609,7 +609,7 @@ void MainWindow::setupActions()
     focusBookmarksTable->setText(i18n("Focus Manga Bookmarks"));
     actionCollection()->addAction(u"focusBookmarksTable"_s, focusBookmarksTable);
     actionCollection()->setDefaultShortcuts(focusBookmarksTable, {Qt::Key_B, Qt::CTRL | Qt::Key_B});
-    connect(focusBookmarksTable, &QAction::triggered, this, [=]() {
+    connect(focusBookmarksTable, &QAction::triggered, this, [this]() {
         m_bookmarksView->setFocus();
     });
 
@@ -617,7 +617,7 @@ void MainWindow::setupActions()
     focusView->setText(i18n("Focus Manga Viewer"));
     actionCollection()->addAction(u"focusView"_s, focusView);
     actionCollection()->setDefaultShortcuts(focusView, {Qt::Key_V, Qt::CTRL | Qt::Key_V});
-    connect(focusView, &QAction::triggered, this, [=]() {
+    connect(focusView, &QAction::triggered, this, [this]() {
         m_view->setFocus();
     });
 
@@ -626,7 +626,7 @@ void MainWindow::setupActions()
     addMangaFolderAction->setIcon(QIcon::fromTheme(u"folder-add"_s));
     actionCollection()->addAction(u"addMangaFolder"_s, addMangaFolderAction);
     actionCollection()->setDefaultShortcut(addMangaFolderAction, Qt::CTRL | Qt::Key_A);
-    connect(addMangaFolderAction, &QAction::triggered, this, [=]() {
+    connect(addMangaFolderAction, &QAction::triggered, this, [this]() {
         openSettings();
         m_settingsWindow->addMangaFolderButton()->click();
     });
@@ -671,19 +671,19 @@ void MainWindow::setupActions()
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
-    connect(action, &QAction::triggered, this, [=]() {
+    connect(action, &QAction::triggered, this, [this, goToSpinBox]() {
         if (goToSpinBox->value() <= m_view->imageCount()) {
             m_view->goToPage(goToSpinBox->value() - 1);
         }
     });
     connect(goToSpinBox, qOverload<int>(&QSpinBox::valueChanged), action, &QAction::trigger);
-    connect(m_view, &View::currentImageChanged, this, [=](int page) {
+    connect(m_view, &View::currentImageChanged, this, [goToSpinBox](int page) {
         goToSpinBox->blockSignals(true);
         goToSpinBox->setValue(page + 1);
         goToSpinBox->blockSignals(false);
     });
     goToSpinBox->addAction(action);
-    connect(m_view, &View::imagesLoaded, this, [=](int page) {
+    connect(m_view, &View::imagesLoaded, this, [this, goToSpinBox](int page) {
         goToSpinBox->blockSignals(true);
         goToSpinBox->setRange(1, m_view->imageCount());
         goToSpinBox->setValue(page + 1);
@@ -691,7 +691,7 @@ void MainWindow::setupActions()
     });
     auto goToButton = new QToolButton();
     goToButton->setText(i18n("Go to page"));
-    connect(goToButton, &QToolButton::clicked, this, [=]() {
+    connect(goToButton, &QToolButton::clicked, this, [this, goToSpinBox]() {
         m_view->goToPage(goToSpinBox->value() - 1);
     });
     goToLayout->addWidget(goToButton);
@@ -741,7 +741,7 @@ void MainWindow::setupActions()
     KStandardAction::zoomOut(m_view, &View::zoomOut, actionCollection());
     KStandardAction::showMenubar(this, &MainWindow::toggleMenubar, actionCollection());
     KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
-    KStandardAction::donate(this, [=]() {
+    KStandardAction::donate(this, []() {
         QDesktopServices::openUrl(QUrl(u"https://github.com/sponsors/g-fb"_s));
     }, actionCollection());
     KStandardAction::quit(QApplication::instance(), &QApplication::quit, actionCollection());
@@ -752,7 +752,7 @@ void MainWindow::setupActions()
     toggleFullScreenAction->setIcon(QIcon::fromTheme(u"view-fullscreen"_s, fallbackIcon));
     actionCollection()->addAction(u"fullscreen"_s, toggleFullScreenAction);
     actionCollection()->setDefaultShortcuts(toggleFullScreenAction, {Qt::Key_F11});
-    connect(toggleFullScreenAction, &QAction::triggered, this, [=]() {
+    connect(toggleFullScreenAction, &QAction::triggered, this, [this]() {
         toggleFullScreen();
     });
     connect(m_view, &View::doubleClicked,
@@ -855,20 +855,20 @@ void MainWindow::treeViewContextMenu(QPoint point)
     menu->addAction(openPath);
     menu->addAction(openContainingFolder);
 
-    connect(load, &QAction::triggered, this, [=]() {
+    connect(load, &QAction::triggered, this, [this, path]() {
         loadImages(path);
     });
-    connect(loadRecursive, &QAction::triggered, this, [=]() {
+    connect(loadRecursive, &QAction::triggered, this, [this, path]() {
         loadImages(path, true);
     });
 
-    connect(rename, &QAction::triggered, this, [=]() {
+    connect(rename, &QAction::triggered, this, [this, path, pathInfo]() {
         QUrl url(path);
         url.setScheme(u"file"_s);
         KFileItem item(url);
         auto renameDialog = new KIO::RenameFileDialog(KFileItemList({item}), nullptr);
         renameDialog->open();
-        connect(renameDialog, &KIO::RenameFileDialog::renamingFinished, this, [=](const QList<QUrl> &urls) {
+        connect(renameDialog, &KIO::RenameFileDialog::renamingFinished, this, [this, path, pathInfo](const QList<QUrl> &urls) {
             auto newName = urls.first().toLocalFile();
             if (m_currentPath == path && !pathInfo.isDir()) {
                 m_currentPath = newName;
@@ -900,7 +900,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
         });
     });
 
-    connect(openPath, &QAction::triggered, this, [=]() {
+    connect(openPath, &QAction::triggered, this, [path]() {
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         auto job = new KIO::OpenUrlJob(url);
@@ -908,7 +908,7 @@ void MainWindow::treeViewContextMenu(QPoint point)
         job->start();
     });
 
-    connect(openContainingFolder, &QAction::triggered, this, [=]() {
+    connect(openContainingFolder, &QAction::triggered, this, [path]() {
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         KIO::highlightInFileManager({url});
@@ -924,7 +924,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
     auto contextMenu = new QMenu();
     auto action = new QAction(QIcon::fromTheme(u"unknown"_s), i18n("Open"));
     contextMenu->addAction(action);
-    connect(action, &QAction::triggered, this, [=]() {
+    connect(action, &QAction::triggered, this, [path]() {
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         auto job = new KIO::OpenUrlJob(url);
@@ -935,7 +935,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
     action = new QAction(QIcon::fromTheme(u"folder-open"_s), i18n("Open containing folder"));
     contextMenu->addAction(action);
 
-    connect(action, &QAction::triggered, this, [=]() {
+    connect(action, &QAction::triggered, this, [path]() {
         QUrl url(path);
         url.setScheme(QStringLiteral("file"));
         KIO::highlightInFileManager({url});
@@ -945,7 +945,7 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
 
     action = new QAction(QIcon::fromTheme(u"delete"_s), i18n("Delete Selected Bookmark(s)"));
     contextMenu->addAction(action);
-    connect(action, &QAction::triggered, this, [=]() {
+    connect(action, &QAction::triggered, this, [this]() {
         deleteBookmarks(m_bookmarksView);
     });
     contextMenu->popup(QCursor::pos());
@@ -1130,7 +1130,7 @@ void MainWindow::openSettings()
     m_settingsWindow->show();
 
     connect(m_settingsWindow, &SettingsWindow::settingsChanged, m_view, &View::refreshPages);
-    connect(m_settingsWindow, &SettingsWindow::settingsChanged, this, [=]() {
+    connect(m_settingsWindow, &SettingsWindow::settingsChanged, this, [this]() {
         QString mangaFolder = m_config->group(QString()).readEntry("Manga Folder");
         if (MangaReaderSettings::mangaFolders().count() > 0) {
             // if current manga folder is empty or not in the manga folders list

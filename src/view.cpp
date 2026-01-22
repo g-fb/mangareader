@@ -38,7 +38,7 @@ View::View(MainWindow *parent)
     m_resizeTimer = new QTimer(this);
     m_resizeTimer->setInterval(100);
     m_resizeTimer->setSingleShot(true);
-    connect(m_resizeTimer, &QTimer::timeout, this, [=]() {
+    connect(m_resizeTimer, &QTimer::timeout, this, [this]() {
         for (Page *p : std::as_const(m_pages)) {
             p->redrawImage();
         }
@@ -78,7 +78,7 @@ View::View(MainWindow *parent)
 
     connect(verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &View::onScrollBarRangeChanged);
-    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [=]() {
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
         QPoint topCenter = QPoint(m_scene->width()/2, 1);
         Page *p = qgraphicsitem_cast<Page *>(itemAt(topCenter));
         if (p) {
@@ -95,7 +95,7 @@ void View::setupActions()
 
     auto scrollToStart = new QAction(i18n("Scroll To Start"));
     scrollToStart->setShortcutContext(Qt::WidgetShortcut);
-    connect(scrollToStart, &QAction::triggered, this, [=]() {
+    connect(scrollToStart, &QAction::triggered, this, [this]() {
         verticalScrollBar()->setValue(verticalScrollBar()->minimum());
     });
     collection->setDefaultShortcut(scrollToStart, Qt::CTRL | Qt::Key_Home);
@@ -103,7 +103,7 @@ void View::setupActions()
 
     auto scrollToEnd = new QAction(i18n("Scroll To End"));
     scrollToEnd->setShortcutContext(Qt::WidgetShortcut);
-    connect(scrollToEnd, &QAction::triggered, this, [=]() {
+    connect(scrollToEnd, &QAction::triggered, this, [this]() {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
     collection->setDefaultShortcut(scrollToEnd, Qt::CTRL | Qt::Key_End);
@@ -111,7 +111,7 @@ void View::setupActions()
 
     auto scrollUp = new QAction(i18n("Scroll Up"));
     scrollUp->setShortcutContext(Qt::WidgetShortcut);
-    connect(scrollUp, &QAction::triggered, this, [=]() {
+    connect(scrollUp, &QAction::triggered, this, [this]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
         }
@@ -121,7 +121,7 @@ void View::setupActions()
 
     auto scrollDown = new QAction(i18n("Scroll Down"));
     scrollDown->setShortcutContext(Qt::WidgetShortcut);
-    connect(scrollDown, &QAction::triggered, this, [=]() {
+    connect(scrollDown, &QAction::triggered, this, [this]() {
         for (int i = 0; i < 3; ++i) {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
         }
@@ -131,7 +131,7 @@ void View::setupActions()
 
     auto scrollUpOneScreen = new QAction(i18n("Scroll Up One Screen"));
     scrollUpOneScreen->setShortcutContext(Qt::WidgetShortcut);
-    connect(scrollUpOneScreen, &QAction::triggered, this, [=]() {
+    connect(scrollUpOneScreen, &QAction::triggered, this, [this]() {
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
     });
     collection->setDefaultShortcuts(scrollUpOneScreen, {Qt::Key_PageUp, Qt::SHIFT | Qt::Key_Space});
@@ -139,7 +139,7 @@ void View::setupActions()
 
     auto scrollDownOneScreen = new QAction(i18n("Scroll Down One Screen"));
     scrollDownOneScreen->setShortcutContext(Qt::WidgetShortcut);
-    connect(scrollDownOneScreen, &QAction::triggered, this, [=]() {
+    connect(scrollDownOneScreen, &QAction::triggered, this, [this]() {
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
     });
     collection->setDefaultShortcuts(scrollDownOneScreen, {Qt::Key_PageDown, Qt::Key_Space});
@@ -147,7 +147,7 @@ void View::setupActions()
 
     auto nextPage = new QAction(i18n("Next Page"));
     nextPage->setShortcutContext(Qt::WidgetShortcut);
-    connect(nextPage, &QAction::triggered, this, [=]() {
+    connect(nextPage, &QAction::triggered, this, [this]() {
         if (m_firstVisible < m_pages.count() - 1) {
             goToPage(m_firstVisible + 1);
         }
@@ -157,7 +157,7 @@ void View::setupActions()
 
     auto prevPage = new QAction(i18n("Previous Page"));
     prevPage->setShortcutContext(Qt::WidgetShortcut);
-    connect(prevPage, &QAction::triggered, this, [=]() {
+    connect(prevPage, &QAction::triggered, this, [this]() {
         if (m_firstVisible > 0) {
             goToPage(m_firstVisible - 1);
         }
@@ -493,16 +493,16 @@ void View::contextMenuEvent(QContextMenuEvent *event)
         QIcon zoomActionIcon = page->isZoomToggled()
                 ? QIcon::fromTheme(u"zoom-out"_s)
                 : QIcon::fromTheme(u"zoom-in"_s);
-        menu->addAction(zoomActionIcon, zoomActionText, this, [=]() {
+        menu->addAction(zoomActionIcon, zoomActionText, this, [this, page]() {
             togglePageZoom(page);
             calculatePageSizes();
         });
 
-        menu->addAction(QIcon::fromTheme(u"folder-bookmark"_s), i18n("Set Bookmark"), this, [=] {
+        menu->addAction(QIcon::fromTheme(u"folder-bookmark"_s), i18n("Set Bookmark"), this, [this, page] {
             Q_EMIT addBookmark(page->number());
         });
 
-        menu->addAction(QIcon::fromTheme(u"selection-make-bitmap-copy"_s), i18n("Copy Image"), this, [=] {
+        menu->addAction(QIcon::fromTheme(u"selection-make-bitmap-copy"_s), i18n("Copy Image"), this, [page] {
             QApplication::clipboard()->setImage(page->image());
         });
         menu->popup(event->globalPos());
