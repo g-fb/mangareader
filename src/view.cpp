@@ -16,6 +16,7 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QPropertyAnimation>
 #include <QScrollBar>
 #include <QTimer>
 
@@ -32,6 +33,11 @@
 View::View(MainWindow *parent)
     : QGraphicsView{ parent }
 {
+    auto *vBar = verticalScrollBar();
+    m_scrollAnimation = new QPropertyAnimation(vBar, "value", this);
+    m_scrollAnimation->setEasingCurve(QEasingCurve::OutCubic);
+    m_scrollAnimation->setDuration(150);
+
     KXMLGUIClient::setComponentName(QStringLiteral("mangareader"), i18n("View"));
     setXMLFile(QStringLiteral("viewui.rc"));
 
@@ -473,8 +479,34 @@ void View::wheelEvent(QWheelEvent *event)
             // zoom out, not smaller that the initial size
             zoomOut();
         }
+        event->accept();
     } else {
-        QGraphicsView::wheelEvent(event);
+        const int delta = event->angleDelta().y();
+        if (delta == 0) {
+            return;
+        }
+
+        auto *bar = verticalScrollBar();
+
+        // initialize target on first scroll
+        if (m_scrollAnimation->state() != QAbstractAnimation::Running) {
+            m_targetScrollValue = bar->value();
+        }
+
+        // accumulate scroll distance
+        const int step = delta;
+        m_targetScrollValue -= step;
+
+        // clamp to scrollbar range
+        m_targetScrollValue = qBound(bar->minimum(), m_targetScrollValue, bar->maximum());
+
+        // restart animation from current position
+        m_scrollAnimation->stop();
+        m_scrollAnimation->setStartValue(bar->value());
+        m_scrollAnimation->setEndValue(m_targetScrollValue);
+        m_scrollAnimation->start();
+
+        event->accept();
     }
 }
 

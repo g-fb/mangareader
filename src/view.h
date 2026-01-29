@@ -14,6 +14,7 @@
 class KArchive;
 class Page;
 class QGraphicsScene;
+class QPropertyAnimation;
 class MainWindow;
 
 class View : public QGraphicsView, public KXMLGUIClient
@@ -90,6 +91,9 @@ private:
     QTimer          *m_resizeTimer{};
     KArchive        *m_archive {};
     bool m_loadFromMemory {false};
+
+    QPropertyAnimation *m_scrollAnimation{nullptr};
+    int m_targetScrollValue{0};
 };
 
 #endif // VIEW_H
