@@ -43,11 +43,11 @@
 #include <KIO/JobUiDelegateFactory>
 #include <KIO/OpenFileManagerWindowJob>
 #include <KIO/OpenUrlJob>
-#include <KIO/RenameFileDialog>
 #include <KLocalizedString>
 #include <KToolBar>
 
 #include "extractor.h"
+#include "mangatreewidget.h"
 #include "settings.h"
 #include "settingswindow.h"
 #include "startupwidget.h"
@@ -58,8 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow{ parent }
     , m_view{ new View(this) }
     , m_treeDock{ new QDockWidget() }
-    , m_treeView{ new QTreeView() }
-    , m_treeModel{ new QFileSystemModel() }
+    , m_mangaTreeWidget{ new MangaTreeWidget }
     , m_bookmarksDock{ new QDockWidget() }
     , m_bookmarksView{ new QTableView() }
     , m_bookmarksModel{ new QStandardItemModel(0, 2, this) }
@@ -221,28 +220,9 @@ void MainWindow::setupMangaTreeDockWidget()
     m_treeDock->setProperty("h", 0);
     m_treeDock->setProperty("isEmpty", mangaFolder.isEmpty());
 
-    m_treeModel->setObjectName("mangaTree");
-    m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
-    m_treeModel->setNameFilters(QStringList() << u"*.zip"_s << u"*.cbz"_s
-                                              << u"*.rar"_s << u"*.cbr"_s
-                                              << u"*.7z"_s  << u"*.cb7"_s
-                                              << u"*.tar"_s << u"*.cbt"_s);
-    m_treeModel->setNameFilterDisables(false);
-
-    m_treeView->setModel(m_treeModel);
-    m_treeView->setColumnHidden(1, true);
-    m_treeView->setColumnHidden(2, true);
-    m_treeView->setColumnHidden(3, true);
-    m_treeView->header()->hide();
-    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    m_treeModel->setRootPath(mangaFolder);
-    m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
-
     m_selectMangaLibraryComboBox = new QComboBox(treeDockWidget);
     connect(m_selectMangaLibraryComboBox, &QComboBox::currentTextChanged, this, [this](const QString &path) {
-        m_treeModel->setRootPath(path);
-        m_treeView->setRootIndex(m_treeModel->index(path));
+        m_mangaTreeWidget->setMangaFolder(path);
         m_treeDock->setWindowTitle(path);
         m_config->group(QString()).writeEntry("Manga Folder", path);
         m_config->sync();
@@ -251,27 +231,45 @@ void MainWindow::setupMangaTreeDockWidget()
     populateLibrarySelectionComboBox();
     m_selectMangaLibraryComboBox->setCurrentText(mangaFolder);
 
-    auto action = new QAction();
-    action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
-    action->setShortcutContext(Qt::WidgetShortcut);
-    connect(action, &QAction::triggered, this, [this]() {
-        QString path = m_treeModel->filePath(m_treeView->selectionModel()->currentIndex());
-        m_currentPath = path;
-        m_startPage = 0;
-        loadImages(path);
-    });
-    m_treeView->addAction(action);
-    connect(m_treeView, &QTreeView::doubleClicked, this, [this](const QModelIndex &index) {
-        // get path from index
-        QString path = m_treeModel->filePath(index);
-        m_currentPath = path;
-        m_startPage = 0;
-        loadImages(path);
-    });
-    connect(m_treeView, &QTreeView::customContextMenuRequested,
-            this, &MainWindow::treeViewContextMenu);
 
-    treeDockLayout->addWidget(m_treeView);
+    connect(m_mangaTreeWidget, &MangaTreeWidget::open, this, [this](QString path, bool resume, bool recursive) {
+        if (!resume) {
+            m_currentPath = path;
+            m_startPage = 0;
+        }
+        loadImages(path, recursive);
+    });
+    connect(m_mangaTreeWidget, &MangaTreeWidget::renamed, this, [this](QString oldName, QString newName) {
+        QFileInfo pathInfo(oldName);
+        if (m_currentPath == oldName && !pathInfo.isDir()) {
+            m_currentPath = newName;
+        }
+        // Delete bookmarks for old name
+        // and create new bookmarks for the new name
+        // keys for normal and recursive bookmarks
+        const QString &key = oldName;
+        const QString &recursiveKey = RECURSIVE_KEY_PREFIX + oldName;
+
+        // get the values for both bookmarks
+        KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_s);
+        QString bookmark = bookmarksGroup.readEntry(key);
+        QString recursiveBookmark = bookmarksGroup.readEntry(recursiveKey);
+
+        // delete and create new bookmarks
+        if (!bookmark.isEmpty()) {
+            bookmarksGroup.deleteEntry(key);
+            bookmarksGroup.writeEntry(newName, bookmark);
+        }
+        if (!recursiveBookmark.isEmpty()) {
+            bookmarksGroup.deleteEntry(recursiveKey);
+            bookmarksGroup.writeEntry(RECURSIVE_KEY_PREFIX + newName, recursiveBookmark);
+        }
+        bookmarksGroup.config()->sync();
+
+        m_bookmarksModel->removeRows(0, m_bookmarksModel->rowCount());
+        populateBookmarkModel();
+    });
+    treeDockLayout->addWidget(m_mangaTreeWidget);
     m_treeDock->setWidget(treeDockWidget);
     addDockWidget(Qt::LeftDockWidgetArea, m_treeDock);
     if (m_treeDock->property("isEmpty").toBool()) {
@@ -602,7 +600,7 @@ void MainWindow::setupActions()
     actionCollection()->addAction(u"focusTree"_s, focusMangaTree);
     actionCollection()->setDefaultShortcuts(focusMangaTree, {Qt::Key_N, Qt::CTRL | Qt::Key_N});
     connect(focusMangaTree, &QAction::triggered, this, [this]() {
-        m_treeView->setFocus();
+        m_mangaTreeWidget->treeView()->setFocus();
     });
 
     auto focusBookmarksTable = new QAction();
@@ -822,98 +820,6 @@ void MainWindow::showError(const QString& error)
     auto layout = qobject_cast<QGridLayout*>(errorWindow.layout());
     layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
     errorWindow.exec();
-}
-
-void MainWindow::treeViewContextMenu(QPoint point)
-{
-    QModelIndex index = m_treeView->indexAt(point);
-    QString path = m_treeModel->filePath(index);
-    QFileInfo pathInfo(path);
-
-    auto menu = new QMenu();
-    menu->setMinimumWidth(200);
-
-    auto load = new QAction(QIcon::fromTheme(u"arrow-down"_s), i18n("Load"));
-    m_treeView->addAction(load);
-
-    auto loadRecursive = new QAction(QIcon::fromTheme(u"arrow-down-double"_s), i18n("Load recursive"));
-    m_treeView->addAction(loadRecursive);
-
-    auto rename = new QAction(QIcon::fromTheme(u"edit-rename"_s), i18n("Rename"));
-    m_treeView->addAction(rename);
-
-    auto openPath = new QAction(QIcon::fromTheme(u"unknown"_s), i18n("Open"));
-    m_treeView->addAction(openPath);
-
-    auto openContainingFolder = new QAction(QIcon::fromTheme(u"folder-open"_s), i18n("Open containing folder"));
-    m_treeView->addAction(openContainingFolder);
-
-    menu->addAction(load);
-    menu->addAction(loadRecursive);
-    menu->addAction(rename);
-    menu->addSeparator();
-    menu->addAction(openPath);
-    menu->addAction(openContainingFolder);
-
-    connect(load, &QAction::triggered, this, [this, path]() {
-        loadImages(path);
-    });
-    connect(loadRecursive, &QAction::triggered, this, [this, path]() {
-        loadImages(path, true);
-    });
-
-    connect(rename, &QAction::triggered, this, [this, path, pathInfo]() {
-        QUrl url(path);
-        url.setScheme(u"file"_s);
-        KFileItem item(url);
-        auto renameDialog = new KIO::RenameFileDialog(KFileItemList({item}), nullptr);
-        renameDialog->open();
-        connect(renameDialog, &KIO::RenameFileDialog::renamingFinished, this, [this, path, pathInfo](const QList<QUrl> &urls) {
-            auto newName = urls.first().toLocalFile();
-            if (m_currentPath == path && !pathInfo.isDir()) {
-                m_currentPath = newName;
-            }
-            // Delete bookmarks for old name
-            // and create new bookmarks for the new name
-            // keys for normal and recursive bookmarks
-            const QString &key = path;
-            const QString &recursiveKey = RECURSIVE_KEY_PREFIX + path;
-
-            // get the values for both bookmarks
-            KConfigGroup bookmarksGroup = m_config->group(u"Bookmarks"_s);
-            QString bookmark = bookmarksGroup.readEntry(key);
-            QString recursiveBookmark = bookmarksGroup.readEntry(recursiveKey);
-
-            // delete and create new bookmarks
-            if (!bookmark.isEmpty()) {
-                bookmarksGroup.deleteEntry(key);
-                bookmarksGroup.writeEntry(newName, bookmark);
-            }
-            if (!recursiveBookmark.isEmpty()) {
-                bookmarksGroup.deleteEntry(recursiveKey);
-                bookmarksGroup.writeEntry(RECURSIVE_KEY_PREFIX + newName, recursiveBookmark);
-            }
-            bookmarksGroup.config()->sync();
-
-            m_bookmarksModel->removeRows(0, m_bookmarksModel->rowCount());
-            populateBookmarkModel();
-        });
-    });
-
-    connect(openPath, &QAction::triggered, this, [path]() {
-        QUrl url(path);
-        url.setScheme(QStringLiteral("file"));
-        auto job = new KIO::OpenUrlJob(url);
-        job->setUiDelegate(KIO::createDefaultJobUiDelegate());
-        job->start();
-    });
-
-    connect(openContainingFolder, &QAction::triggered, this, [path]() {
-        QUrl url(path);
-        url.setScheme(QStringLiteral("file"));
-        KIO::highlightInFileManager({url});
-    });
-    menu->exec(QCursor::pos());
 }
 
 void MainWindow::bookmarksViewContextMenu(QPoint point)
@@ -1137,8 +1043,7 @@ void MainWindow::openSettings()
             // set first folder in manga folders list as current
             if (mangaFolder.isEmpty() || !MangaReaderSettings::mangaFolders().contains(mangaFolder)) {
                 QString firstMangaFolder = MangaReaderSettings::mangaFolders().at(0);
-                m_treeModel->setRootPath(firstMangaFolder);
-                m_treeView->setRootIndex(m_treeModel->index(firstMangaFolder));
+                m_mangaTreeWidget->setMangaFolder(firstMangaFolder);
                 m_treeDock->setVisible(true);
                 m_treeDock->setProperty("isEmpty", false);
                 m_config->group(QString()).writeEntry("Manga Folder", firstMangaFolder);
