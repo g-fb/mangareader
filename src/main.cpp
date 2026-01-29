@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
+    QApplication::setWindowIcon(QIcon::fromTheme(u"mangareader"_s, QIcon(u":/icons/mangareader"_s)));
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     QApplication::setStyle(QStringLiteral("Breeze"));
@@ -60,7 +61,6 @@ int main(int argc, char *argv[])
     const QStringList args = parser.positionalArguments();
 
     auto w = new MainWindow();
-    w->setWindowIcon(QIcon::fromTheme(u"mangareader"_s));
     w->show();
 
     if (args.count() > 0 && !args.at(0).isEmpty()) {
