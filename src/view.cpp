@@ -481,6 +481,11 @@ void View::wheelEvent(QWheelEvent *event)
         }
         event->accept();
     } else {
+        if (!MangaReaderSettings::smoothScrolling()) {
+            QGraphicsView::wheelEvent(event);
+            return;
+        }
+
         const int delta = event->angleDelta().y();
         if (delta == 0) {
             return;

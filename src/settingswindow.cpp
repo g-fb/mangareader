@@ -92,6 +92,16 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     // end upscale images
 
 
+    // smooth scrolling
+    auto smoothScrolling = new QCheckBox(this);
+    smoothScrolling->setObjectName(QStringLiteral("kcfg_SmoothScrolling"));
+    smoothScrolling->setText(i18n("Smooth scrolling"));
+    smoothScrolling->setChecked(MangaReaderSettings::smoothScrolling());
+    smoothScrolling->setToolTip(i18n("When checked smooth scrolling will be enabled."));
+    formLayout->addRow(QLatin1String(), smoothScrolling);
+    // end smooth scrolling
+
+
     // resize timer
     auto resizeTimer = new QCheckBox(this);
     resizeTimer->setObjectName(QStringLiteral("kcfg_UseResizeTimer"));
