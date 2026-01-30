@@ -854,30 +854,28 @@ void MainWindow::bookmarksViewContextMenu(QPoint point)
 
 void MainWindow::hideDockWidgets(Qt::DockWidgetAreas area)
 {
-    const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
-    for (QDockWidget *dockWidget : dockWidgets) {
-        if ((dockWidgetArea(dockWidget) == area || area == Qt::AllDockWidgetAreas)
-                && !dockWidget->isFloating()) {
-            bool isEmpty = dockWidget->property("isEmpty").toBool();
-            if (!isEmpty) {
-                dockWidget->setVisible(false);
-            }
-        }
+
+    const auto treeDockArea = dockWidgetArea(m_treeDock);
+    const auto bookmarkDockArea = dockWidgetArea(m_bookmarksDock);
+
+    if (treeDockArea == area || area == Qt::AllDockWidgetAreas) {
+        m_treeDock->setVisible(false);
+    }
+    if (bookmarkDockArea == area || area == Qt::AllDockWidgetAreas) {
+        m_bookmarksDock->setVisible(false);
     }
 }
 
 void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
 {
-    QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
-    for (int i = dockWidgets.size(); i > 0; i--) {
-        if ((dockWidgetArea(dockWidgets.at(i-1)) == area || area == Qt::AllDockWidgetAreas)
-                && !dockWidgets.at(i-1)->isFloating()) {
-            QDockWidget *dockWidget = dockWidgets.at(i-1);
-            bool isEmpty = dockWidget->property("isEmpty").toBool();
-            if (!isEmpty) {
-                dockWidget->setVisible(true);
-            }
-        }
+    const auto treeDockArea = dockWidgetArea(m_treeDock);
+    const auto bookmarkDockArea = dockWidgetArea(m_bookmarksDock);
+
+    if ((treeDockArea == area || area == Qt::AllDockWidgetAreas) && !m_treeDock->isFloating()) {
+        m_treeDock->setVisible(true);
+    }
+    if ((bookmarkDockArea == area || area == Qt::AllDockWidgetAreas) && !m_bookmarksDock->isFloating()) {
+        m_bookmarksDock->setVisible(true);
     }
 }
 
