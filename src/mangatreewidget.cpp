@@ -29,7 +29,7 @@ MangaTreeWidget::MangaTreeWidget()
                                               << u"*.tar"_s << u"*.cbt"_s);
     m_treeModel->setNameFilterDisables(false);
 
-    m_treeProxyModel = new QSortFilterProxyModel(this);
+    m_treeProxyModel = new FSProxyModel();
     m_treeProxyModel->setSourceModel(m_treeModel);
     m_treeProxyModel->setRecursiveFilteringEnabled(true);
     m_treeProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -42,10 +42,7 @@ MangaTreeWidget::MangaTreeWidget()
     m_treeView->header()->hide();
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    m_treeModel->setRootPath(mangaFolder);
-    m_treeView->setRootIndex(m_treeProxyModel->mapFromSource(m_treeModel->index(mangaFolder)));
-
-    auto action = new QAction();
+    auto action = new QAction(this);
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
     connect(action, &QAction::triggered, this, [this]() {
@@ -57,6 +54,13 @@ MangaTreeWidget::MangaTreeWidget()
     });
     m_treeView->addAction(action);
 
+    auto focusSearchFieldAction = new QAction(this);
+    focusSearchFieldAction->setShortcuts({Qt::CTRL | Qt::Key_F});
+    connect(focusSearchFieldAction, &QAction::triggered, this, [this]() {
+        m_searchField->setFocus();
+    });
+    m_treeView->addAction(focusSearchFieldAction);
+
     connect(m_treeView, &QTreeView::doubleClicked, this, [this](const QModelIndex &index) {
         const auto modelIndex = m_treeProxyModel->mapToSource(index);
         const QString path = m_treeModel->filePath(modelIndex);
@@ -64,15 +68,18 @@ MangaTreeWidget::MangaTreeWidget()
         const auto recursive{false};
         Q_EMIT open(path, resume, recursive);
     });
+
     connect(m_treeView, &QTreeView::customContextMenuRequested,
             this, &MangaTreeWidget::treeViewContextMenu);
 
     m_searchField = new QLineEdit(this);
-    m_searchField->setPlaceholderText(i18n("Search"));
+    m_searchField->setPlaceholderText(i18n("Search (Ctrl+F)"));
+
     connect(m_searchField, &QLineEdit::textChanged, m_treeProxyModel, [this]() {
         const auto regEx = QRegularExpression(m_searchField->text(), QRegularExpression::CaseInsensitiveOption);
         m_treeProxyModel->setFilterRegularExpression(regEx);
     });
+
     connect(m_treeModel, &QFileSystemModel::directoryLoaded, this, [this]() {
         // filter when model finished loading items
         // m_searchField->setText(u""_s);
@@ -95,7 +102,7 @@ QFileSystemModel *MangaTreeWidget::treeModel() const
 
 QString MangaTreeWidget::getMangaFolder() const
 {
-    return mangaFolder;
+    return m_mangaFolder;
 }
 
 void MangaTreeWidget::setMangaFolder(const QString &newMangaFolder)
@@ -104,7 +111,7 @@ void MangaTreeWidget::setMangaFolder(const QString &newMangaFolder)
     m_treeModel->setRootPath(newMangaFolder);
     m_treeView->setRootIndex(modelIndex);
 
-    mangaFolder = newMangaFolder;
+    m_mangaFolder = newMangaFolder;
 }
 
 void MangaTreeWidget::treeViewContextMenu(QPoint point)
@@ -175,4 +182,13 @@ void MangaTreeWidget::treeViewContextMenu(QPoint point)
         KIO::highlightInFileManager({url});
     });
     menu->exec(QCursor::pos());
+}
+
+bool FSProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    QFileSystemModel *sm = qobject_cast<QFileSystemModel*>(sourceModel());
+    if (source_parent == sm->index(sm->rootPath())) {
+        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+    }
+    return true;
 }

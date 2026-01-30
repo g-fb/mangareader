@@ -2,12 +2,18 @@
 #define MANGATREEVIEW_H
 
 #include <QObject>
+#include <QSortFilterProxyModel>
 #include <QWidget>
 
 class QTreeView;
 class QFileSystemModel;
 class QLineEdit;
-class QSortFilterProxyModel;
+
+class FSProxyModel : public QSortFilterProxyModel
+{
+protected:
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+};
 
 class MangaTreeWidget : public QWidget
 {
@@ -30,11 +36,11 @@ Q_SIGNALS:
 private:
     void treeViewContextMenu(QPoint point);
 
-    QTreeView             *m_treeView{};
-    QFileSystemModel      *m_treeModel{};
-    QSortFilterProxyModel *m_treeProxyModel{};
-    QLineEdit             *m_searchField{};
-    QString mangaFolder;
+    QTreeView        *m_treeView{};
+    QFileSystemModel *m_treeModel{};
+    FSProxyModel     *m_treeProxyModel{};
+    QLineEdit        *m_searchField{};
+    QString           m_mangaFolder;
 };
 
 #endif // MANGATREEVIEW_H
