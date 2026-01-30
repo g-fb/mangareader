@@ -72,7 +72,6 @@ private:
     void deleteBookmarks(QTableView *tableView);
     void openSettings();
     void toggleMenubar();
-    void setToolBarVisible(bool visible);
     void toggleFitHeight();
     void toggleFitWidth();
     auto isFullScreen() -> bool;

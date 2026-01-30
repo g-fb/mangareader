@@ -78,8 +78,15 @@ MainWindow::MainWindow(QWidget *parent)
     // setup toolbar
     toolBar(u"mainToolBar"_s)->setFloatable(false);
     toolBarMenuAction()->setShortcut(Qt::Key_T);
-    connect(toolBar(u"mainToolBar"_s), &QToolBar::visibilityChanged,
-            this, &MainWindow::setToolBarVisible);
+    connect(toolBar(u"mainToolBar"_s), &QToolBar::visibilityChanged, this, [this](bool visible) {
+        if (isFullScreen()) {
+            return;
+        }
+        MangaReaderSettings::setMainToolBarVisible(visible);
+        MangaReaderSettings::self()->save();
+
+    });
+
     if (MangaReaderSettings::fullscreenOnStartup()) {
         toggleFullScreen();
     }
@@ -768,17 +775,6 @@ void MainWindow::toggleMenubar()
     MangaReaderSettings::self()->save();
 }
 
-void MainWindow::setToolBarVisible(bool visible)
-{
-    if (isFullScreen())
-        return;
-
-    QToolBar *tb = toolBar(u"mainToolBar"_s);
-    tb->setVisible(visible);
-    MangaReaderSettings::setMainToolBarVisible(visible);
-    MangaReaderSettings::self()->save();
-}
-
 void MainWindow::toggleFitHeight()
 {
     MangaReaderSettings::setFitHeight(!MangaReaderSettings::fitHeight());
@@ -897,11 +893,11 @@ void MainWindow::hideToolBars(Qt::ToolBarAreas area)
 
 void MainWindow::showToolBars(Qt::ToolBarAreas area)
 {
+    const auto showToolbar = MangaReaderSettings::mainToolBarVisible() || isFullScreen();
     const QList<QToolBar *> toolBars = findChildren<QToolBar *>();
     for (QToolBar *toolBar : toolBars) {
         if ((toolBarArea(toolBar) == area || area == Qt::AllToolBarAreas) && !toolBar->isFloating()) {
-
-            toolBar->show();
+            toolBar->setVisible(showToolbar);
         }
     }
 }
@@ -1064,10 +1060,10 @@ void MainWindow::toggleFullScreen()
     if (isFullScreen()) {
         setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
         setWindowState(windowState() & ~Qt::WindowFullScreen);
-        if (MangaReaderSettings::mainToolBarVisible())
-            showToolBars();
-        if (MangaReaderSettings::menuBarVisible())
+        showToolBars();
+        if (MangaReaderSettings::menuBarVisible()) {
             menuBar()->show();
+        }
 
         showDockWidgets();
         int treeDockHeight = m_treeDock->property("h").toInt();
