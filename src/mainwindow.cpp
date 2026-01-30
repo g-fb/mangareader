@@ -77,8 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // setup toolbar
     toolBar(u"mainToolBar"_s)->setFloatable(false);
-    toolBarMenuAction()->setEnabled(false);
-    toolBarMenuAction()->setVisible(false);
+    toolBarMenuAction()->setShortcut(Qt::Key_T);
     connect(toolBar(u"mainToolBar"_s), &QToolBar::visibilityChanged,
             this, &MainWindow::setToolBarVisible);
     if (MangaReaderSettings::fullscreenOnStartup()) {
