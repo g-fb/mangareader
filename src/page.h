@@ -45,7 +45,7 @@ private:
     auto boundingRect() const -> QRectF override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    View    *m_view{};
+    View    *m_view{nullptr};
     QSize    m_scaledSize;
     QSize    m_sourceSize;
     int      m_maxWidth{-1};

@@ -37,9 +37,9 @@ Q_SIGNALS:
 
 private:
     void getImagesInArchive(const QString &prefix, const KArchiveDirectory *dir);
-    QString  m_archiveFile;
-    QTemporaryDir *m_tmpFolder {};
-    QStringList m_entries;
+    QString        m_archiveFile;
+    QTemporaryDir *m_tmpFolder{nullptr};
+    QStringList    m_entries;
 };
 
 #endif // EXTRACTOR_H

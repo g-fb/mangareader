@@ -23,7 +23,6 @@ Q_SIGNALS:
     void openSettingsClicked();
     void openShortcutsConfigClicked();
     void mouseMoved(QMouseEvent *event);
-
 };
 
 #endif // STARTUPWIDGET_H

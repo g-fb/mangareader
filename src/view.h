@@ -77,23 +77,22 @@ private:
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
 
-    QGraphicsScene  *m_scene{};
+    QGraphicsScene  *m_scene{nullptr};
     QString          m_manga;
     QStringList      m_files;
     QVector<Page*>   m_pages;
     QVector<int>     m_start;
     QVector<int>     m_end;
     QVector<int>     m_requestedPages;
-    int              m_startPage = 0;
-    int              m_firstVisible = -1;
-    float            m_firstVisibleOffset = 0.0f;
-    double           m_globalZoom = 1.0;
-    QTimer          *m_resizeTimer{};
-    KArchive        *m_archive {};
-    bool m_loadFromMemory {false};
-
+    int              m_startPage{0};
+    int              m_firstVisible{-1};
+    float            m_firstVisibleOffset{0.0f};
+    double           m_globalZoom{1.0};
+    QTimer          *m_resizeTimer{nullptr};
+    KArchive        *m_archive {nullptr};
+    bool             m_loadFromMemory {false};
     QPropertyAnimation *m_scrollAnimation{nullptr};
-    int m_targetScrollValue{0};
+    int              m_targetScrollValue{0};
 };
 
 #endif // VIEW_H
