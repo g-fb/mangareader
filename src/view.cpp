@@ -71,16 +71,16 @@ View::View(MainWindow *parent)
     setScene(m_scene);
 
     connect(this, &View::requestDriveImage,
-            Worker::instance(), &Worker::processDriveImageRequest);
+            Worker::instance(), &Worker::processDriveImageRequest, Qt::QueuedConnection);
 
     connect(this, &View::requestMemoryImage,
-            Worker::instance(), &Worker::processMemoryImageRequest);
+            Worker::instance(), &Worker::processMemoryImageRequest, Qt::QueuedConnection);
 
     connect(Worker::instance(), &Worker::imageReady,
-            this, &View::onImageReady);
+            this, &View::onImageReady, Qt::QueuedConnection);
 
     connect(Worker::instance(), &Worker::imageResized,
-            this, &View::onImageResized);
+            this, &View::onImageResized, Qt::QueuedConnection);
 
     connect(verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &View::onScrollBarRangeChanged);
