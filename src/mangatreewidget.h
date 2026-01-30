@@ -6,6 +6,8 @@
 
 class QTreeView;
 class QFileSystemModel;
+class QLineEdit;
+class QSortFilterProxyModel;
 
 class MangaTreeWidget : public QWidget
 {
@@ -28,8 +30,10 @@ Q_SIGNALS:
 private:
     void treeViewContextMenu(QPoint point);
 
-    QTreeView          *m_treeView{};
-    QFileSystemModel   *m_treeModel{};
+    QTreeView             *m_treeView{};
+    QFileSystemModel      *m_treeModel{};
+    QSortFilterProxyModel *m_treeProxyModel{};
+    QLineEdit             *m_searchField{};
     QString mangaFolder;
 };
 

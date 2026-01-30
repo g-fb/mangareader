@@ -3,7 +3,9 @@
 #include <QFileSystemModel>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLineEdit>
 #include <QMenu>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
 
 #include <KFileItem>
@@ -19,7 +21,6 @@ MangaTreeWidget::MangaTreeWidget()
     : m_treeView{ new QTreeView() }
     , m_treeModel{ new QFileSystemModel() }
 {
-
     m_treeModel->setObjectName("mangaTree");
     m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
     m_treeModel->setNameFilters(QStringList() << u"*.zip"_s << u"*.cbz"_s
@@ -28,7 +29,13 @@ MangaTreeWidget::MangaTreeWidget()
                                               << u"*.tar"_s << u"*.cbt"_s);
     m_treeModel->setNameFilterDisables(false);
 
-    m_treeView->setModel(m_treeModel);
+    m_treeProxyModel = new QSortFilterProxyModel(this);
+    m_treeProxyModel->setSourceModel(m_treeModel);
+    m_treeProxyModel->setRecursiveFilteringEnabled(true);
+    m_treeProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_treeProxyModel->setFilterKeyColumn(0);
+
+    m_treeView->setModel(m_treeProxyModel);
     m_treeView->setColumnHidden(1, true);
     m_treeView->setColumnHidden(2, true);
     m_treeView->setColumnHidden(3, true);
@@ -36,14 +43,14 @@ MangaTreeWidget::MangaTreeWidget()
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     m_treeModel->setRootPath(mangaFolder);
-    m_treeView->setRootIndex(m_treeModel->index(mangaFolder));
-
+    m_treeView->setRootIndex(m_treeProxyModel->mapFromSource(m_treeModel->index(mangaFolder)));
 
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
     action->setShortcutContext(Qt::WidgetShortcut);
     connect(action, &QAction::triggered, this, [this]() {
-        const QString path = m_treeModel->filePath(m_treeView->selectionModel()->currentIndex());
+        const auto modelIndex = m_treeProxyModel->mapToSource(m_treeView->selectionModel()->currentIndex());
+        const QString path = m_treeModel->filePath(modelIndex);
         const auto resume{false};
         const auto recursive{false};
         Q_EMIT open(path, resume, recursive);
@@ -51,7 +58,8 @@ MangaTreeWidget::MangaTreeWidget()
     m_treeView->addAction(action);
 
     connect(m_treeView, &QTreeView::doubleClicked, this, [this](const QModelIndex &index) {
-        const QString path = m_treeModel->filePath(index);
+        const auto modelIndex = m_treeProxyModel->mapToSource(index);
+        const QString path = m_treeModel->filePath(modelIndex);
         const auto resume{false};
         const auto recursive{false};
         Q_EMIT open(path, resume, recursive);
@@ -59,8 +67,19 @@ MangaTreeWidget::MangaTreeWidget()
     connect(m_treeView, &QTreeView::customContextMenuRequested,
             this, &MangaTreeWidget::treeViewContextMenu);
 
+    m_searchField = new QLineEdit(this);
+    m_searchField->setPlaceholderText(i18n("Search"));
+    connect(m_searchField, &QLineEdit::textChanged, m_treeProxyModel, [this]() {
+        const auto regEx = QRegularExpression(m_searchField->text(), QRegularExpression::CaseInsensitiveOption);
+        m_treeProxyModel->setFilterRegularExpression(regEx);
+    });
+    connect(m_treeModel, &QFileSystemModel::directoryLoaded, this, [this]() {
+        // filter when model finished loading items
+        // m_searchField->setText(u""_s);
+    });
 
-    auto *l = new QHBoxLayout(this);
+    auto *l = new QVBoxLayout(this);
+    l->addWidget(m_searchField);
     l->addWidget(m_treeView);
 }
 
@@ -81,8 +100,9 @@ QString MangaTreeWidget::getMangaFolder() const
 
 void MangaTreeWidget::setMangaFolder(const QString &newMangaFolder)
 {
+    const auto modelIndex = m_treeProxyModel->mapFromSource(m_treeModel->index(newMangaFolder));
     m_treeModel->setRootPath(newMangaFolder);
-    m_treeView->setRootIndex(m_treeModel->index(newMangaFolder));
+    m_treeView->setRootIndex(modelIndex);
 
     mangaFolder = newMangaFolder;
 }
@@ -90,7 +110,8 @@ void MangaTreeWidget::setMangaFolder(const QString &newMangaFolder)
 void MangaTreeWidget::treeViewContextMenu(QPoint point)
 {
     QModelIndex index = m_treeView->indexAt(point);
-    QString path = m_treeModel->filePath(index);
+    const auto modelIndex = m_treeProxyModel->mapToSource(index);
+    QString path = m_treeModel->filePath(modelIndex);
 
     auto menu = new QMenu();
     menu->setMinimumWidth(200);
