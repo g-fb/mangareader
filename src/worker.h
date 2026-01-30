@@ -13,9 +13,6 @@ class Worker : public QObject
 {
     Q_OBJECT
 public:
-    Worker() = default;
-    ~Worker() = default;
-
     Worker(const Worker &) = delete;
     Worker &operator=(const Worker &) = delete;
     Worker(Worker &&) = delete;
@@ -31,6 +28,10 @@ public Q_SLOTS:
 Q_SIGNALS:
     void imageReady(const QImage &image, int number);
     void imageResized(const QImage &image, int number);
+
+private:
+    Worker() = default;
+    ~Worker() = default;
 };
 
 #endif // WORKER_H
