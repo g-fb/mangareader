@@ -36,10 +36,10 @@ Q_SIGNALS:
 private:
     void treeViewContextMenu(QPoint point);
 
-    QTreeView        *m_treeView{};
-    QFileSystemModel *m_treeModel{};
-    FSProxyModel     *m_treeProxyModel{};
-    QLineEdit        *m_searchField{};
+    QTreeView        *m_treeView{nullptr};
+    QFileSystemModel *m_treeModel{nullptr};
+    FSProxyModel     *m_treeProxyModel{nullptr};
+    QLineEdit        *m_searchField{nullptr};
     QString           m_mangaFolder;
 };
 
