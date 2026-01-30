@@ -128,7 +128,7 @@ void Page::redrawImage()
 {
     calculateScaledSize();
     if (!m_image.isNull()) {
-        Worker::instance()->processImageResize(m_image, m_scaledSize, m_number);
+        QMetaObject::invokeMethod(Worker::instance(), &Worker::processImageResize, Qt::QueuedConnection, m_image, m_scaledSize, m_number);
     }
 }
 
