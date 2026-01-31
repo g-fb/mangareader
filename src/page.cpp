@@ -49,7 +49,7 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     painter->save();
     painter->setPen(QPen(MangaReaderSettings::borderColor(), 1));
 
-    if (MangaReaderSettings::pageSpacing() > 0) {
+    if (MangaReaderSettings::vPageSpacing() > 0) {
         painter->drawRect(pixRect.adjusted(-0.5, -0.5, 0.5, 0.5));
     } else {
         painter->drawLine(-1, 0, -1, m_pixmap.height());
@@ -92,7 +92,7 @@ void Page::setZoom(double zoom)
 
 auto Page::boundingRect() const -> QRectF
 {
-    qreal borderWidth = (MangaReaderSettings::pageSpacing() >= 0) ? 1.0 : 0.0;
+    qreal borderWidth = (MangaReaderSettings::vPageSpacing() >= 0) ? 1.0 : 0.0;
     return QRectF(0.0, 0.0, m_scaledSize.width(), m_scaledSize.height())
         .adjusted(-borderWidth, -borderWidth, borderWidth, borderWidth);
 }
@@ -137,14 +137,14 @@ void Page::calculateScaledSize()
     const bool fitWidth = MangaReaderSettings::fitWidth();
     const bool fitHeight = MangaReaderSettings::fitHeight();
     const bool upScale = MangaReaderSettings::upScale();
-    const int spacing = MangaReaderSettings::pageSpacing();
+    const int hSpacing = MangaReaderSettings::hPageSpacing();
 
     const int viewportWidth = m_view->viewport()->width();
     const int viewportHeight = m_view->viewport()->height();
     const int totalBorderWidth = 2;
     int availableWidth = viewportWidth;
     if (MangaReaderSettings::show2PagesPerRow()) {
-        availableWidth = (viewportWidth - spacing) / 2;
+        availableWidth = (viewportWidth - hSpacing) / 2;
     }
 
     int targetWidth = std::min(availableWidth - totalBorderWidth - 2, maxWidth);

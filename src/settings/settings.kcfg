@@ -16,7 +16,11 @@
             <default>1200</default>
         </entry>
 
-        <entry name="PageSpacing" type="Int">
+        <entry name="HPageSpacing" type="Int">
+            <default>20</default>
+        </entry>
+
+        <entry name="VPageSpacing" type="Int">
             <default>50</default>
         </entry>
 

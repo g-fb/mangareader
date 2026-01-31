@@ -33,7 +33,6 @@ private:
     QCheckBox *m_fullscreenStartup{nullptr};
     QCheckBox *m_upscaleImages{nullptr};
     QSpinBox *m_maxWidth{nullptr};
-    QSpinBox *m_pageSpacing{nullptr};
     KColorButton *m_backgroundColor{nullptr};
     KColorButton *m_borderColor{nullptr};
     KEditListWidget *m_mangaFolders{nullptr};

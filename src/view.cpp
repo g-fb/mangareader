@@ -261,7 +261,8 @@ void View::createPages()
 void View::calculatePageSizes()
 {
     int pageYCoordinate = 0;
-    int spacing = MangaReaderSettings::pageSpacing();
+    const int hSpacing = MangaReaderSettings::hPageSpacing();
+    const int vSpacing = MangaReaderSettings::vPageSpacing();
     int viewportWidth = viewport()->width();
 
     for (int i = 0; i < m_pages.count(); i++) {
@@ -272,11 +273,11 @@ void View::calculatePageSizes()
             const auto &p2 = m_pages.at(i + 1);
             p2->calculateScaledSize();
 
-            int totalWidth = p1->scaledSize().width() + p2->scaledSize().width() + spacing;
+            int totalWidth = p1->scaledSize().width() + p2->scaledSize().width() + hSpacing;
             int startX = (viewportWidth - totalWidth) / 2;
 
             p1->setPos(startX, pageYCoordinate);
-            p2->setPos(startX + p1->scaledSize().width() + spacing, pageYCoordinate);
+            p2->setPos(startX + p1->scaledSize().width() + hSpacing, pageYCoordinate);
 
             int maxHeight = std::max(p1->scaledSize().height(), p2->scaledSize().height());
 
@@ -286,7 +287,7 @@ void View::calculatePageSizes()
             m_end[i] = pageYCoordinate + maxHeight;
             m_end[i + 1] = pageYCoordinate + maxHeight;
 
-            pageYCoordinate += maxHeight + spacing;
+            pageYCoordinate += maxHeight + vSpacing;
             // skip next page as we processed it here
             i++;
         } else {
@@ -297,7 +298,7 @@ void View::calculatePageSizes()
             int height = p1->scaledSize().height();
             m_start[i] = pageYCoordinate;
             m_end[i] = pageYCoordinate + height;
-            pageYCoordinate += height + spacing;
+            pageYCoordinate += height + vSpacing;
         }
     }
     m_scene->setSceneRect(0, 0, viewportWidth, pageYCoordinate);

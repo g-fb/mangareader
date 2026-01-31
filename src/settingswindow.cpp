@@ -133,13 +133,24 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
 
 
     // page spacing
-    m_pageSpacing = new QSpinBox(this);
-    m_pageSpacing->setObjectName(QStringLiteral("kcfg_PageSpacing"));
-    m_pageSpacing->setMinimum(0);
-    m_pageSpacing->setMaximum(999);
-    m_pageSpacing->setValue(MangaReaderSettings::pageSpacing());
-    m_pageSpacing->setToolTip(i18n("Vertical distance between pages/images."));
-    formLayout->addRow(i18n("Page spacing"), m_pageSpacing);
+    auto *hPageSpacing = new QSpinBox(this);
+    hPageSpacing->setObjectName(QStringLiteral("kcfg_HPageSpacing"));
+    hPageSpacing->setMinimum(0);
+    hPageSpacing->setMaximum(999);
+    hPageSpacing->setValue(MangaReaderSettings::hPageSpacing());
+    hPageSpacing->setToolTip(i18n("Horizontal distance between pages/images."));
+    formLayout->addRow(i18n("Horizontal page spacing"), hPageSpacing);
+    // end page spacing
+
+
+    // page spacing
+    auto *vPageSpacing = new QSpinBox(this);
+    vPageSpacing->setObjectName(QStringLiteral("kcfg_VPageSpacing"));
+    vPageSpacing->setMinimum(0);
+    vPageSpacing->setMaximum(999);
+    vPageSpacing->setValue(MangaReaderSettings::vPageSpacing());
+    vPageSpacing->setToolTip(i18n("Vertical distance between pages/images."));
+    formLayout->addRow(i18n("Vertical page spacing"), vPageSpacing);
     // end page spacing
 
 
