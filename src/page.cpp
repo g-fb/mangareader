@@ -151,7 +151,7 @@ void Page::calculateScaledSize()
 
     double ratio = 1.0;
     if (fitHeight || fitWidth) {
-        double hRatio = fitHeight ? static_cast<double>(viewportHeight) / m_sourceSize.height() : 1e6;
+        double hRatio = fitHeight ? static_cast<double>(viewportHeight - totalBorderWidth) / m_sourceSize.height() : 1e6;
         double wRatio = fitWidth ? static_cast<double>(targetWidth) / m_sourceSize.width() : 1e6;
         ratio = std::min(hRatio, wRatio);
     }
