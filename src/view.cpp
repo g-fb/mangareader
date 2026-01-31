@@ -154,8 +154,9 @@ void View::setupActions()
     auto nextPage = new QAction(i18n("Next Page"));
     nextPage->setShortcutContext(Qt::WidgetShortcut);
     connect(nextPage, &QAction::triggered, this, [this]() {
-        if (m_firstVisible < m_pages.count() - 1) {
-            goToPage(m_firstVisible + 1);
+        int step = m_twoPageView ? 2 : 1;
+        if (m_firstVisible < m_pages.count() - step) {
+            goToPage(m_firstVisible + step);
         }
     });
     collection->setDefaultShortcut(nextPage, Qt::Key_Right);
@@ -164,8 +165,9 @@ void View::setupActions()
     auto prevPage = new QAction(i18n("Previous Page"));
     prevPage->setShortcutContext(Qt::WidgetShortcut);
     connect(prevPage, &QAction::triggered, this, [this]() {
-        if (m_firstVisible > 0) {
-            goToPage(m_firstVisible - 1);
+        int step = m_twoPageView ? 2 : 1;
+        if (m_firstVisible >= step) {
+            goToPage(m_firstVisible - step);
         }
     });
     collection->setDefaultShortcut(prevPage, Qt::Key_Left);
@@ -183,6 +185,17 @@ void View::reset()
     m_requestedPages.clear();
     m_files.clear();
     verticalScrollBar()->setValue(0);
+}
+
+void View::setTwoPageView(bool enabled)
+{
+    if (m_twoPageView == enabled) {
+        return;
+    }
+
+    m_twoPageView = enabled;
+    calculatePageSizes();
+    setPagesVisibility();
 }
 
 void View::loadImages()
@@ -254,20 +267,45 @@ void View::createPages()
 void View::calculatePageSizes()
 {
     int pageYCoordinate = 0;
+    int spacing = MangaReaderSettings::pageSpacing();
+    int viewportWidth = viewport()->width();
+
     for (int i = 0; i < m_pages.count(); i++) {
-        Page *p = m_pages.at(i);
-        p->calculateScaledSize();
+        const auto &p1 = m_pages.at(i);
+        p1->calculateScaledSize();
 
-        const int x = (viewport()->width() - p->scaledSize().width()) / 2;
-        p->setPos(x, pageYCoordinate);
+        if (m_twoPageView && (i + 1 < m_pages.count())) {
+            const auto &p2 = m_pages.at(i + 1);
+            p2->calculateScaledSize();
 
-        int height = p->scaledSize().height();
+            int totalWidth = p1->scaledSize().width() + p2->scaledSize().width() + spacing;
+            int startX = (viewportWidth - totalWidth) / 2;
 
-        m_start[i] = pageYCoordinate;
-        m_end[i] = pageYCoordinate + height;
-        pageYCoordinate += height + MangaReaderSettings::pageSpacing();
+            p1->setPos(startX, pageYCoordinate);
+            p2->setPos(startX + p1->scaledSize().width() + spacing, pageYCoordinate);
+
+            int maxHeight = std::max(p1->scaledSize().height(), p2->scaledSize().height());
+
+            // Map both pages to the same Y-range for visibility logic
+            m_start[i] = pageYCoordinate;
+            m_start[i + 1] = pageYCoordinate;
+            m_end[i] = pageYCoordinate + maxHeight;
+            m_end[i + 1] = pageYCoordinate + maxHeight;
+
+            pageYCoordinate += maxHeight + spacing;
+            // skip next page as we processed it here
+            i++;
+        } else {
+            // single page
+            const int x = (viewportWidth - p1->scaledSize().width()) / 2;
+            p1->setPos(x, pageYCoordinate);
+
+            int height = p1->scaledSize().height();
+            m_start[i] = pageYCoordinate;
+            m_end[i] = pageYCoordinate + height;
+            pageYCoordinate += height + spacing;
+        }
     }
-
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
 }
 

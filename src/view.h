@@ -57,6 +57,7 @@ public Q_SLOTS:
     void zoomOut();
     void zoomReset();
     void togglePageZoom(Page *page);
+    void setTwoPageView(bool enabled);
 
 private:
     void setupActions();
@@ -92,6 +93,8 @@ private:
     bool             m_loadFromMemory {false};
     QPropertyAnimation *m_scrollAnimation{nullptr};
     int              m_targetScrollValue{0};
+
+    bool m_twoPageView{true};
 };
 
 #endif // VIEW_H
