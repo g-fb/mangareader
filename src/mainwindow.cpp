@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     actionCollection()->setDefaultShortcuts(toggleMangaTreeDockAction, {Qt::Key_F1});
 
 
+    showDockWidgets();
     if (MangaReaderSettings::mainToolBarVisible())
         showToolBars();
 
