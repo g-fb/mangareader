@@ -192,3 +192,24 @@ bool FSProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_pa
     }
     return true;
 }
+
+QModelIndex MangaTreeWidget::currentModelIndex(const QString &path) const
+{
+    return m_treeProxyModel->mapFromSource(treeModel()->index(path));
+}
+
+QModelIndex MangaTreeWidget::nextModelIndex(const QModelIndex &index) const
+{
+
+    return treeView()->indexBelow(index);
+}
+
+QModelIndex MangaTreeWidget::previousModelIndex(const QModelIndex &index) const
+{
+    return treeView()->indexAbove(index);
+}
+
+QString MangaTreeWidget::filePath(const QModelIndex &index) const
+{
+    return treeModel()->filePath(m_treeProxyModel->mapToSource(index));
+}

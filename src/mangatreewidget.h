@@ -28,6 +28,11 @@ public:
     QString getMangaFolder() const;
     void setMangaFolder(const QString &newMangaFolder);
 
+    QModelIndex currentModelIndex(const QString &path) const;
+    QModelIndex nextModelIndex(const QModelIndex &index) const;
+    QModelIndex previousModelIndex(const QModelIndex &index) const;
+    QString filePath(const QModelIndex &index) const;
+
 Q_SIGNALS:
     void open(QString mangaPath, bool resume = false, bool recursive = false);
     void renamed(QString oldName, QString newName);
