@@ -459,47 +459,41 @@ void MainWindow::openAdjacentArchive(OpenDirection direction)
     if (m_currentPath.isEmpty()) {
         return;
     }
-
-    const QFileInfo fileInfo(m_currentPath);
-    QDirIterator it(fileInfo.absolutePath(), QDir::Files);
-    QMimeDatabase db;
-    m_files.clear();
-
-    while (it.hasNext()) {
-        QString file = it.next();
-        QString mimetype = db.mimeTypeForFile(file).name();
-        if (m_supportedMimeTypes.contains(mimetype)) {
-            m_files.append(file);
-        }
-    }
-
-    if (m_files.empty()) {
+    const auto currentModelIndex = m_mangaTreeWidget->currentModelIndex(m_currentPath);
+    if (!currentModelIndex.isValid()) {
         return;
     }
 
-    QCollator collator;
-    collator.setNumericMode(true);
-    std::sort(m_files.begin(), m_files.end(), collator);
+    QModelIndex next = m_mangaTreeWidget->nextModelIndex(currentModelIndex);
+    QModelIndex prev = m_mangaTreeWidget->previousModelIndex(currentModelIndex);
 
-    int index = m_files.indexOf(fileInfo.absoluteFilePath());
-    if (index == -1) {
-        return;
-    }
     switch (direction) {
-    case OpenDirection::Next:
-        if (index == m_files.count() - 1) {
+    case OpenDirection::Next: {
+        if (currentModelIndex.parent() != next.parent()) {
             return;
         }
-        index++;
+        const auto nextPath = m_mangaTreeWidget->filePath(next);;
+        const QFileInfo fileInfo(nextPath);
+        if (fileInfo.isDir()) {
+            return;
+        }
+        m_currentPath = m_mangaTreeWidget->filePath(next);
+        m_mangaTreeWidget->treeView()->setCurrentIndex(next);
         break;
-    case OpenDirection::Previous:
-        if (index == 0) {
+    }
+    case OpenDirection::Previous: {
+        if (currentModelIndex.parent() != prev.parent()) {
             return;
         }
-        index--;
+        const auto prevPath = m_mangaTreeWidget->filePath(prev);;
+        const QFileInfo fileInfo(prevPath);
+        if (fileInfo.isDir()) {
+            return;
+        }
+        m_currentPath = m_mangaTreeWidget->filePath(prev);
+        m_mangaTreeWidget->treeView()->setCurrentIndex(prev);
     }
-
-    m_currentPath = m_files[index];
+    }
     loadImages(m_currentPath);
 }
 
