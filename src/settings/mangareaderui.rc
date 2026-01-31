@@ -5,7 +5,7 @@
  SPDX-License-Identifier: CC-BY-SA-4.0
  -->
 <gui name="mangareader"
-     version="6"
+     version="7"
      xmlns="http://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
@@ -27,6 +27,8 @@
             <Action name="fitToWidthAction" />
             <Action name="fitToHeightAction" />
             <Separator />
+            <Action name="toggleMangaTreeDockAction" />
+            <Action name="toggleBookmarksDockAction" />
             <Action name="focusView" />
             <Action name="focusTree" />
             <Action name="focusBookmarksTable" />

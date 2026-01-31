@@ -68,6 +68,13 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     setupGUI(QSize(1280, 720), ToolBar | Keys | Save | Create, u"mangareaderui.rc"_s);
 
+    auto helpAction = actionCollection()->action(KStandardActions::name(KStandardActions::HelpContents));
+    if (helpAction) {
+        helpAction->setShortcut(QKeySequence{});
+    }
+    auto toggleMangaTreeDockAction = actionCollection()->action(u"toggleMangaTreeDockAction"_s);
+    actionCollection()->setDefaultShortcuts(toggleMangaTreeDockAction, {Qt::Key_F1});
+
 
     if (MangaReaderSettings::mainToolBarVisible())
         showToolBars();
@@ -761,6 +768,21 @@ void MainWindow::setupActions()
     });
     connect(m_view, &View::doubleClicked,
             toggleFullScreenAction, &QAction::trigger);
+
+    auto toggleMangaTreeDockAction = new QAction();
+    toggleMangaTreeDockAction->setText(i18n("Toggle Manga Tree"));
+    actionCollection()->addAction(u"toggleMangaTreeDockAction"_s, toggleMangaTreeDockAction);
+    connect(toggleMangaTreeDockAction, &QAction::triggered, this, [this]() {
+        m_treeDock->setVisible(!m_treeDock->isVisible());
+    });
+
+    auto toggleBookmarksDockAction = new QAction();
+    toggleBookmarksDockAction->setText(i18n("Toggle Bookmarks"));
+    actionCollection()->addAction(u"toggleBookmarksDockAction"_s, toggleBookmarksDockAction);
+    actionCollection()->setDefaultShortcuts(toggleBookmarksDockAction, {Qt::Key_F2});
+    connect(toggleBookmarksDockAction, &QAction::triggered, this, [this]() {
+        m_bookmarksDock->setVisible(!m_bookmarksDock->isVisible());
+    });
 }
 
 void MainWindow::toggleMenubar()
