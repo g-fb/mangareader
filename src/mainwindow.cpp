@@ -1008,7 +1008,7 @@ void MainWindow::onAddBookmark(int pageIndex)
 void MainWindow::deleteBookmarks(QTableView *tableView)
 {
     QItemSelection selection(tableView->selectionModel()->selection());
-    QVector<int> rows;
+    QList<int> rows;
     int prev = -1;
     // get the rows to be deleted
     const QModelIndexList indexes = selection.indexes();
