@@ -101,8 +101,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    m_thread->quit();
-    m_thread->wait();
+    if (m_thread) {
+        m_thread->quit();
+        m_thread->wait();
+    }
 }
 
 void MainWindow::init()
@@ -198,8 +200,6 @@ void MainWindow::init()
     // ==================================================
     m_thread = new QThread(this);
     Worker::instance()->moveToThread(m_thread);
-//    connect(m_thread, &QThread::finished,
-//            Worker::instance(), &Worker::deleteLater);
     connect(m_thread, &QThread::finished,
             m_thread, &QThread::deleteLater);
     m_thread->start();
@@ -816,6 +816,7 @@ void MainWindow::populateLibrarySelectionComboBox()
     if (m_selectMangaLibraryComboBox == nullptr) {
         return;
     }
+    m_selectMangaLibraryComboBox->clear();
     const QStringList mangaFolders = MangaReaderSettings::mangaFolders();
     for (const QString &mangaFolder : mangaFolders) {
         m_selectMangaLibraryComboBox->addItem(mangaFolder);
@@ -842,6 +843,10 @@ void MainWindow::showError(const QString& error)
 void MainWindow::bookmarksViewContextMenu(QPoint point)
 {
     QModelIndex index = m_bookmarksView->indexAt(point);
+    if (!index.isValid()) {
+        return;
+    }
+
     QString path = m_bookmarksModel->data(index, PathRole).toString();
 
     auto contextMenu = new QMenu();
@@ -1102,8 +1107,7 @@ void MainWindow::toggleFullScreen()
 
 auto MainWindow::isFullScreen() -> bool
 {
-    return (windowState() == (Qt::WindowFullScreen | Qt::WindowMaximized))
-            || (windowState() == Qt::WindowFullScreen);
+    return windowState().testFlag(Qt::WindowFullScreen);;
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)

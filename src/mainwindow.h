@@ -93,7 +93,7 @@ private:
     QThread            *m_thread{nullptr};
     QProgressBar       *m_progressBar{nullptr};
     QString             m_currentPath;
-    QComboBox          *m_selectMangaLibraryComboBox{};
+    QComboBox          *m_selectMangaLibraryComboBox{nullptr};
     SettingsWindow     *m_settingsWindow{nullptr};
     QDialog            *m_renameDialog{nullptr};
     StartUpWidget      *m_startUpWidget{nullptr};
