@@ -15,51 +15,65 @@
         <entry name="MaxWidth" type="Int">
             <default>1200</default>
         </entry>
+
         <entry name="PageSpacing" type="Int">
             <default>50</default>
         </entry>
+
         <entry name="UseCustomBackgroundColor" type="Bool">
             <default>false</default>
         </entry>
+
         <entry name="BackgroundColor" type="Color">
             <code>KColorScheme schemeView(QPalette::Active, KColorScheme::View);
                         QColor defaultColor = schemeView.background().color();</code>
             <default code="true">defaultColor</default>
         </entry>
-        <entry name="BorderColor" type="Color">
-        </entry>
-        <entry name="MangaFolders" type="PathList">
-        </entry>
+
+        <entry name="BorderColor" type="Color"></entry>
+
+        <entry name="MangaFolders" type="PathList"></entry>
+
         <entry name="MenuBarVisible" type="Bool">
             <default>false</default>
         </entry>
+
         <entry name="MainToolBarVisible" type="Bool">
             <default>true</default>
         </entry>
+
         <entry name="MangaTreeDockVisible" type="Bool">
             <default>true</default>
         </entry>
+
         <entry name="BookmarksDockVisible" type="Bool">
             <default>true</default>
         </entry>
+
         <entry name="FitHeight" type="Bool">
             <default>false</default>
         </entry>
+
         <entry name="FitWidth" type="Bool">
             <default>true</default>
         </entry>
+
         <entry name="UpScale" type="Bool">
             <default>true</default>
         </entry>
+
         <entry name="UseResizeTimer" type="Bool">
             <default>false</default>
         </entry>
+
         <entry name="FullscreenOnStartup" type="Bool">
             <default>false</default>
         </entry>
+
         <entry name="SmoothScrolling" type="Bool">
             <default>true</default>
         </entry>
+
         <entry name="AutoUnrarPath" type="Path">
             <code>
                 QStringList unrarSearchPaths;
@@ -71,6 +85,7 @@
             </code>
             <default code="true">autoUnrarPath</default>
         </entry>
+
         <entry name="UnrarPath" type="Path"></entry>
     </group>
 </kcfg>
