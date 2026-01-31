@@ -300,7 +300,7 @@ void View::setPagesVisibility()
                 isPrevPageInView = isInView(m_start.at(i - 1), m_end.at(i - 1));
             }
             bool isNextPageInView = false;
-            if (m_start.at(i) != m_start.last()) {
+            if ((i + 1) < m_pages.count()) {
                 isNextPageInView = isInView(m_start.at(i + 1), m_end.at(i + 1));
             }
 
@@ -324,10 +324,10 @@ void View::setPagesVisibility()
 
 void View::addRequest(int number)
 {
-    if (hasRequest(number)) {
+    if (m_requestedPages.contains(number)) {
         return;
     }
-    m_requestedPages.append(number);
+    m_requestedPages.insert(number);
     QString filename = m_pages.at(number)->filename();
     if (m_loadFromMemory) {
         Q_EMIT requestMemoryImage(number, m_archive->directory()->file(filename)->data());
@@ -336,17 +336,9 @@ void View::addRequest(int number)
     }
 }
 
-auto View::hasRequest(int number) const -> bool
-{
-    return m_requestedPages.indexOf(number) >= 0;
-}
-
 void View::delRequest(int number)
 {
-    int idx = m_requestedPages.indexOf(number);
-    if (idx >= 0) {
-        m_requestedPages.removeAt(idx);
-    }
+    m_requestedPages.remove(number);
 }
 
 void View::onImageReady(const QImage &image, int number)
@@ -354,11 +346,11 @@ void View::onImageReady(const QImage &image, int number)
     // when loading another manga it can happen that the number returned by the thread
     // is bigger than the total number of images the current manga has
     // resulting in an index out of range crash
-    if (number > m_pages.size() - 1) {
+    if (number < 0 || number >= m_pages.size()) {
         return;
     }
     m_pages.at(number)->setImage(image);
-    //    calculatePageSizes();
+    // calculatePageSizes();
     if (m_startPage > 0) {
         goToPage(m_startPage);
         m_startPage = 0;
@@ -368,6 +360,9 @@ void View::onImageReady(const QImage &image, int number)
 
 void View::onImageResized(const QImage &image, int number)
 {
+    if (number < 0 || number >= m_pages.size()) {
+        return;
+    }
     m_pages.at(number)->redraw(image);
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
 }

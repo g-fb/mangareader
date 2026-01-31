@@ -65,7 +65,6 @@ private:
     void setPagesVisibility();
     void addRequest(int number);
     void delRequest(int number);
-    auto hasRequest(int number) const -> bool;
     void scrollContentsBy(int dx, int dy) override;
     auto isInView  (int imgTop, int imgBot) -> bool;
     void resizeEvent(QResizeEvent *e) override;
@@ -80,10 +79,10 @@ private:
     QGraphicsScene  *m_scene{nullptr};
     QString          m_manga;
     QStringList      m_files;
-    QVector<Page*>   m_pages;
-    QVector<int>     m_start;
-    QVector<int>     m_end;
-    QVector<int>     m_requestedPages;
+    QList<Page*>     m_pages;
+    QList<int>       m_start;
+    QList<int>       m_end;
+    QSet<int>        m_requestedPages;
     int              m_startPage{0};
     int              m_firstVisible{-1};
     float            m_firstVisibleOffset{0.0f};
