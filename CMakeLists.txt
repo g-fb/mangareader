@@ -5,7 +5,7 @@
 #
 
 cmake_minimum_required(VERSION 3.30)
-project(mangareader VERSION 2.2.2 LANGUAGES CXX)
+project(mangareader VERSION 2.3.0 LANGUAGES CXX)
 
 set(QT_MIN_VERSION 6.10.0)
 set(KF6_MIN_VERSION 6.20.0)

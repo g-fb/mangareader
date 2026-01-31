@@ -11,20 +11,35 @@
     <launchable type="desktop-id">com.georgefb.mangareader.desktop</launchable>
     <metadata_license>CC-BY-4.0</metadata_license>
     <project_license>GPL-3.0-or-later</project_license>
-    <url type="homepage">https://github.com/g-fb/mangareader</url>
+    <url type="homepage">https://georgefb.com/projects/mangareader</url>
     <url type="bugtracker">https://github.com/g-fb/mangareader/issues</url>
     <url type="donation">https://github.com/sponsors/g-fb</url>
-    <developer_name>George Florea Bănuș</developer_name>
+    <url type="vcs-browser">https://github.com/g-fb/mangareader</url>
+    <developer id="com.georgefb">
+        <name translate="no">George Florea Bănuș</name>
+    </developer>
     <summary>Manga Reader for local files</summary>
     <description>
-        <p>Manga reader for local files.</p>
-        <p>Supports zip, rar, tar, 7z, cbz, cbr, cbt, cb7 files and also folders.</p>
+        <p>Manga reader for local files. Supports zip, rar, tar, 7z, cbz, cbr, cbt, cb7 files and also folders.</p>
         <p>Images are displayed in a vertical list and their size can be configured (fit width and/or height, user defined max width, original size).</p>
         <p>Can set up multiple manga folders whose contents will be displayed in a tree view, from where they can be opened.</p>
         <p>Can bookmark mangas.</p>
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.3.0" date="2026-01-31">
+            <description>
+                <p>Features</p>
+                <ul>
+                    <li>Smooth scrolling</li>
+                    <li>Search for the manga tree</li>
+                    <li>Support for 2 pages per row</li>
+                    <li>Option to hide the toolbar</li>
+                    <li>Option to hide the manga tree</li>
+                    <li>Option to hide the bookmarks table</li>
+                </ul>
+            </description>
+        </release>
         <release version="2.2.2" date="2025-05-19">
             <description>
                 <p>Bugfixes</p>
