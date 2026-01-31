@@ -40,31 +40,24 @@ void Page::setMaxWidth(int maxWidth)
 void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     Q_UNUSED(widget);
-    if (!m_pixmap.isNull()) {
-        auto w = m_pixmap.width();
-        auto h = m_pixmap.height();
-
-        // draw border arround the image
-        if (MangaReaderSettings::pageSpacing() > 0) {
-            QRectF border(QPointF(0, 0), QSizeF(w, h));
-            border.adjust(-1, -1, 1, 1);
-
-            painter->setPen(QPen(MangaReaderSettings::borderColor()));
-            painter->drawRect(border);
-        }
-
-        // draw border only on the sides
-        if (MangaReaderSettings::pageSpacing() == 0) {
-            painter->setPen(QPen(MangaReaderSettings::borderColor()));
-            painter->drawLine(-1, 0, -1, h);
-            painter->drawLine(w+1, 0, w+1, h);
-        }
-
-        // set default pen, else the pen's size is included when drawing the pixmap
-        // resulting in a small gap between images
-        painter->setPen(QPen());
-        painter->drawPixmap(option->exposedRect, m_pixmap, option->exposedRect);
+    if (m_pixmap.isNull()) {
+        return;
     }
+
+    const QRectF pixRect(0, 0, m_pixmap.width(), m_pixmap.height());
+
+    painter->save();
+    painter->setPen(QPen(MangaReaderSettings::borderColor(), 1));
+
+    if (MangaReaderSettings::pageSpacing() > 0) {
+        painter->drawRect(pixRect.adjusted(-0.5, -0.5, 0.5, 0.5));
+    } else {
+        painter->drawLine(-1, 0, -1, m_pixmap.height());
+        painter->drawLine(m_pixmap.width() + 1, 0, m_pixmap.width() + 1, m_pixmap.height());
+    }
+
+    painter->restore();
+    painter->drawPixmap(option->exposedRect, m_pixmap, option->exposedRect);
 }
 
 const QString &Page::filename() const
@@ -99,7 +92,9 @@ void Page::setZoom(double zoom)
 
 auto Page::boundingRect() const -> QRectF
 {
-    return {0.0F, 0.0F, static_cast<qreal>(m_scaledSize.width()), static_cast<qreal>(m_scaledSize.height())};
+    qreal borderWidth = (MangaReaderSettings::pageSpacing() >= 0) ? 1.0 : 0.0;
+    return QRectF(0.0, 0.0, m_scaledSize.width(), m_scaledSize.height())
+        .adjusted(-borderWidth, -borderWidth, borderWidth, borderWidth);
 }
 
 auto Page::isImageDeleted() const -> bool
@@ -109,8 +104,8 @@ auto Page::isImageDeleted() const -> bool
 
 void Page::deleteImage()
 {
-    m_pixmap = QPixmap();
-    m_image = QImage();
+    m_pixmap = QPixmap{};
+    m_image = QImage{};
 }
 
 const QImage &Page::image() const
@@ -134,37 +129,34 @@ void Page::redrawImage()
 
 void Page::calculateScaledSize()
 {
-    int maxWidth = MangaReaderSettings::maxWidth();
-    bool fitWidth = MangaReaderSettings::fitWidth();
-    bool fitHeight = MangaReaderSettings::fitHeight();
-    bool upScale = MangaReaderSettings::upScale();
-    int viewWidth = m_view->width() - (m_view->verticalScrollBar()->width() + 10);
-    int viewHeight = m_view->height();
-    int imageWidth = m_sourceSize.width();
-    int imageHeight = m_sourceSize.height();
+    if (!m_view) {
+        return;
+    }
 
-    int width = viewWidth < maxWidth ? viewWidth : maxWidth;
+    const int maxWidth = MangaReaderSettings::maxWidth();
+    const bool fitWidth = MangaReaderSettings::fitWidth();
+    const bool fitHeight = MangaReaderSettings::fitHeight();
+    const bool upScale = MangaReaderSettings::upScale();
 
+    const int scrollBarWidth = m_view->verticalScrollBar()->isVisible() ? m_view->verticalScrollBar()->width() : 0;
+    const int viewWidth = m_view->width() - (scrollBarWidth + 10);
+    const int viewHeight = m_view->height();
+
+    int targetWidth = std::min(viewWidth, maxWidth);
+
+    double ratio = 1.0;
     if (fitHeight || fitWidth) {
-        double hRatio = fitHeight ? static_cast<double>(viewHeight) / imageHeight : 9999.0;
-        double wRatio = fitWidth ? static_cast<double>(width) / imageWidth : 9999.0;
-        m_ratio = hRatio < wRatio ? hRatio : wRatio;
-    } else {
-        m_ratio = 1.0;
+        double hRatio = fitHeight ? static_cast<double>(viewHeight) / m_sourceSize.height() : 1e6;
+        double wRatio = fitWidth ? static_cast<double>(targetWidth) / m_sourceSize.width() : 1e6;
+        ratio = std::min(hRatio, wRatio);
     }
 
-    if (m_ratio > 1.0 && !upScale) {
-        m_ratio = 1.0;
+    if (ratio > 1.0 && !upScale) {
+        ratio = 1.0;
     }
+    m_ratio = ratio * m_zoom;
 
-    m_scaledSize = QSize(static_cast<qint64>(std::ceil(imageWidth * m_ratio)),
-                         static_cast<qint64>(std::ceil(imageHeight * m_ratio)));
-
-    if (m_zoom != 1.0) {
-        m_ratio = static_cast<double>(m_scaledSize.width() * m_zoom) / imageWidth;
-        m_scaledSize = QSize(static_cast<qint64>(std::ceil(m_scaledSize.width() * m_zoom)),
-                             static_cast<qint64>(std::ceil(m_scaledSize.height() * m_zoom)));
-    }
+    m_scaledSize = m_sourceSize * m_ratio;
 }
 
 void Page::redraw(const QImage &image)
