@@ -137,16 +137,21 @@ void Page::calculateScaledSize()
     const bool fitWidth = MangaReaderSettings::fitWidth();
     const bool fitHeight = MangaReaderSettings::fitHeight();
     const bool upScale = MangaReaderSettings::upScale();
+    const int spacing = MangaReaderSettings::pageSpacing();
 
-    const int scrollBarWidth = m_view->verticalScrollBar()->isVisible() ? m_view->verticalScrollBar()->width() : 0;
-    const int viewWidth = m_view->width() - (scrollBarWidth + 10);
-    const int viewHeight = m_view->height();
+    const int viewportWidth = m_view->viewport()->width();
+    const int viewportHeight = m_view->viewport()->height();
+    const int totalBorderWidth = 2;
+    int availableWidth = viewportWidth;
+    if (MangaReaderSettings::show2PagesPerRow()) {
+        availableWidth = (viewportWidth - spacing) / 2;
+    }
 
-    int targetWidth = std::min(viewWidth, maxWidth);
+    int targetWidth = std::min(availableWidth - totalBorderWidth - 2, maxWidth);
 
     double ratio = 1.0;
     if (fitHeight || fitWidth) {
-        double hRatio = fitHeight ? static_cast<double>(viewHeight) / m_sourceSize.height() : 1e6;
+        double hRatio = fitHeight ? static_cast<double>(viewportHeight) / m_sourceSize.height() : 1e6;
         double wRatio = fitWidth ? static_cast<double>(targetWidth) / m_sourceSize.width() : 1e6;
         ratio = std::min(hRatio, wRatio);
     }

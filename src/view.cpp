@@ -69,7 +69,7 @@ View::View(MainWindow *parent)
 
     m_scene = new QGraphicsScene(this);
     setScene(m_scene);
-
+    setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     connect(MangaReaderSettings::self(), &MangaReaderSettings::Show2PagesPerRowChanged, this, [this]() {
         calculatePageSizes();
@@ -300,7 +300,7 @@ void View::calculatePageSizes()
             pageYCoordinate += height + spacing;
         }
     }
-    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene->setSceneRect(0, 0, viewportWidth, pageYCoordinate);
 }
 
 void View::setPagesVisibility()
@@ -396,7 +396,6 @@ void View::onImageResized(const QImage &image, int number)
         return;
     }
     m_pages.at(number)->redraw(image);
-    m_scene->setSceneRect(m_scene->itemsBoundingRect());
 }
 
 void View::onScrollBarRangeChanged(int x, int y)
