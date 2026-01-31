@@ -767,7 +767,14 @@ void MainWindow::setupActions()
     toggleMangaTreeDockAction->setText(i18n("Toggle Manga Tree"));
     actionCollection()->addAction(u"toggleMangaTreeDockAction"_s, toggleMangaTreeDockAction);
     connect(toggleMangaTreeDockAction, &QAction::triggered, this, [this]() {
-        m_treeDock->setVisible(!m_treeDock->isVisible());
+        if (isFullScreen()) {
+            return;
+        }
+
+        const auto visible = m_treeDock->isVisible();
+        m_treeDock->setVisible(!visible);
+        MangaReaderSettings::setMangaTreeDockVisible(!visible);
+        MangaReaderSettings::self()->save();
     });
 
     auto toggleBookmarksDockAction = new QAction();
@@ -775,7 +782,14 @@ void MainWindow::setupActions()
     actionCollection()->addAction(u"toggleBookmarksDockAction"_s, toggleBookmarksDockAction);
     actionCollection()->setDefaultShortcuts(toggleBookmarksDockAction, {Qt::Key_F2});
     connect(toggleBookmarksDockAction, &QAction::triggered, this, [this]() {
-        m_bookmarksDock->setVisible(!m_bookmarksDock->isVisible());
+        if (isFullScreen()) {
+            return;
+        }
+
+        const auto visible = m_bookmarksDock->isVisible();
+        m_bookmarksDock->setVisible(!visible);
+        MangaReaderSettings::setBookmarksDockVisible(!visible);
+        MangaReaderSettings::self()->save();
     });
 }
 
@@ -893,10 +907,10 @@ void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
     const auto bookmarkDockArea = dockWidgetArea(m_bookmarksDock);
 
     if ((treeDockArea == area || area == Qt::AllDockWidgetAreas) && !m_treeDock->isFloating()) {
-        m_treeDock->setVisible(true);
+        m_treeDock->setVisible(MangaReaderSettings::mangaTreeDockVisible());
     }
     if ((bookmarkDockArea == area || area == Qt::AllDockWidgetAreas) && !m_bookmarksDock->isFloating()) {
-        m_bookmarksDock->setVisible(true);
+        m_bookmarksDock->setVisible(MangaReaderSettings::bookmarksDockVisible());
     }
 }
 

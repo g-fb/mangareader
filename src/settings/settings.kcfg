@@ -36,6 +36,12 @@
         <entry name="MainToolBarVisible" type="Bool">
             <default>true</default>
         </entry>
+        <entry name="MangaTreeDockVisible" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="BookmarksDockVisible" type="Bool">
+            <default>true</default>
+        </entry>
         <entry name="FitHeight" type="Bool">
             <default>false</default>
         </entry>
