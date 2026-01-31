@@ -102,6 +102,15 @@ SettingsWindow::SettingsWindow(QWidget *parent, KConfigSkeleton *skeleton)
     // end smooth scrolling
 
 
+    // 2 page per row
+    auto doublePages = new QCheckBox(this);
+    doublePages->setObjectName(QStringLiteral("kcfg_Show2PagesPerRow"));
+    doublePages->setText(i18n("Show 2 pages per row"));
+    doublePages->setChecked(MangaReaderSettings::show2PagesPerRow());
+    formLayout->addRow(QLatin1String(), doublePages);
+    // end 2 page per row
+
+
     // resize timer
     auto resizeTimer = new QCheckBox(this);
     resizeTimer->setObjectName(QStringLiteral("kcfg_UseResizeTimer"));

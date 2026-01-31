@@ -6,3 +6,4 @@ ClassName=MangaReaderSettings
 Singleton=true
 Mutators=true
 SetUserTexts=true
+GenerateProperties=true

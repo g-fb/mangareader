@@ -70,6 +70,11 @@ View::View(MainWindow *parent)
     m_scene = new QGraphicsScene(this);
     setScene(m_scene);
 
+
+    connect(MangaReaderSettings::self(), &MangaReaderSettings::Show2PagesPerRowChanged, this, [this]() {
+        calculatePageSizes();
+    });
+
     connect(this, &View::requestDriveImage,
             Worker::instance(), &Worker::processDriveImageRequest, Qt::QueuedConnection);
 
@@ -154,7 +159,7 @@ void View::setupActions()
     auto nextPage = new QAction(i18n("Next Page"));
     nextPage->setShortcutContext(Qt::WidgetShortcut);
     connect(nextPage, &QAction::triggered, this, [this]() {
-        int step = m_twoPageView ? 2 : 1;
+        int step = MangaReaderSettings::show2PagesPerRow() ? 2 : 1;
         if (m_firstVisible < m_pages.count() - step) {
             goToPage(m_firstVisible + step);
         }
@@ -165,7 +170,7 @@ void View::setupActions()
     auto prevPage = new QAction(i18n("Previous Page"));
     prevPage->setShortcutContext(Qt::WidgetShortcut);
     connect(prevPage, &QAction::triggered, this, [this]() {
-        int step = m_twoPageView ? 2 : 1;
+        int step = MangaReaderSettings::show2PagesPerRow() ? 2 : 1;
         if (m_firstVisible >= step) {
             goToPage(m_firstVisible - step);
         }
@@ -185,17 +190,6 @@ void View::reset()
     m_requestedPages.clear();
     m_files.clear();
     verticalScrollBar()->setValue(0);
-}
-
-void View::setTwoPageView(bool enabled)
-{
-    if (m_twoPageView == enabled) {
-        return;
-    }
-
-    m_twoPageView = enabled;
-    calculatePageSizes();
-    setPagesVisibility();
 }
 
 void View::loadImages()
@@ -274,7 +268,7 @@ void View::calculatePageSizes()
         const auto &p1 = m_pages.at(i);
         p1->calculateScaledSize();
 
-        if (m_twoPageView && (i + 1 < m_pages.count())) {
+        if (MangaReaderSettings::show2PagesPerRow() && (i + 1 < m_pages.count())) {
             const auto &p2 = m_pages.at(i + 1);
             p2->calculateScaledSize();
 
