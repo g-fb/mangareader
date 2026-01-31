@@ -45,7 +45,7 @@
         <entry name="FitHeight" type="Bool">
             <default>false</default>
         </entry>
-        <entry name="FitWidth" type="bool">
+        <entry name="FitWidth" type="Bool">
             <default>true</default>
         </entry>
         <entry name="UpScale" type="Bool">
@@ -57,7 +57,7 @@
         <entry name="FullscreenOnStartup" type="Bool">
             <default>false</default>
         </entry>
-        <entry name="SmoothScrolling" type="bool">
+        <entry name="SmoothScrolling" type="Bool">
             <default>true</default>
         </entry>
         <entry name="AutoUnrarPath" type="Path">
