@@ -11,11 +11,8 @@
 #include <QScrollBar>
 #include <QStyleOptionGraphicsItem>
 
-#include <cmath>
-
 #include "page.h"
 #include "view.h"
-#include "worker.h"
 
 Page::Page(QSize sourceSize, QGraphicsItem *parent)
     : QGraphicsItem{ parent }
@@ -123,7 +120,8 @@ void Page::redrawImage()
 {
     calculateScaledSize();
     if (!m_image.isNull()) {
-        QMetaObject::invokeMethod(Worker::instance(), &Worker::processImageResize, Qt::QueuedConnection, m_image, m_scaledSize, m_number);
+        auto scaledImage = m_image.scaled(m_scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        redraw(scaledImage);
     }
 }
 
