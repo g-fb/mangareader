@@ -12,6 +12,7 @@
 #include <KXMLGUIClient>
 
 #include "image.h"
+#include "manga.h"
 
 class Page;
 class QGraphicsScene;
@@ -26,12 +27,11 @@ public:
     View(MainWindow *parent);
     ~View() = default;
     void reset();
+    void openManga(const QString &path);
     void loadImages();
     void goToPage(int number);
     auto imageCount() -> int;
     void setStartPage(int number);
-    const QString &manga() const;
-    void setManga(const QString &manga);
     void setFiles(const QList<Image> &images);
 
     void setLoadFromMemory(bool newLoadFromMemory);
@@ -40,8 +40,7 @@ public:
 
 Q_SIGNALS:
     void imagesLoaded(int number);
-    void requestDriveImage(int number, const QString &path);
-    void requestMemoryImage(int number, const QString &name);
+    void requestImage(int number, const QString &name);
     void currentImageChanged(int number);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
@@ -77,7 +76,7 @@ private:
     void dropEvent(QDropEvent *e) override;
 
     QGraphicsScene  *m_scene{nullptr};
-    QString          m_manga;
+    Manga           *m_manga{nullptr};
     QList<Image>     m_files;
     QList<Page*>     m_pages;
     QList<int>       m_start;

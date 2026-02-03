@@ -27,7 +27,6 @@
 #include "mainwindow.h"
 #include "page.h"
 #include "settings.h"
-#include "worker.h"
 
 View::View(MainWindow *parent)
     : QGraphicsView{ parent }
@@ -73,18 +72,6 @@ View::View(MainWindow *parent)
     connect(MangaReaderSettings::self(), &MangaReaderSettings::Show2PagesPerRowChanged, this, [this]() {
         calculatePageSizes();
     });
-
-    connect(this, &View::requestDriveImage,
-            Worker::instance(), &Worker::processDriveImageRequest, Qt::QueuedConnection);
-
-    connect(this, &View::requestMemoryImage,
-            Worker::instance(), &Worker::processMemoryImageRequest, Qt::QueuedConnection);
-
-    connect(Worker::instance(), &Worker::imageReady,
-            this, &View::onImageReady, Qt::QueuedConnection);
-
-    connect(Worker::instance(), &Worker::imageResized,
-            this, &View::onImageResized, Qt::QueuedConnection);
 
     connect(verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &View::onScrollBarRangeChanged);
@@ -187,6 +174,32 @@ void View::reset()
     m_requestedPages.clear();
     m_files.clear();
     verticalScrollBar()->setValue(0);
+}
+
+void View::openManga(const QString &path)
+{
+    reset();
+    if (m_manga) {
+        delete m_manga;
+        m_manga = nullptr;
+    }
+    m_manga = new Manga(path);
+
+    connect(m_manga, &Manga::imagesReady, this, [this]() {
+        setFiles(m_manga->images());
+        createPages();
+        Q_EMIT imagesLoaded(m_startPage);
+        calculatePageSizes();
+        setPagesVisibility();
+    });
+
+    connect(this, &View::requestImage,
+            m_manga, &Manga::processImageRequest, Qt::QueuedConnection);
+
+    connect(m_manga, &Manga::imageReady,
+            this, &View::onImageReady, Qt::QueuedConnection);
+
+    m_manga->init();
 }
 
 void View::loadImages()
@@ -323,11 +336,7 @@ void View::addRequest(int number)
     }
     m_requestedPages.insert(number);
     QString filename = m_pages.at(number)->filename();
-    if (m_loadFromMemory) {
-        Q_EMIT requestMemoryImage(number, filename);
-    } else {
-        Q_EMIT requestDriveImage(number, filename);
-    }
+    Q_EMIT requestImage(number, filename);
 }
 
 void View::delRequest(int number)
@@ -544,11 +553,6 @@ void View::dropEvent(QDropEvent *e)
     Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
 }
 
-const QString &View::manga() const
-{
-    return m_manga;
-}
-
 void View::setLoadFromMemory(bool newLoadFromMemory)
 {
     m_loadFromMemory = newLoadFromMemory;
@@ -587,11 +591,6 @@ auto View::imageCount() -> int
 void View::setStartPage(int number)
 {
     m_startPage = number;
-}
-
-void View::setManga(const QString &manga)
-{
-    m_manga = manga;
 }
 
 void View::setFiles(const QList<Image> &images)
