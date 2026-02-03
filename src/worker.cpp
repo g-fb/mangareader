@@ -9,6 +9,11 @@
 #include <QImage>
 #include <QPainter>
 
+Worker::Worker()
+{
+
+}
+
 void Worker::processDriveImageRequest(int number, const QString &path)
 {
     const QString filename = path;
@@ -39,12 +44,6 @@ void Worker::processArchive(const QString path)
     m_extractor->open(path);
     const auto images = m_extractor->filesList();
     Q_EMIT archiveProcessed(images);
-}
-
-auto Worker::instance() -> Worker *
-{
-    static Worker w;
-    return &w;
 }
 
 #include "moc_worker.cpp"

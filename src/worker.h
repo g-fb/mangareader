@@ -17,12 +17,7 @@ class Worker : public QObject
 {
     Q_OBJECT
 public:
-    Worker(const Worker &) = delete;
-    Worker &operator=(const Worker &) = delete;
-    Worker(Worker &&) = delete;
-    Worker &operator=(Worker &&) = delete;
-
-    static auto instance() -> Worker *;
+    explicit Worker();
 
 public Q_SLOTS:
     void processDriveImageRequest(int, const QString &);
@@ -36,8 +31,6 @@ Q_SIGNALS:
     void archiveProcessed(const QList<Image> &images);
 
 private:
-    Worker() = default;
-    ~Worker() = default;
     Extractor *m_extractor{nullptr};
 };
 
