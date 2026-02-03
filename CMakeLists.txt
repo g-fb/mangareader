@@ -34,6 +34,9 @@ endif()
 find_package(Qt6Core ${QT_MIN_VERSION})
 set_package_properties(Qt6Core PROPERTIES TYPE REQUIRED)
 
+find_package(Qt6Concurrent ${QT_MIN_VERSION})
+set_package_properties(Qt6::Concurrent PROPERTIES TYPE REQUIRED)
+
 find_package(Qt6Widgets ${QT_MIN_VERSION})
 set_package_properties(Qt6Widgets PROPERTIES TYPE REQUIRED)
 

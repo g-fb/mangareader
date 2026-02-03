@@ -15,6 +15,7 @@ target_sources(mangareader
         image.h
         main.cpp
         mainwindow.cpp
+        manga.h manga.cpp
         mangatreewidget.h mangatreewidget.cpp
         view.cpp
         page.cpp
@@ -29,6 +30,7 @@ target_sources(mangareader
 target_link_libraries(mangareader
     PRIVATE
         Qt6::Core
+        Qt6::Concurrent
         Qt6::Widgets
         KF6::Archive
         KF6::ColorScheme
