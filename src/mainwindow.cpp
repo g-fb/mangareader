@@ -52,7 +52,6 @@
 #include "settingswindow.h"
 #include "startupwidget.h"
 #include "view.h"
-#include "worker.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow{ parent }
@@ -102,10 +101,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    if (m_thread) {
-        m_thread->quit();
-        m_thread->wait();
-    }
 }
 
 void MainWindow::init()
@@ -165,21 +160,6 @@ void MainWindow::init()
         loadImages(file, true);
     });
     centralWidgetLayout->addWidget(m_view);
-
-    // ==================================================
-    // setup thread and worker
-    // ==================================================
-    m_thread = new QThread(this);
-    Worker::instance()->moveToThread(m_thread);
-    connect(m_thread, &QThread::finished,
-            m_thread, &QThread::deleteLater);
-    m_thread->start();
-
-    connect(this, &MainWindow::processArchiveRequested,
-            Worker::instance(), &Worker::processArchive, Qt::QueuedConnection);
-
-    connect(Worker::instance(), &Worker::archiveProcessed,
-            this, &MainWindow::loadImagesFromMemory, Qt::QueuedConnection);
 
     // ==================================================
     // setup KHamburgerMenu
@@ -476,92 +456,11 @@ void MainWindow::openAdjacentArchive(OpenDirection direction)
 
 void MainWindow::loadImages(const QString &path, bool recursive)
 {
-    if (!m_currentPath.isEmpty() && m_currentPath == m_view->manga()) {
-        m_view->goToPage(m_startPage);
-        return;
-    }
-    QMimeDatabase db;
-    QString mimetype = db.mimeTypeForFile(path).name();
-    if (!m_supportedMimeTypes.contains(mimetype)) {
-        showError(i18n("Unsuported file type: %1\n"
-                       "Only folders and .zip, .cbz, .rar, .cbr, "
-                       ".7z, .cb7, .tar, .cbt archives are supported. ", mimetype));
-        return;
-    }
-
-    m_isLoadedRecursive = recursive;
-    const QFileInfo fileInfo(path);
-    QString mangaPath = fileInfo.absoluteFilePath();
-    if (fileInfo.isFile()) {
-        // if memory extraction is disabled it will extract files to a temporary location
-        // when finished call this function with the temporary location and recursive = true
-        // m_extractor->setArchiveFile(fileInfo.absoluteFilePath());
-        // m_extractor->extractArchive();
-        Q_EMIT processArchiveRequested(fileInfo.absoluteFilePath());
-        return;
-    }
-
-    m_files.clear();
-
-    // get images from path
-    QDirIterator::IteratorFlags flags = recursive
-        ? QDirIterator::Subdirectories
-        : QDirIterator::NoIteratorFlags;
-    QDirIterator it(mangaPath, QDir::Files, flags);
-    while (it.hasNext()) {
-        QString file = it.next();
-        mimetype = db.mimeTypeForFile(file).name();
-        // only get images
-        if (mimetype.startsWith(u"image/"_s)) {
-            QImageReader reader;
-            reader.setDevice(new QFile(file));
-            m_files.append({file, reader.size()});
-        }
-    }
-    // natural sort images
-    QCollator collator;
-    collator.setNumericMode(true);
-    std::sort(m_files.begin(), m_files.end(), [&collator](const Image &a, const Image &b) {
-        return collator.compare(a.path, b.path) < 0;
-    });
-
-    if (m_files.count() < 1) {
-        return;
-    }
-
-    actionCollection()->action(u"focusView"_s)->trigger();
-
-    const QFileInfo currentPathInfo(m_currentPath);
-    setWindowTitle(currentPathInfo.fileName());
-    m_startUpWidget->setVisible(false);
-    m_view->setVisible(true);
-    m_view->reset();
-    m_view->setStartPage(m_startPage);
-    m_view->setManga(m_currentPath);
-    m_view->setFiles(m_files);
-    m_view->setLoadFromMemory(false);
-    m_view->loadImages();
-    m_startPage = 0;
-}
-
-void MainWindow::loadImagesFromMemory(const QList<Image> &images)
-{
     m_progressBar->setVisible(false);
     m_startUpWidget->setVisible(false);
     m_view->setVisible(true);
-
+    m_view->openManga(path);
     actionCollection()->action(u"focusView"_s)->trigger();
-
-    const QFileInfo fileInfo(m_currentPath);
-    setWindowTitle(fileInfo.fileName());
-
-    m_view->reset();
-    m_view->setStartPage(m_startPage);
-    m_view->setManga(m_currentPath);
-    m_view->setFiles(images);
-    m_view->setLoadFromMemory(true);
-    m_view->loadImages();
-    m_startPage = 0;
 }
 
 void MainWindow::setupActions()

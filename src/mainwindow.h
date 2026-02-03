@@ -48,7 +48,6 @@ public:
     };
 
     void loadImages(const QString &path, bool recursive = false);
-    void loadImagesFromMemory(const QList<Image> &images);
 
     void setCurrentPath(const QString &_currentPath);
 
@@ -92,7 +91,6 @@ private:
     QDockWidget        *m_bookmarksDock{nullptr};
     QTableView         *m_bookmarksView{nullptr};
     QStandardItemModel *m_bookmarksModel{nullptr};
-    QThread            *m_thread{nullptr};
     QProgressBar       *m_progressBar{nullptr};
     QString             m_currentPath;
     QComboBox          *m_selectMangaLibraryComboBox{nullptr};
