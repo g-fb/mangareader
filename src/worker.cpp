@@ -18,9 +18,9 @@ void Worker::processDriveImageRequest(int number, const QString &path)
     }
 }
 
-void Worker::processMemoryImageRequest(int number, const QByteArray &data)
+void Worker::processMemoryImageRequest(int number, const QString &name)
 {
-    QImage image = QImage::fromData(data);
+    QImage image = QImage::fromData(m_extractor->getFileData(name));
     if (!image.isNull()) {
         Q_EMIT imageReady(image, number);
     }
@@ -31,6 +31,14 @@ void Worker::processImageResize(const QImage &image, const QSize &size, int numb
     auto scaledImage = image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     Q_EMIT imageResized(scaledImage, number);
+}
+
+void Worker::processArchive(const QString path)
+{
+    m_extractor = new Extractor(this);
+    m_extractor->open(path);
+    const auto images = m_extractor->filesList();
+    Q_EMIT archiveProcessed(images);
 }
 
 auto Worker::instance() -> Worker *

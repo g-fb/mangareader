@@ -8,6 +8,10 @@
 #define WORKER_H
 
 #include <QObject>
+#include <QSize>
+
+#include "extractor.h"
+#include "image.h"
 
 class Worker : public QObject
 {
@@ -22,16 +26,19 @@ public:
 
 public Q_SLOTS:
     void processDriveImageRequest(int, const QString &);
-    void processMemoryImageRequest(int, const QByteArray &);
+    void processMemoryImageRequest(int, const QString &);
     void processImageResize(const QImage &image, const QSize &size, int number);
+    void processArchive(const QString path);
 
 Q_SIGNALS:
     void imageReady(const QImage &image, int number);
     void imageResized(const QImage &image, int number);
+    void archiveProcessed(const QList<Image> &images);
 
 private:
     Worker() = default;
     ~Worker() = default;
+    Extractor *m_extractor{nullptr};
 };
 
 #endif // WORKER_H

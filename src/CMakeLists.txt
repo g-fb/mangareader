@@ -12,6 +12,7 @@ add_executable(mangareader)
 target_sources(mangareader
     PRIVATE
         extractor.cpp
+        image.h
         main.cpp
         mainwindow.cpp
         mangatreewidget.h mangatreewidget.cpp

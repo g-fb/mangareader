@@ -10,9 +10,9 @@
 #include <KSharedConfig>
 #include <KXmlGuiWindow>
 
+#include "image.h"
+
 class QComboBox;
-class KArchive;
-class Extractor;
 class KHamburgerMenu;
 class MangaTreeWidget;
 class QPushButton;
@@ -48,9 +48,12 @@ public:
     };
 
     void loadImages(const QString &path, bool recursive = false);
-    void loadImagesFromMemory(KArchive *archive, const QStringList &files);
+    void loadImagesFromMemory(const QList<Image> &images);
 
     void setCurrentPath(const QString &_currentPath);
+
+Q_SIGNALS:
+    void processArchiveRequested(const QString &path);
 
 private:
     static void showError(const QString &error);
@@ -80,10 +83,9 @@ private:
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dropEvent(QDropEvent *e) override;
 
-    Extractor          *m_extractor{nullptr};
     KSharedConfig::Ptr  m_config;
     KHamburgerMenu     *m_hamburgerMenu{nullptr};
-    QStringList         m_files;
+    QList<Image>        m_files;
     View               *m_view{nullptr};
     QDockWidget        *m_treeDock{nullptr};
     MangaTreeWidget    *m_mangaTreeWidget{nullptr};

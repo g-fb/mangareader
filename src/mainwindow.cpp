@@ -12,6 +12,7 @@
 #include <QDesktopServices>
 #include <QDirIterator>
 #include <QDockWidget>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileSystemModel>
 #include <QHeaderView>
@@ -32,7 +33,6 @@
 
 #include <KActionCollection>
 #include <KActionMenu>
-#include <KArchive>
 #include <KColorSchemeManager>
 #include <KColorSchemeMenu>
 #include <KConfigDialog>
@@ -45,8 +45,8 @@
 #include <KIO/OpenUrlJob>
 #include <KLocalizedString>
 #include <KToolBar>
+#include <qimagereader.h>
 
-#include "extractor.h"
 #include "mangatreewidget.h"
 #include "settings.h"
 #include "settingswindow.h"
@@ -113,36 +113,6 @@ void MainWindow::init()
     m_config = KSharedConfig::openConfig(u"mangareader/mangareader.conf"_s);
 
     // ==================================================
-    // setup extractor
-    // ==================================================
-    m_extractor = new Extractor(this);
-    connect(m_extractor, &Extractor::progress, this, [this](int p) {
-        if (m_progressBar->isHidden()) {
-            m_progressBar->setVisible(true);
-        }
-        m_progressBar->setValue(p);
-    });
-    connect(m_extractor, &Extractor::finished, this, [this]() {
-        m_progressBar->setVisible(false);
-        loadImages(m_extractor->extractionFolder(), true);
-    });
-    connect(m_extractor, &Extractor::finishedMemory,
-            this, &MainWindow::loadImagesFromMemory);
-    connect(m_extractor, &Extractor::error, this, [](const QString &error) {
-        showError(error);
-    });
-    connect(m_extractor, &Extractor::unrarNotFound, this, [this]() {
-        QMessageBox msgBox;
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setText(m_extractor->unrarNotFoundMessage());
-        msgBox.setStandardButtons(QMessageBox::Close);
-        msgBox.setEscapeButton(QMessageBox::Close);
-        auto btn = msgBox.addButton(u"Open Settings"_s, QMessageBox::HelpRole);
-        connect(btn, &QPushButton::clicked, this, &MainWindow::openSettings);
-        msgBox.exec();
-    });
-
-    // ==================================================
     // setup central widget
     // ==================================================
     auto mainWidget = new QWidget(this);
@@ -204,6 +174,12 @@ void MainWindow::init()
     connect(m_thread, &QThread::finished,
             m_thread, &QThread::deleteLater);
     m_thread->start();
+
+    connect(this, &MainWindow::processArchiveRequested,
+            Worker::instance(), &Worker::processArchive, Qt::QueuedConnection);
+
+    connect(Worker::instance(), &Worker::archiveProcessed,
+            this, &MainWindow::loadImagesFromMemory, Qt::QueuedConnection);
 
     // ==================================================
     // setup KHamburgerMenu
@@ -519,8 +495,9 @@ void MainWindow::loadImages(const QString &path, bool recursive)
     if (fileInfo.isFile()) {
         // if memory extraction is disabled it will extract files to a temporary location
         // when finished call this function with the temporary location and recursive = true
-        m_extractor->setArchiveFile(fileInfo.absoluteFilePath());
-        m_extractor->extractArchive();
+        // m_extractor->setArchiveFile(fileInfo.absoluteFilePath());
+        // m_extractor->extractArchive();
+        Q_EMIT processArchiveRequested(fileInfo.absoluteFilePath());
         return;
     }
 
@@ -536,13 +513,17 @@ void MainWindow::loadImages(const QString &path, bool recursive)
         mimetype = db.mimeTypeForFile(file).name();
         // only get images
         if (mimetype.startsWith(u"image/"_s)) {
-            m_files.append(file);
+            QImageReader reader;
+            reader.setDevice(new QFile(file));
+            m_files.append({file, reader.size()});
         }
     }
     // natural sort images
     QCollator collator;
     collator.setNumericMode(true);
-    std::sort(m_files.begin(), m_files.end(), collator);
+    std::sort(m_files.begin(), m_files.end(), [&collator](const Image &a, const Image &b) {
+        return collator.compare(a.path, b.path) < 0;
+    });
 
     if (m_files.count() < 1) {
         return;
@@ -556,14 +537,14 @@ void MainWindow::loadImages(const QString &path, bool recursive)
     m_view->setVisible(true);
     m_view->reset();
     m_view->setStartPage(m_startPage);
-    m_view->setManga(mangaPath);
+    m_view->setManga(m_currentPath);
     m_view->setFiles(m_files);
     m_view->setLoadFromMemory(false);
     m_view->loadImages();
     m_startPage = 0;
 }
 
-void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &files)
+void MainWindow::loadImagesFromMemory(const QList<Image> &images)
 {
     m_progressBar->setVisible(false);
     m_startUpWidget->setVisible(false);
@@ -571,14 +552,13 @@ void MainWindow::loadImagesFromMemory(KArchive *archive, const QStringList &file
 
     actionCollection()->action(u"focusView"_s)->trigger();
 
-    const QFileInfo fileInfo(m_extractor->archiveFile());
+    const QFileInfo fileInfo(m_currentPath);
     setWindowTitle(fileInfo.fileName());
 
     m_view->reset();
     m_view->setStartPage(m_startPage);
-    m_view->setManga(fileInfo.absoluteFilePath());
-    m_view->setFiles(files);
-    m_view->setArchive(archive);
+    m_view->setManga(m_currentPath);
+    m_view->setFiles(images);
     m_view->setLoadFromMemory(true);
     m_view->loadImages();
     m_startPage = 0;

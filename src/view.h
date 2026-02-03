@@ -11,7 +11,8 @@
 #include <QObject>
 #include <KXMLGUIClient>
 
-class KArchive;
+#include "image.h"
+
 class Page;
 class QGraphicsScene;
 class QPropertyAnimation;
@@ -31,8 +32,7 @@ public:
     void setStartPage(int number);
     const QString &manga() const;
     void setManga(const QString &manga);
-    void setFiles(const QStringList &files);
-    void setArchive(KArchive *newArchive);
+    void setFiles(const QList<Image> &images);
 
     void setLoadFromMemory(bool newLoadFromMemory);
 
@@ -41,7 +41,7 @@ public:
 Q_SIGNALS:
     void imagesLoaded(int number);
     void requestDriveImage(int number, const QString &path);
-    void requestMemoryImage(int number, const QByteArray &data);
+    void requestMemoryImage(int number, const QString &name);
     void currentImageChanged(int number);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
@@ -78,7 +78,7 @@ private:
 
     QGraphicsScene  *m_scene{nullptr};
     QString          m_manga;
-    QStringList      m_files;
+    QList<Image>     m_files;
     QList<Page*>     m_pages;
     QList<int>       m_start;
     QList<int>       m_end;
@@ -88,7 +88,6 @@ private:
     float            m_firstVisibleOffset{0.0f};
     double           m_globalZoom{1.0};
     QTimer          *m_resizeTimer{nullptr};
-    KArchive        *m_archive {nullptr};
     bool             m_loadFromMemory {false};
     QPropertyAnimation *m_scrollAnimation{nullptr};
     int              m_targetScrollValue{0};

@@ -21,7 +21,6 @@
 #include <QTimer>
 
 #include <KActionCollection>
-#include <KArchive>
 #include <KLocalizedString>
 #include <KXMLGUIFactory>
 
@@ -181,8 +180,6 @@ void View::setupActions()
 
 void View::reset()
 {
-    delete m_archive;
-    m_archive = nullptr;
     qDeleteAll(m_pages);
     m_pages.clear();
     m_start.clear();
@@ -208,50 +205,14 @@ void View::createPages()
     imageReader.setAutoTransform(true);
     int i {0};
     for (auto &_file : m_files) {
-        fi.setFile(_file);
-        imageReader.setFormat(fi.suffix().toUtf8());
-        if (m_loadFromMemory) {
-            const KArchiveFile *entry = m_archive->directory()->file(_file);
-            if (!entry) {
-                continue;
-            }
-            dev.reset(entry->createDevice());
-        } else {
-            std::unique_ptr<QFile> file(new QFile(_file));
-            if (!file->open(QIODevice::ReadOnly)) {
-                continue;
-            }
-            dev.reset(file.release());
-        }
+        QFileInfo fi(_file.path);
+        Page *p = new Page(_file.size);
+        p->setNumber(i);
+        p->setFilename(_file.path);
+        p->setView(this);
 
-        if (dev.isNull()) {
-            continue;
-        }
-
-        imageReader.setDevice(dev.data());
-        if (!imageReader.canRead()) {
-            continue;
-        }
-
-        QSize pageSize = imageReader.size();
-        if (imageReader.transformation() & QImageIOHandler::TransformationRotate90) {
-            pageSize.transpose();
-        }
-        if (!pageSize.isValid()) {
-            const QImage i = imageReader.read();
-            if (!i.isNull()) {
-                pageSize = i.size();
-            }
-        }
-        if (pageSize.isValid()) {
-            Page *p = new Page(imageReader.size());
-            p->setNumber(i);
-            p->setFilename(_file);
-            p->setView(this);
-
-            m_pages.append(p);
-            m_scene->addItem(p);
-        }
+        m_pages.append(p);
+        m_scene->addItem(p);
         ++i;
     }
     m_start.resize(m_pages.size());
@@ -363,7 +324,7 @@ void View::addRequest(int number)
     m_requestedPages.insert(number);
     QString filename = m_pages.at(number)->filename();
     if (m_loadFromMemory) {
-        Q_EMIT requestMemoryImage(number, m_archive->directory()->file(filename)->data());
+        Q_EMIT requestMemoryImage(number, filename);
     } else {
         Q_EMIT requestDriveImage(number, filename);
     }
@@ -610,11 +571,6 @@ bool View::event(QEvent *event)
     return QGraphicsView::event(event);
 }
 
-void View::setArchive(KArchive *newArchive)
-{
-    m_archive = newArchive;
-}
-
 void View::goToPage(int number)
 {
     if (m_pages.isEmpty()) {
@@ -638,9 +594,9 @@ void View::setManga(const QString &manga)
     m_manga = manga;
 }
 
-void View::setFiles(const QStringList &files)
+void View::setFiles(const QList<Image> &images)
 {
-    m_files = files;
+    m_files = images;
 }
 
 void View::zoomIn()
