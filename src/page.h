@@ -41,6 +41,9 @@ public:
     const QString &filename() const;
     void setFilename(const QString &newFilename);
 
+    QRectF rect() const;
+    void setRect(const QRectF &newRect);
+
 private:
     auto boundingRect() const -> QRectF override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -56,6 +59,7 @@ private:
     QPixmap  m_pixmap;
     QImage   m_image;
     QString  m_filename;
+    QRectF   m_rect;
 };
 
 #endif // PAGE_H

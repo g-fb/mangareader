@@ -57,6 +57,16 @@ void Page::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWid
     painter->drawPixmap(option->exposedRect, m_pixmap, option->exposedRect);
 }
 
+QRectF Page::rect() const
+{
+    return m_rect;
+}
+
+void Page::setRect(const QRectF &newRect)
+{
+    m_rect = newRect;
+}
+
 const QString &Page::filename() const
 {
     return m_filename;
