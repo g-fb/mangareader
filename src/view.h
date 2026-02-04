@@ -64,7 +64,6 @@ private:
     void setPagesVisibility();
     void addRequest(int number);
     void delRequest(int number);
-    auto isInView  (int imgTop, int imgBot) -> bool;
     void resizeEvent(QResizeEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;

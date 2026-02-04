@@ -392,13 +392,6 @@ void View::refreshPages()
     setPagesVisibility();
 }
 
-auto View::isInView(int imgTop, int imgBot) -> bool
-{
-    const int vy1 = verticalScrollBar()->value();
-    const int vy2 = vy1 + viewport()->height();
-    return std::min(imgBot, vy2) > std::max(imgTop, vy1);
-}
-
 void View::resizeEvent(QResizeEvent *e)
 {
     if (m_pages.isEmpty()) {
