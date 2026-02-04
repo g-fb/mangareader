@@ -35,6 +35,17 @@ Manga::~Manga()
         m_thread->quit();
         m_thread->wait();
     }
+
+    m_imageRequestsMutex.lock();
+    qDeleteAll(m_imageRequestsStack);
+    m_imageRequestsStack.clear();
+
+    m_imageRequestsMutex.unlock();
+
+    if (m_imageGenerationThread) {
+        m_imageGenerationThread->wait();
+    }
+    delete m_imageGenerationThread;
 }
 
 void Manga::init()
