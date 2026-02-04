@@ -557,7 +557,7 @@ void View::goToPage(int number)
     if (m_pages.isEmpty()) {
         return;
     }
-    verticalScrollBar()->setValue(m_start[number] - 1);
+    verticalScrollBar()->setValue(m_pages.at(number)->pos().y());
 }
 
 auto View::imageCount() -> int
