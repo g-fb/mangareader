@@ -296,6 +296,13 @@ void View::setPagesVisibility()
     QList<ImageRequest *> requestedImages;
     QList<Page *> visiblePages;
 
+    m_firstVisible = -1;
+    m_firstVisibleOffset = 0.0F;
+
+    const QRectF viewportRect(horizontalScrollBar()->value(),
+                              verticalScrollBar()->value(),
+                              viewport()->width(),
+                              viewport()->height());
     // use a bigger rect than the viewport's rect to check if the page is in view
     // this way pages just outside the actual viewport are also loaded
     const QRectF customViewportRect(horizontalScrollBar()->value(),
@@ -307,6 +314,15 @@ void View::setPagesVisibility()
         if (intersectionRect.isEmpty()) {
             page->deleteImage();
             continue;
+        }
+
+        if (viewportRect.intersects(page->rect())) {
+            if (m_firstVisible < 0) {
+                m_firstVisible = page->number();
+                // hidden portion (%) of page
+                m_firstVisibleOffset = static_cast<float>(verticalScrollBar()->value() - page->pos().y())
+                                       / static_cast<float>(page->scaledSize().height());
+            }
         }
 
         visiblePages.append(page);
@@ -364,8 +380,11 @@ void View::onScrollBarRangeChanged(int x, int y)
     Q_UNUSED(y)
     if (m_firstVisible >= 0)
     {
-        auto pageHeight = static_cast<float>(m_end[m_firstVisible] - m_start[m_firstVisible]);
-        int offset = m_start[m_firstVisible] + static_cast<int>(m_firstVisibleOffset * pageHeight);
+        auto page = m_pages.at(m_firstVisible);
+        page->calculateScaledSize();
+        auto pageHeight = page->scaledSize().height();
+        int offset = page->pos().y() + m_firstVisibleOffset * pageHeight;
+
         verticalScrollBar()->setValue(offset);
     }
 }
