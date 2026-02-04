@@ -86,6 +86,11 @@ View::View(MainWindow *parent)
     });
 }
 
+View::~View()
+{
+    delete m_manga;
+}
+
 void View::setupActions()
 {
     KActionCollection *collection = actionCollection();
@@ -290,9 +295,15 @@ void View::setPagesVisibility()
 {
     QList<ImageRequest *> requestedImages;
     QList<Page *> visiblePages;
+
+    // use a bigger rect than the viewport's rect to check if the page is in view
+    // this way pages just outside the actual viewport are also loaded
+    const QRectF customViewportRect(horizontalScrollBar()->value(),
+                                    verticalScrollBar()->value() - viewport()->height(),
+                                    viewport()->width(),
+                                    viewport()->height() * 3);
     for (const auto &page : std::as_const(m_pages)) {
-        const QRectF viewportRect(horizontalScrollBar()->value(), verticalScrollBar()->value(), viewport()->width(), viewport()->height());
-        QRectF intersectionRect = viewportRect.intersected(page->rect());
+        QRectF intersectionRect = customViewportRect.intersected(page->rect());
         if (intersectionRect.isEmpty()) {
             page->deleteImage();
             continue;
@@ -306,32 +317,6 @@ void View::setPagesVisibility()
             ir->path = page->filename();
             ir->size = page->scaledSize();
             requestedImages.append(ir);
-        }
-    }
-
-    if (!visiblePages.isEmpty()) {
-        int pageBeforeVisibles = visiblePages.first()->number() - 1;
-        if (pageBeforeVisibles >= 0) {
-            auto p = m_pages.at(pageBeforeVisibles);
-            if (p->isImageDeleted()) {
-                ImageRequest *ir = new ImageRequest();
-                ir->pageNumber = p->number();
-                ir->path = p->filename();
-                ir->size = p->scaledSize();
-                requestedImages.append(ir);
-            }
-        }
-
-        int pageAfterVisibles = visiblePages.last()->number() + 1;
-        if (pageAfterVisibles < m_pages.size()) {
-            auto p = m_pages.at(pageAfterVisibles);
-            if (p->isImageDeleted()) {
-                ImageRequest *ir = new ImageRequest();
-                ir->pageNumber = p->number();
-                ir->path = p->filename();
-                ir->size = p->scaledSize();
-                requestedImages.append(ir);
-            }
         }
     }
 
@@ -355,14 +340,10 @@ void View::delRequest(int number)
 
 void View::onImageReady(const QImage &image, int number)
 {
-    // when loading another manga it can happen that the number returned by the thread
-    // is bigger than the total number of images the current manga has
-    // resulting in an index out of range crash
     if (number < 0 || number >= m_pages.size()) {
         return;
     }
     m_pages.at(number)->setImage(image);
-    // calculatePageSizes();
     if (m_startPage > 0) {
         goToPage(m_startPage);
         m_startPage = 0;

@@ -25,7 +25,7 @@ class View : public QGraphicsView, public KXMLGUIClient
 
 public:
     View(MainWindow *parent);
-    ~View() = default;
+    ~View();
     void reset();
     void openManga(const QString &path);
     void loadImages();
