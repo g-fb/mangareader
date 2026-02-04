@@ -6,15 +6,37 @@
 #include <QImageReader>
 #include <QMimeDatabase>
 #include <QThread>
+#include <QTimer>
 
 #include "worker.h"
 
 Manga::Manga(const QString &path, QObject *parent)
     : QObject{parent}
     , m_path{path}
+    , m_extractor{new Extractor}
+    , m_imageGenerationThread{new ImageGenerationThread(this)}
     , m_worker{new Worker}
 {
+    QObject::connect(m_imageGenerationThread, &ImageGenerationThread::finished, this, [this] {
+        ImageRequest *request = m_imageGenerationThread->request();
+        const QImage &img = request->image;
+        Q_EMIT imageReady(img, request->pageNumber);
+
+        m_imageGenerationThread->endGeneration();
+        m_canGenerate = true;
+
+        requestDone(request);
+    }, Qt::QueuedConnection);
 }
+
+Manga::~Manga()
+{
+    if (m_thread) {
+        m_thread->quit();
+        m_thread->wait();
+    }
+}
+
 void Manga::init()
 {
     QFileInfo fi{m_path};
@@ -66,31 +88,130 @@ void Manga::init()
     }, Qt::QueuedConnection);
 }
 
-Manga::~Manga()
+Manga::Type Manga::type() const
 {
-    if (m_thread) {
-        m_thread->quit();
-        m_thread->wait();
-    }
+    return m_type;
 }
 
-void Manga::processImageRequest(int pageNumber, const QString &path)
+QImage Manga::image(ImageRequest *request)
 {
+    QImage img;
     switch(m_type) {
     case Type::FileCbz:
     case Type::FileCbr:
     case Type::FileCb7:
     case Type::FileCbt:
-        QMetaObject::invokeMethod(m_worker, &Worker::processMemoryImageRequest, Qt::QueuedConnection, pageNumber, path);
+        m_extractor->open(m_path);
+        img.loadFromData(m_extractor->getFileData(request->path));
         break;
     case Type::Folder:
-        QMetaObject::invokeMethod(m_worker, &Worker::processDriveImageRequest, Qt::QueuedConnection, pageNumber, path);
+        img.load(request->path);
         break;
     case Type::Unknown:
         break;
     }
+
+    return img.scaled(request->size.width(), request->size.height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 }
 
+QList<Image> Manga::images() const
+{
+    return m_images;
+}
+
+void Manga::addRequests(QList<ImageRequest *> requests)
+{
+    QSet<int> requestedPages;
+    {
+        for (const ImageRequest *request : requests) {
+            requestedPages.insert(request->pageNumber);
+        }
+    }
+
+    m_imageRequestsMutex.lock();
+    auto sIt = m_imageRequestsStack.begin();
+    auto sEnd = m_imageRequestsStack.end();
+    // Iterate through the pending request stack and remove any requests that
+    // target pages already present in the new request set. This prevents
+    // duplicate work and ensures that only the most recent request for a page
+    // remains in the queue.
+    while (sIt != sEnd) {
+        if (requestedPages.contains((*sIt)->pageNumber)) {
+            delete *sIt;
+            sIt = m_imageRequestsStack.erase(sIt);
+        } else {
+            ++sIt;
+        }
+    }
+
+    for (ImageRequest *request : requests) {
+        m_imageRequestsStack.push_back(request);
+    }
+    m_imageRequestsMutex.unlock();
+
+    sendRequest();
+}
+
+void Manga::sendRequest()
+{
+    ImageRequest *request = nullptr;
+    m_imageRequestsMutex.lock();
+    while (!m_imageRequestsStack.empty() && !request) {
+        ImageRequest *r = m_imageRequestsStack.back();
+        if (!r) {
+            m_imageRequestsStack.pop_back();
+            continue;
+        }
+        request = r;
+    }
+    if (!request) {
+        m_imageRequestsMutex.unlock();
+        return;
+    }
+
+    if (canGeneratePixmap()) {
+        m_imageRequestsStack.remove(request);
+        m_executingImageRequests.push_back(request);
+        m_imageRequestsMutex.unlock();
+
+        generatePixmap(request);
+    } else {
+        m_imageRequestsMutex.unlock();
+        QTimer::singleShot(30, this, [this] { sendRequest(); });
+    }
+}
+
+void Manga::generatePixmap(ImageRequest *request)
+{
+    m_canGenerate = false;
+    m_imageGenerationThread->startGeneration(request);
+}
+
+void Manga::requestDone(ImageRequest *request)
+{
+    if (!request) {
+        return;
+    }
+
+    m_imageRequestsMutex.lock();
+    m_executingImageRequests.remove(request);
+    m_imageRequestsMutex.unlock();
+
+    delete request;
+    request = nullptr;
+
+    m_imageRequestsMutex.lock();
+    bool hasPixmaps = !m_imageRequestsStack.empty();
+    m_imageRequestsMutex.unlock();
+    if (hasPixmaps) {
+        sendRequest();
+    }
+}
+
+bool Manga::canGeneratePixmap()
+{
+    return m_canGenerate;
+}
 // clang-format off
 bool Manga::isZip()
 {
@@ -123,6 +244,7 @@ bool Manga::isFolder()
 {
     return m_mimeType.inherits(u"inode/directory"_s);
 }
+
 // clang-format on
 
 QList<Image> Manga::getFolderImages()
@@ -158,14 +280,3 @@ QList<Image> Manga::getFolderImages()
     }
     return m_images;
 }
-
-QList<Image> Manga::images() const
-{
-    return m_images;
-}
-
-Manga::Type Manga::type() const
-{
-    return m_type;
-}
-

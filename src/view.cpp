@@ -24,6 +24,7 @@
 #include <KLocalizedString>
 #include <KXMLGUIFactory>
 
+#include "imagerequest.h"
 #include "mainwindow.h"
 #include "page.h"
 #include "settings.h"
@@ -81,6 +82,7 @@ View::View(MainWindow *parent)
         if (p) {
             Q_EMIT currentImageChanged(p->number());
         }
+        setPagesVisibility();
     });
 }
 
@@ -193,9 +195,6 @@ void View::openManga(const QString &path)
         setPagesVisibility();
     });
 
-    connect(this, &View::requestImage,
-            m_manga, &Manga::processImageRequest, Qt::QueuedConnection);
-
     connect(m_manga, &Manga::imageReady,
             this, &View::onImageReady, Qt::QueuedConnection);
 
@@ -207,7 +206,6 @@ void View::loadImages()
     createPages();
     Q_EMIT imagesLoaded(m_startPage);
     calculatePageSizes();
-    setPagesVisibility();
 }
 
 void View::createPages()
@@ -251,7 +249,14 @@ void View::calculatePageSizes()
             int startX = (viewportWidth - totalWidth) / 2;
 
             p1->setPos(startX, pageYCoordinate);
+            p1->setRect({p1->x(), p1->y(),
+                         static_cast<qreal>(p1->scaledSize().width()),
+                         static_cast<qreal>(p1->scaledSize().height())});
+
             p2->setPos(startX + p1->scaledSize().width() + hSpacing, pageYCoordinate);
+            p2->setRect({p2->x(), p2->y(),
+                         static_cast<qreal>(p2->scaledSize().width()),
+                         static_cast<qreal>(p2->scaledSize().height())});
 
             int maxHeight = std::max(p1->scaledSize().height(), p2->scaledSize().height());
 
@@ -268,6 +273,9 @@ void View::calculatePageSizes()
             // single page
             const int x = (viewportWidth - p1->scaledSize().width()) / 2;
             p1->setPos(x, pageYCoordinate);
+            p1->setRect({p1->x(), p1->y(),
+                         static_cast<qreal>(p1->scaledSize().width()),
+                         static_cast<qreal>(p1->scaledSize().height())});
 
             int height = p1->scaledSize().height();
             m_start[i] = pageYCoordinate;
@@ -280,53 +288,54 @@ void View::calculatePageSizes()
 
 void View::setPagesVisibility()
 {
-    const int vy1 = verticalScrollBar()->value();
-//    const int vy2 = vy1 + viewport()->height();
+    QList<ImageRequest *> requestedImages;
+    QList<Page *> visiblePages;
+    for (const auto &page : std::as_const(m_pages)) {
+        const QRectF viewportRect(horizontalScrollBar()->value(), verticalScrollBar()->value(), viewport()->width(), viewport()->height());
+        QRectF intersectionRect = viewportRect.intersected(page->rect());
+        if (intersectionRect.isEmpty()) {
+            page->deleteImage();
+            continue;
+        }
 
-    m_firstVisible = -1;
-    m_firstVisibleOffset = 0.0F;
+        visiblePages.append(page);
 
-    for (int i = 0; i < m_pages.count(); i++) {
-        // page is visible on the screen but its image not loaded
-        auto page = m_pages.at(i);
-        int pageNumber = page->number();
+        if (page->isImageDeleted()) {
+            ImageRequest *ir = new ImageRequest();
+            ir->pageNumber = page->number();
+            ir->path = page->filename();
+            ir->size = page->scaledSize();
+            requestedImages.append(ir);
+        }
+    }
 
-        if (isInView(m_start[pageNumber], m_end[pageNumber])) {
-            if (page->isImageDeleted()) {
-                addRequest(pageNumber);
+    if (!visiblePages.isEmpty()) {
+        int pageBeforeVisibles = visiblePages.first()->number() - 1;
+        if (pageBeforeVisibles >= 0) {
+            auto p = m_pages.at(pageBeforeVisibles);
+            if (p->isImageDeleted()) {
+                ImageRequest *ir = new ImageRequest();
+                ir->pageNumber = p->number();
+                ir->path = p->filename();
+                ir->size = p->scaledSize();
+                requestedImages.append(ir);
             }
-            if (m_firstVisible < 0) {
-                m_firstVisible = pageNumber;
-                // hidden portion (%) of page
-                m_firstVisibleOffset = static_cast<float>(vy1 - m_start[pageNumber]) / static_cast<float>(page->scaledSize().height());
-            }
-        } else {
-            // page is not visible but its image is loaded
-            bool isPrevPageInView = false;
-            if (i > 0) {
-                isPrevPageInView = isInView(m_start.at(i - 1), m_end.at(i - 1));
-            }
-            bool isNextPageInView = false;
-            if ((i + 1) < m_pages.count()) {
-                isNextPageInView = isInView(m_start.at(i + 1), m_end.at(i + 1));
-            }
+        }
 
-            if (!page->isImageDeleted()) {
-                // delete page image unless it is before or after a page that is in view
-                if (!(isPrevPageInView || isNextPageInView)) {
-                    page->deleteImage();
-                    delRequest(pageNumber);
-                }
-            } else { // page is not visible and its image not loaded
-                // if previous page is visible load current page image too
-                if (isPrevPageInView) {
-                    addRequest(pageNumber);
-                } else {
-                    delRequest(pageNumber);
-                }
+        int pageAfterVisibles = visiblePages.last()->number() + 1;
+        if (pageAfterVisibles < m_pages.size()) {
+            auto p = m_pages.at(pageAfterVisibles);
+            if (p->isImageDeleted()) {
+                ImageRequest *ir = new ImageRequest();
+                ir->pageNumber = p->number();
+                ir->path = p->filename();
+                ir->size = p->scaledSize();
+                requestedImages.append(ir);
             }
         }
     }
+
+    m_manga->addRequests(requestedImages);
 }
 
 void View::addRequest(int number)
@@ -358,7 +367,6 @@ void View::onImageReady(const QImage &image, int number)
         goToPage(m_startPage);
         m_startPage = 0;
     }
-    setPagesVisibility();
 }
 
 void View::onImageResized(const QImage &image, int number)
@@ -379,12 +387,6 @@ void View::onScrollBarRangeChanged(int x, int y)
         int offset = m_start[m_firstVisible] + static_cast<int>(m_firstVisibleOffset * pageHeight);
         verticalScrollBar()->setValue(offset);
     }
-}
-
-void View::scrollContentsBy(int dx, int dy)
-{
-    QGraphicsView::scrollContentsBy(dx, dy);
-    setPagesVisibility();
 }
 
 void View::refreshPages()
@@ -428,6 +430,7 @@ void View::resizeEvent(QResizeEvent *e)
             p->redrawImage();
         }
         calculatePageSizes();
+        setPagesVisibility();
     }
     QGraphicsView::resizeEvent(e);
 }

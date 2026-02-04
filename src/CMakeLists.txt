@@ -13,6 +13,8 @@ target_sources(mangareader
     PRIVATE
         extractor.cpp
         image.h
+        imagegenerationthread.h imagegenerationthread.cpp
+        imagerequest.h
         main.cpp
         mainwindow.cpp
         manga.h manga.cpp

@@ -64,7 +64,6 @@ private:
     void setPagesVisibility();
     void addRequest(int number);
     void delRequest(int number);
-    void scrollContentsBy(int dx, int dy) override;
     auto isInView  (int imgTop, int imgBot) -> bool;
     void resizeEvent(QResizeEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
@@ -79,6 +78,7 @@ private:
     Manga           *m_manga{nullptr};
     QList<Image>     m_files;
     QList<Page*>     m_pages;
+    QList<Page*>     m_visiblePages;
     QList<int>       m_start;
     QList<int>       m_end;
     QSet<int>        m_requestedPages;

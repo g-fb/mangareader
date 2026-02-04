@@ -2,9 +2,13 @@
 #define MANGA_H
 
 #include <QMimeType>
+#include <QMutex>
 #include <QObject>
 
+#include "extractor.h"
 #include "image.h"
+#include "imagegenerationthread.h"
+#include "imagerequest.h"
 
 class QThread;
 class Worker;
@@ -17,7 +21,6 @@ class Manga : public QObject
 public:
     explicit Manga(const QString &path, QObject *parent = nullptr);
     ~Manga();
-    void init();
 
     enum class Type {
         Unknown,
@@ -28,17 +31,21 @@ public:
         Folder,
     };
 
+    void init();
     Type type() const;
-
+    QImage image(ImageRequest *request);
     QList<Image> images() const;
-
-    void processImageRequest(int, const QString &);
+    void addRequests(QList<ImageRequest *> requests);
 
 Q_SIGNALS:
     void imagesReady();
     void imageReady(const QImage &image, int number);
 
 private:
+    void sendRequest();
+    void generatePixmap(ImageRequest *request);
+    void requestDone(ImageRequest *request);
+    bool canGeneratePixmap();
     bool isZip();
     bool isRar();
     bool isTar();
@@ -47,12 +54,17 @@ private:
     QList<Image> getFolderImages();
 
     QString m_path;
-    QList<Image> m_images;
     QMimeType m_mimeType;
     Type m_type{Type::Unknown};
-
+    QList<Image> m_images;
+    Extractor *m_extractor{nullptr};
+    bool m_canGenerate{true};
+    std::list<ImageRequest *> m_imageRequestsStack;
+    std::list<ImageRequest *> m_executingImageRequests;
+    QMutex m_imageRequestsMutex;
+    ImageGenerationThread *m_imageGenerationThread{nullptr};
     QThread *m_thread{nullptr};
-    Worker * m_worker{nullptr};
+    Worker  *m_worker{nullptr};
 
     const QStringList m_supportedMimeTypes{u"application/zip"_s,
                                            u"application/x-cbz"_s,
