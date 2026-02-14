@@ -788,7 +788,8 @@ void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
         m_treeDock->setVisible(MangaReaderSettings::mangaTreeDockVisible() && !m_mangaTreeWidget->isEmpty());
     }
     if ((bookmarkDockArea == area || area == Qt::AllDockWidgetAreas) && !m_bookmarksDock->isFloating()) {
-        m_bookmarksDock->setVisible(MangaReaderSettings::bookmarksDockVisible());
+        auto bookmarksGroup = m_config->group(u"Bookmarks"_s);
+        m_bookmarksDock->setVisible(MangaReaderSettings::bookmarksDockVisible() && !bookmarksGroup.keyList().isEmpty());
     }
 }
 
