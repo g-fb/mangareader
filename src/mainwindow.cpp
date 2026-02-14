@@ -186,7 +186,7 @@ void MainWindow::setupMangaTreeDockWidget()
     m_treeDock->setObjectName("treeDockWidget");
     m_treeDock->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable);
     m_treeDock->setProperty("h", 0);
-    m_treeDock->setProperty("isEmpty", mangaFolder.isEmpty());
+    m_treeDock->setProperty("isEmpty", m_mangaTreeWidget->isEmpty());
 
     m_selectMangaLibraryComboBox = new QComboBox(treeDockWidget);
     connect(m_selectMangaLibraryComboBox, &QComboBox::currentTextChanged, this, [this](const QString &path) {
@@ -785,7 +785,7 @@ void MainWindow::showDockWidgets(Qt::DockWidgetAreas area)
     const auto bookmarkDockArea = dockWidgetArea(m_bookmarksDock);
 
     if ((treeDockArea == area || area == Qt::AllDockWidgetAreas) && !m_treeDock->isFloating()) {
-        m_treeDock->setVisible(MangaReaderSettings::mangaTreeDockVisible());
+        m_treeDock->setVisible(MangaReaderSettings::mangaTreeDockVisible() && !m_mangaTreeWidget->isEmpty());
     }
     if ((bookmarkDockArea == area || area == Qt::AllDockWidgetAreas) && !m_bookmarksDock->isFloating()) {
         m_bookmarksDock->setVisible(MangaReaderSettings::bookmarksDockVisible());
