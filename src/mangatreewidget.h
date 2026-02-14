@@ -33,6 +33,8 @@ public:
     QModelIndex previousModelIndex(const QModelIndex &index) const;
     QString filePath(const QModelIndex &index) const;
 
+    bool isEmpty() const;
+
 Q_SIGNALS:
     void open(QString mangaPath, bool resume = false, bool recursive = false);
     void renamed(QString oldName, QString newName);
@@ -46,6 +48,7 @@ private:
     FSProxyModel     *m_treeProxyModel{nullptr};
     QLineEdit        *m_searchField{nullptr};
     QString           m_mangaFolder;
+    bool              m_isEmpty{true};
 };
 
 #endif // MANGATREEVIEW_H

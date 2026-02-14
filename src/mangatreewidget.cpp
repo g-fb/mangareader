@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QTreeView>
+#include <settings.h>
 
 #include <KFileItem>
 #include <KIO/JobUiDelegateFactory>
@@ -20,6 +21,7 @@ using namespace Qt::StringLiterals;
 MangaTreeWidget::MangaTreeWidget()
     : m_treeView{ new QTreeView() }
     , m_treeModel{ new QFileSystemModel() }
+    , m_isEmpty{ MangaReaderSettings::mangaFolders().isEmpty() }
 {
     m_treeModel->setObjectName("mangaTree");
     m_treeModel->setFilter(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
@@ -80,9 +82,13 @@ MangaTreeWidget::MangaTreeWidget()
         m_treeProxyModel->setFilterRegularExpression(regEx);
     });
 
-    connect(m_treeModel, &QFileSystemModel::directoryLoaded, this, [this]() {
+    connect(m_treeModel, &QFileSystemModel::directoryLoaded, this, []() {
         // filter when model finished loading items
         // m_searchField->setText(u""_s);
+    });
+
+    connect(MangaReaderSettings::self(), &MangaReaderSettings::MangaFoldersChanged, this, [this]() {
+        m_isEmpty = MangaReaderSettings::mangaFolders().isEmpty();
     });
 
     auto *l = new QVBoxLayout(this);
@@ -182,6 +188,11 @@ void MangaTreeWidget::treeViewContextMenu(QPoint point)
         KIO::highlightInFileManager({url});
     });
     menu->exec(QCursor::pos());
+}
+
+bool MangaTreeWidget::isEmpty() const
+{
+    return m_isEmpty;
 }
 
 bool FSProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
