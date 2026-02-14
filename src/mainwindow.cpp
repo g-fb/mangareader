@@ -941,7 +941,6 @@ void MainWindow::openSettings()
     m_settingsWindow = new SettingsWindow(this, MangaReaderSettings::self());
     m_settingsWindow->show();
 
-    connect(m_settingsWindow, &SettingsWindow::settingsChanged, m_view, &View::refreshPages);
     connect(m_settingsWindow, &SettingsWindow::settingsChanged, this, [this]() {
         QString mangaFolder = m_config->group(QString()).readEntry("Manga Folder");
         if (MangaReaderSettings::mangaFolders().count() > 0) {
@@ -961,6 +960,9 @@ void MainWindow::openSettings()
             m_config->group(QString()).deleteEntry("Manga Folder");
         }
         populateLibrarySelectionComboBox();
+        if (m_view->isVisible()) {
+            m_view->refreshPages();
+        }
     });
     m_settingsWindow->show();
 }

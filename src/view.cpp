@@ -391,6 +391,10 @@ void View::onScrollBarRangeChanged(int x, int y)
 
 void View::refreshPages()
 {
+    if (!m_manga) {
+        return;
+    }
+
     // clear requested pages so they are resized too
     m_requestedPages.clear();
     if (MangaReaderSettings::useCustomBackgroundColor()) {
