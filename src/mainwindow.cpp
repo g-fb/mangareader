@@ -55,6 +55,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow{ parent }
+    , m_config {KSharedConfig::openConfig(u"mangareader/mangareader.conf"_s)}
     , m_view{ new View(this) }
     , m_treeDock{ new QDockWidget() }
     , m_mangaTreeWidget{ new MangaTreeWidget }
@@ -73,7 +74,6 @@ MainWindow::MainWindow(QWidget *parent)
     }
     auto toggleMangaTreeDockAction = actionCollection()->action(u"toggleMangaTreeDockAction"_s);
     actionCollection()->setDefaultShortcuts(toggleMangaTreeDockAction, {Qt::Key_F1});
-
 
     showDockWidgets();
     if (MangaReaderSettings::mainToolBarVisible())
@@ -105,8 +105,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
-    m_config = KSharedConfig::openConfig(u"mangareader/mangareader.conf"_s);
-
     // ==================================================
     // setup central widget
     // ==================================================
