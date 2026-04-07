@@ -88,7 +88,6 @@ View::View(MainWindow *parent)
 
 View::~View()
 {
-    delete m_manga;
 }
 
 void View::setupActions()
@@ -186,13 +185,9 @@ void View::reset()
 void View::openManga(const QString &path)
 {
     reset();
-    if (m_manga) {
-        delete m_manga;
-        m_manga = nullptr;
-    }
-    m_manga = new Manga(path);
+    m_manga = std::make_unique<Manga>(path);
 
-    connect(m_manga, &Manga::imagesReady, this, [this]() {
+    connect(m_manga.get(), &Manga::imagesReady, this, [this]() {
         setFiles(m_manga->images());
         createPages();
         Q_EMIT imagesLoaded(m_startPage);
@@ -200,7 +195,7 @@ void View::openManga(const QString &path)
         setPagesVisibility();
     });
 
-    connect(m_manga, &Manga::imageReady,
+    connect(m_manga.get(), &Manga::imageReady,
             this, &View::onImageReady, Qt::QueuedConnection);
 
     m_manga->init();

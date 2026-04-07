@@ -74,7 +74,7 @@ private:
     void dropEvent(QDropEvent *e) override;
 
     QGraphicsScene  *m_scene{nullptr};
-    Manga           *m_manga{nullptr};
+    std::unique_ptr<Manga> m_manga;
     QList<Image>     m_files;
     QList<Page*>     m_pages;
     QList<Page*>     m_visiblePages;
