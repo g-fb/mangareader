@@ -7,14 +7,12 @@
 #include <QMimeDatabase>
 #include <QThread>
 #include <QTimer>
-
-#include "worker.h"
+#include <QtConcurrent>
 
 Manga::Manga(const QString &path, QObject *parent)
     : QObject{parent}
     , m_path{path}
     , m_imageGenerationThread{new ImageGenerationThread(this)}
-    , m_worker{new Worker}
 {
     QObject::connect(m_imageGenerationThread, &ImageGenerationThread::finished, this, [this] {
         ImageRequest *request = m_imageGenerationThread->request();
@@ -26,15 +24,21 @@ Manga::Manga(const QString &path, QObject *parent)
 
         requestDone(request);
     }, Qt::QueuedConnection);
+
+    connect(&m_extractor, &Extractor::finishedRar, this, [this]() {
+        m_type = Type::Folder;
+        m_path = m_extractor.extractionFolder();
+        QMimeDatabase db;
+        m_mimeType = db.mimeTypeForFile(m_path, QMimeDatabase::MatchContent);
+        getFolderImages();
+        if (!m_images.isEmpty()) {
+            Q_EMIT imagesReady();
+        }
+    }, Qt::QueuedConnection);
 }
 
 Manga::~Manga()
 {
-    if (m_thread) {
-        m_thread->quit();
-        m_thread->wait();
-    }
-
     m_imageRequestsMutex.lock();
     qDeleteAll(m_imageRequestsStack);
     m_imageRequestsStack.clear();
@@ -66,21 +70,22 @@ void Manga::init()
         m_type = Type::Unknown;
     }
 
-    // ==================================================
-    // setup thread and worker
-    // ==================================================
-    m_thread = new QThread(this);
-    m_worker->moveToThread(m_thread);
-    connect(m_thread, &QThread::finished,
-            m_thread, &QThread::deleteLater);
-    m_thread->start();
-
     switch(m_type) {
     case Type::FileCbz:
-    case Type::FileCbr:
     case Type::FileCb7:
     case Type::FileCbt:
-        QMetaObject::invokeMethod(m_worker, &Worker::processArchive, Qt::QueuedConnection, m_path);
+        m_processArchiveFuture = QtConcurrent::run([this]() {
+            m_extractor.open(m_path);
+            if (!m_extractor.isRar()) {
+                m_images = m_extractor.filesList();
+            }
+            QMetaObject::invokeMethod(this, [this]() {
+                Q_EMIT imagesReady();
+            }, Qt::QueuedConnection);
+        });
+        break;
+    case Type::FileCbr:
+        m_extractor.open(m_path);
         break;
     case Type::Folder:
         getFolderImages();
@@ -92,22 +97,6 @@ void Manga::init()
         qDebug() << "Unknown manga type";
         break;
     }
-
-    connect(m_worker, &Worker::imageReady, this, &Manga::imageReady);
-    connect(m_worker, &Worker::rarExtracted, this, [this](const QString extractionPath) {
-        m_type = Type::Folder;
-        m_path = extractionPath;
-        QMimeDatabase db;
-        m_mimeType = db.mimeTypeForFile(m_path, QMimeDatabase::MatchContent);
-        getFolderImages();
-        if (!m_images.isEmpty()) {
-            Q_EMIT imagesReady();
-        }
-    }, Qt::QueuedConnection);
-    connect(m_worker, &Worker::archiveProcessed, this, [this](const QList<Image> &images) {
-        m_images = images;
-        Q_EMIT imagesReady();
-    }, Qt::QueuedConnection);
 }
 
 Manga::Type Manga::type() const

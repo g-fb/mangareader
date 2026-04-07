@@ -1,6 +1,7 @@
 #ifndef MANGA_H
 #define MANGA_H
 
+#include <QFuture>
 #include <QMimeType>
 #include <QMutex>
 #include <QObject>
@@ -9,9 +10,6 @@
 #include "image.h"
 #include "imagegenerationthread.h"
 #include "imagerequest.h"
-
-class QThread;
-class Worker;
 
 using namespace Qt::StringLiterals;
 
@@ -63,8 +61,7 @@ private:
     std::list<ImageRequest *> m_executingImageRequests;
     QMutex m_imageRequestsMutex;
     ImageGenerationThread *m_imageGenerationThread{nullptr};
-    QThread *m_thread{nullptr};
-    Worker  *m_worker{nullptr};
+    QFuture<void> m_processArchiveFuture;
 
     const QStringList m_supportedMimeTypes{u"application/zip"_s,
                                            u"application/x-cbz"_s,
