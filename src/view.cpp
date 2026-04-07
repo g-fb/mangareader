@@ -77,7 +77,8 @@ View::View(MainWindow *parent)
     connect(verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &View::onScrollBarRangeChanged);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
-        QPoint topCenter = QPoint(m_scene->width()/2, 1);
+        auto hSpacing = MangaReaderSettings::hPageSpacing();
+        QPoint topCenter = QPoint(m_scene->width()/2 + hSpacing, 1);
         Page *p = qgraphicsitem_cast<Page *>(itemAt(topCenter));
         if (p) {
             Q_EMIT currentImageChanged(p->number());
