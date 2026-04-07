@@ -184,10 +184,10 @@ void View::reset()
 
 void View::openManga(const QString &path)
 {
-    reset();
     m_manga = std::make_unique<Manga>(path);
 
     connect(m_manga.get(), &Manga::imagesReady, this, [this]() {
+        reset();
         setFiles(m_manga->images());
         createPages();
         Q_EMIT imagesLoaded(m_startPage);
