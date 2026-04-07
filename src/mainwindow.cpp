@@ -572,6 +572,7 @@ void MainWindow::setupActions()
         goToSpinBox->setRange(1, m_view->imageCount());
         goToSpinBox->setValue(page + 1);
         goToSpinBox->blockSignals(false);
+        goToSpinBox->setSuffix(i18nc("@label go to spinbox suffix; %1 is the number of images/pages", " / %1", m_view->imageCount()));
     });
     auto goToButton = new QToolButton();
     goToButton->setText(i18n("Go to page"));
