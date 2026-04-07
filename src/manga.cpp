@@ -85,7 +85,9 @@ void Manga::init()
         break;
     case Type::Folder:
         getFolderImages();
-        Q_EMIT imagesReady();
+        if (!m_images.isEmpty()) {
+            Q_EMIT imagesReady();
+        }
         break;
     case Type::Unknown:
         qDebug() << "Unknown manga type";
@@ -99,7 +101,9 @@ void Manga::init()
         QMimeDatabase db;
         m_mimeType = db.mimeTypeForFile(m_path, QMimeDatabase::MatchContent);
         getFolderImages();
-        Q_EMIT imagesReady();
+        if (!m_images.isEmpty()) {
+            Q_EMIT imagesReady();
+        }
     }, Qt::QueuedConnection);
     connect(m_worker, &Worker::archiveProcessed, this, [this](const QList<Image> &images) {
         m_images = images;
@@ -294,7 +298,7 @@ QList<Image> Manga::getFolderImages()
         return collator.compare(a.path, b.path) < 0;
     });
 
-    if (m_images.count() < 1) {
+    if (m_images.isEmpty()) {
         return {};
     }
     return m_images;
