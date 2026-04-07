@@ -42,6 +42,9 @@ bool Extractor::open(const QString &path)
 #endif
     } else if (isTar()) {
         m_archive = std::make_unique<KTar>(path);
+    } else if (isRar()) {
+        extractRarArchive();
+        return true;
     } else {
         return false;
     }

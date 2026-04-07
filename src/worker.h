@@ -29,6 +29,7 @@ Q_SIGNALS:
     void imageReady(const QImage &image, int number);
     void imageResized(const QImage &image, int number);
     void archiveProcessed(const QList<Image> &images);
+    void rarExtracted(const QString extractionPath);
 
 private:
     Extractor *m_extractor{nullptr};

@@ -11,7 +11,10 @@
 
 Worker::Worker()
 {
-
+    m_extractor = new Extractor(this);
+    connect(m_extractor, &Extractor::finishedRar, this, [this]() {
+        Q_EMIT rarExtracted(m_extractor->extractionFolder());
+    });
 }
 
 void Worker::processDriveImageRequest(int number, const QString &path)
@@ -40,10 +43,11 @@ void Worker::processImageResize(const QImage &image, const QSize &size, int numb
 
 void Worker::processArchive(const QString path)
 {
-    m_extractor = new Extractor(this);
     m_extractor->open(path);
-    const auto images = m_extractor->filesList();
-    Q_EMIT archiveProcessed(images);
+    if (!m_extractor->isRar()) {
+        const auto images = m_extractor->filesList();
+        Q_EMIT archiveProcessed(images);
+    }
 }
 
 #include "moc_worker.cpp"

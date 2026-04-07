@@ -93,6 +93,14 @@ void Manga::init()
     }
 
     connect(m_worker, &Worker::imageReady, this, &Manga::imageReady);
+    connect(m_worker, &Worker::rarExtracted, this, [this](const QString extractionPath) {
+        m_type = Type::Folder;
+        m_path = extractionPath;
+        QMimeDatabase db;
+        m_mimeType = db.mimeTypeForFile(m_path, QMimeDatabase::MatchContent);
+        getFolderImages();
+        Q_EMIT imagesReady();
+    }, Qt::QueuedConnection);
     connect(m_worker, &Worker::archiveProcessed, this, [this](const QList<Image> &images) {
         m_images = images;
         Q_EMIT imagesReady();
