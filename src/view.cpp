@@ -378,6 +378,11 @@ void View::onScrollBarRangeChanged(int x, int y)
 {
     Q_UNUSED(x)
     Q_UNUSED(y)
+
+    if (m_pages.isEmpty()) {
+        return;
+    }
+
     if (m_firstVisible >= 0)
     {
         auto page = m_pages.at(m_firstVisible);
