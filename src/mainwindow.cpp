@@ -455,8 +455,6 @@ void MainWindow::openAdjacentArchive(OpenDirection direction)
 void MainWindow::loadImages(const QString &path, bool recursive)
 {
     m_progressBar->setVisible(false);
-    m_startUpWidget->setVisible(false);
-    m_view->setVisible(true);
     m_view->openManga(path);
     actionCollection()->action(u"focusView"_s)->trigger();
 }
@@ -567,6 +565,9 @@ void MainWindow::setupActions()
     });
     goToSpinBox->addAction(action);
     connect(m_view, &View::imagesLoaded, this, [this, goToSpinBox](int page) {
+        m_startUpWidget->setVisible(false);
+        m_view->setVisible(true);
+
         goToSpinBox->blockSignals(true);
         goToSpinBox->setRange(1, m_view->imageCount());
         goToSpinBox->setValue(page + 1);
