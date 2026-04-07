@@ -95,13 +95,15 @@ void Extractor::extractRarArchive()
 
     QStringList args;
     args << u"e"_s << m_archiveFile << m_tmpFolder->path() << u"-o+"_s;
-    auto process = new QProcess();
+    auto process = new QProcess(this);
     process->setProgram(unrar);
     process->setArguments(args);
     process->start();
 
     connect(process, &QProcess::started, this, &Extractor::started);
     connect(process, &QProcess::finished, this, &Extractor::finishedRar);
+    connect(process, &QProcess::finished, process, &QObject::deleteLater);
+    connect(process, &QProcess::errorOccurred, process, &QObject::deleteLater);
 
     connect(process, &QProcess::readyReadStandardOutput, this, [this, process]() {
         static QRegularExpression re(u"[0-9]+[%]"_s);
