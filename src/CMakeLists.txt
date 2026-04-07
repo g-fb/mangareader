@@ -21,7 +21,6 @@ target_sources(mangareader
         mangatreewidget.h mangatreewidget.cpp
         view.cpp
         page.cpp
-        worker.cpp
         settingswindow.cpp
         settings/resources.qrc
         startupwidget.cpp
