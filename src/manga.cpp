@@ -13,7 +13,6 @@
 Manga::Manga(const QString &path, QObject *parent)
     : QObject{parent}
     , m_path{path}
-    , m_extractor{new Extractor}
     , m_imageGenerationThread{new ImageGenerationThread(this)}
     , m_worker{new Worker}
 {
@@ -124,8 +123,8 @@ QImage Manga::image(ImageRequest *request)
     case Type::FileCbr:
     case Type::FileCb7:
     case Type::FileCbt:
-        m_extractor->open(m_path);
-        img.loadFromData(m_extractor->getFileData(request->path));
+        m_extractor.open(m_path);
+        img.loadFromData(m_extractor.getFileData(request->path));
         break;
     case Type::Folder:
         img.load(request->path);

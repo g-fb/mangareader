@@ -57,7 +57,7 @@ private:
     QMimeType m_mimeType;
     Type m_type{Type::Unknown};
     QList<Image> m_images;
-    Extractor *m_extractor{nullptr};
+    Extractor m_extractor;
     bool m_canGenerate{true};
     std::list<ImageRequest *> m_imageRequestsStack;
     std::list<ImageRequest *> m_executingImageRequests;
