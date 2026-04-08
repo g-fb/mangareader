@@ -103,14 +103,19 @@ void Extractor::extractRarArchive()
     connect(process, &QProcess::started, this, &Extractor::started);
     connect(process, &QProcess::finished, this, &Extractor::finishedRar);
     connect(process, &QProcess::finished, process, &QObject::deleteLater);
-    connect(process, &QProcess::errorOccurred, process, &QObject::deleteLater);
 
     connect(process, &QProcess::readyReadStandardOutput, this, [this, process]() {
-        static QRegularExpression re(u"[0-9]+[%]"_s);
-        QRegularExpressionMatch match = re.match(QString::fromUtf8(process->readAllStandardOutput()));
-        if (match.hasMatch()) {
-            QString matched = match.captured(0);
-            Q_EMIT progress(matched.remove(u"%"_s).toInt());
+        static QRegularExpression re(u"(\\d+)%"_s);
+        while (process->canReadLine()) {
+            QString line = QString::fromUtf8(process->readLine());
+            QRegularExpressionMatch match = re.match(line);
+            if (match.hasMatch()) {
+                bool ok = false;
+                int value = match.captured(1).toInt(&ok);
+                if (ok) {
+                    Q_EMIT progress(value);
+                }
+            }
         }
     });
 
