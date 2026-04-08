@@ -26,8 +26,8 @@ Manga::Manga(const QString &path, QObject *parent)
     }, Qt::QueuedConnection);
 
     connect(&m_extractor, &Extractor::finishedRar, this, [this]() {
-        m_type = Type::Folder;
-        m_path = m_extractor.extractionFolder();
+        m_extractionFolder = m_extractor.extractionFolder();
+        m_openFolderRecursive = true;
         QMimeDatabase db;
         m_mimeType = db.mimeTypeForFile(m_path, QMimeDatabase::MatchContent);
         getFolderImages();
@@ -107,12 +107,12 @@ QImage Manga::image(ImageRequest *request)
     QImage img;
     switch(m_type) {
     case Type::FileCbz:
-    case Type::FileCbr:
     case Type::FileCb7:
     case Type::FileCbt:
         m_extractor.open(m_path);
         img.loadFromData(m_extractor.getFileData(request->path));
         break;
+    case Type::FileCbr:
     case Type::Folder:
         img.load(request->path);
         break;
@@ -264,9 +264,10 @@ QList<Image> Manga::getFolderImages()
         ? QDirIterator::Subdirectories
         : QDirIterator::NoIteratorFlags;
 
-
     QMimeDatabase db;
-    QDirIterator it(m_path, QDir::Files, flags);
+
+    auto path = m_extractionFolder.isEmpty() ? m_path : m_extractionFolder;
+    QDirIterator it(path, QDir::Files, flags);
     while (it.hasNext()) {
         QString file = it.next();
 

@@ -52,6 +52,7 @@ private:
     QList<Image> getFolderImages();
 
     QString m_path;
+    QString m_extractionFolder;
     QMimeType m_mimeType;
     Type m_type{Type::Unknown};
     QList<Image> m_images;
