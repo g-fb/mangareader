@@ -185,8 +185,14 @@ QSize Extractor::imageSize(const QString &name)
 
     imageReader.setDevice(dev.get());
     if (!imageReader.canRead()) {
-        qDebug() << "QImageReader can't read file:" << name;
-        return {};
+        // in case of wrong extension remove the set format and try again
+        imageReader.setFormat({});
+        imageReader.setDevice(dev.get());
+
+        if (!imageReader.canRead()) {
+            qDebug() << "QImageReader can't read file:" << name << imageReader.errorString();
+            return {};
+        }
     }
 
     auto pageSize = imageReader.size();
