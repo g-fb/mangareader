@@ -18,6 +18,8 @@
 #include <K7Zip>
 #endif
 
+#include "settings.h"
+
 using namespace Qt::StringLiterals;
 
 Extractor::Extractor(QObject *parent)
@@ -88,7 +90,9 @@ QList<Image> Extractor::filesList()
 void Extractor::extractRarArchive()
 {
     m_tmpFolder = std::make_unique<QTemporaryDir>();
-    auto unrar = QStandardPaths::findExecutable(u"unrar"_s);
+    auto unrar = MangaReaderSettings::unrarPath().isEmpty()
+                ? MangaReaderSettings::autoUnrarPath()
+                : MangaReaderSettings::unrarPath();
     if (unrar.isEmpty()) {
         return;
     }
