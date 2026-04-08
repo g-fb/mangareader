@@ -76,9 +76,7 @@ void Manga::init()
     case Type::FileCbt:
         m_processArchiveFuture = QtConcurrent::run([this]() {
             m_extractor.open(m_path);
-            if (!m_extractor.isRar()) {
-                m_images = m_extractor.filesList();
-            }
+            m_images = m_extractor.filesList();
             QMetaObject::invokeMethod(this, [this]() {
                 Q_EMIT imagesReady();
             }, Qt::QueuedConnection);
