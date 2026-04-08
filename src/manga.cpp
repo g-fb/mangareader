@@ -272,8 +272,7 @@ QList<Image> Manga::getFolderImages()
 
         // only get images
         if (db.mimeTypeForFile(file).name().startsWith(u"image/"_s)) {
-            QImageReader reader;
-            reader.setDevice(new QFile(file));
+            QImageReader reader(file);
             m_images.append({file, reader.size()});
         }
     }
