@@ -200,6 +200,9 @@ void View::openManga(const QString &path, bool recursive)
     connect(m_manga.get(), &Manga::imageReady,
             this, &View::onImageReady, Qt::QueuedConnection);
 
+    connect(m_manga.get(), &Manga::extractionProgress,
+            this, &View::mangaExtractionProgress);
+
     m_manga->init();
 }
 

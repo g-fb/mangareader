@@ -34,7 +34,10 @@ Manga::Manga(const QString &path, QObject *parent)
         if (!m_images.isEmpty()) {
             Q_EMIT imagesReady();
         }
-    }, Qt::QueuedConnection);
+    });
+
+    connect(&m_extractor, &Extractor::progress,
+            this, &Manga::extractionProgress);
 }
 
 Manga::~Manga()

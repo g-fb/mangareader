@@ -120,6 +120,15 @@ void MainWindow::init()
     m_progressBar->setMinimum(0);
     m_progressBar->setMaximum(100);
     m_progressBar->setVisible(false);
+
+    connect(m_view, &View::mangaExtractionProgress, this, [this](int progress) {
+        m_progressBar->setVisible(true);
+        m_progressBar->setValue(progress);
+    });
+    connect(m_view, &View::imagesLoaded, this, [this]() {
+        m_progressBar->setVisible(false);
+    });
+
     centralWidgetLayout->addWidget(m_progressBar);
 
     // ==================================================

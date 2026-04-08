@@ -41,6 +41,7 @@ public:
 Q_SIGNALS:
     void imagesReady();
     void imageReady(const QImage &image, int number);
+    void extractionProgress(int);
 
 private:
     void sendRequest();

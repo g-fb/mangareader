@@ -46,6 +46,7 @@ Q_SIGNALS:
     void mouseMoved(QMouseEvent *event);
     void addBookmark(int number, bool recursive);
     void fileDropped(const QString &file);
+    void mangaExtractionProgress(int);
 
 public Q_SLOTS:
     void onImageReady(const QImage &image, int number);
