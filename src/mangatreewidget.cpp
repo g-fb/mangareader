@@ -82,10 +82,11 @@ MangaTreeWidget::MangaTreeWidget()
         m_treeProxyModel->setFilterRegularExpression(regEx);
     });
 
-    connect(m_treeModel, &QFileSystemModel::directoryLoaded, this, []() {
+    // connect(m_treeModel, &QFileSystemModel::directoryLoaded, this, [this]() {
         // filter when model finished loading items
         // m_searchField->setText(u""_s);
-    });
+        // disconnect(m_treeModel, &QFileSystemModel::directoryLoaded, nullptr, nullptr);
+    // });
 
     connect(MangaReaderSettings::self(), &MangaReaderSettings::MangaFoldersChanged, this, [this]() {
         m_isEmpty = MangaReaderSettings::mangaFolders().isEmpty();
