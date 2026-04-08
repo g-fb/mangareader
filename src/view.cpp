@@ -183,9 +183,10 @@ void View::reset()
     verticalScrollBar()->setValue(0);
 }
 
-void View::openManga(const QString &path)
+void View::openManga(const QString &path, bool recursive)
 {
     m_manga = std::make_unique<Manga>(path);
+    m_manga->setOpenFolderRecursive(recursive);
 
     connect(m_manga.get(), &Manga::imagesReady, this, [this]() {
         reset();
@@ -534,7 +535,10 @@ void View::contextMenuEvent(QContextMenuEvent *event)
         });
 
         menu->addAction(QIcon::fromTheme(u"folder-bookmark"_s), i18n("Set Bookmark"), this, [this, page] {
-            Q_EMIT addBookmark(page->number());
+            bool recursive = m_manga->type() == Manga::Type::Folder
+                    ? m_manga->openFolderRecursive()
+                    : false;
+            Q_EMIT addBookmark(page->number(), recursive);
         });
 
         menu->addAction(QIcon::fromTheme(u"selection-make-bitmap-copy"_s), i18n("Copy Image"), this, [page] {

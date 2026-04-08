@@ -35,6 +35,9 @@ public:
     QList<Image> images() const;
     void addRequests(QList<ImageRequest *> requests);
 
+    bool openFolderRecursive() const;
+    void setOpenFolderRecursive(bool newOpenFolderRecursive);
+
 Q_SIGNALS:
     void imagesReady();
     void imageReady(const QImage &image, int number);
@@ -63,6 +66,7 @@ private:
     QMutex m_imageRequestsMutex;
     ImageGenerationThread *m_imageGenerationThread{nullptr};
     QFuture<void> m_processArchiveFuture;
+    bool m_openFolderRecursive{false};
 
     const QStringList m_supportedMimeTypes{u"application/zip"_s,
                                            u"application/x-cbz"_s,

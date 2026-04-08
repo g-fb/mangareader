@@ -455,7 +455,7 @@ void MainWindow::openAdjacentArchive(OpenDirection direction)
 void MainWindow::loadImages(const QString &path, bool recursive)
 {
     m_progressBar->setVisible(false);
-    m_view->openManga(path);
+    m_view->openManga(path, recursive);
     actionCollection()->action(u"focusView"_s)->trigger();
 }
 
@@ -839,11 +839,11 @@ void MainWindow::onMouseMoved(QMouseEvent *event)
     }
 }
 
-void MainWindow::onAddBookmark(int pageIndex)
+void MainWindow::onAddBookmark(int pageIndex, bool recursive)
 {
     int pageNumber = pageIndex + 1;
     QFileInfo mangaInfo(m_currentPath);
-    QString keyPrefix = (m_isLoadedRecursive) ? RECURSIVE_KEY_PREFIX : QString();
+    QString keyPrefix = (recursive) ? RECURSIVE_KEY_PREFIX : QString();
     QString key = mangaInfo.absoluteFilePath().prepend(keyPrefix);
     // get the bookmark from the config file
     m_config->reparseConfiguration();
@@ -880,21 +880,21 @@ void MainWindow::onAddBookmark(int pageIndex)
 
     // add bookmark to tableView
     QList<QStandardItem *> rowData;
-    QString displayPrefix = (m_isLoadedRecursive) ? u"(r) "_s : QString();
+    QString displayPrefix = (recursive) ? u"(r) "_s : QString();
 
     auto *col1 = new QStandardItem(mangaInfo.fileName().prepend(displayPrefix));
     col1->setData(icon, Qt::DecorationRole);
     col1->setData(mangaInfo.absoluteFilePath(), Qt::ToolTipRole);
     col1->setData(key, KeyRole);
     col1->setData(mangaInfo.absoluteFilePath(), PathRole);
-    col1->setData(m_isLoadedRecursive, RecursiveRole);
+    col1->setData(recursive, RecursiveRole);
     col1->setEditable(false);
 
     auto *col2 = new QStandardItem(QString::number(pageNumber));
     col2->setData(pageIndex, IndexRole);
     col2->setData(key, KeyRole);
     col2->setData(mangaInfo.absoluteFilePath(), PathRole);
-    col2->setData(m_isLoadedRecursive, RecursiveRole);
+    col2->setData(recursive, RecursiveRole);
     col2->setEditable(false);
 
     m_bookmarksModel->appendRow(rowData << col1 << col2);

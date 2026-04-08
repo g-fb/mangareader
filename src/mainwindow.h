@@ -70,7 +70,7 @@ private:
     void hideToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void showToolBars(Qt::ToolBarAreas area = Qt::AllToolBarAreas);
     void onMouseMoved(QMouseEvent *event);
-    void onAddBookmark(int pageIndex);
+    void onAddBookmark(int pageIndex, bool recursive);
     void deleteBookmarks(QTableView *tableView);
     void openSettings();
     void toggleMenubar();
@@ -98,7 +98,6 @@ private:
     QDialog            *m_renameDialog{nullptr};
     StartUpWidget      *m_startUpWidget{nullptr};
     int                 m_startPage{0};
-    bool                m_isLoadedRecursive{false};
     const QString       RECURSIVE_KEY_PREFIX{u":recursive:"_s};
     QStringList         m_supportedMimeTypes{u"application/zip"_s,
                                              u"application/x-cbz"_s,

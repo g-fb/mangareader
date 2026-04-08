@@ -258,9 +258,8 @@ bool Manga::isFolder()
 
 QList<Image> Manga::getFolderImages()
 {
-    bool recursive{true};
     // get images from path
-    QDirIterator::IteratorFlags flags = recursive
+    QDirIterator::IteratorFlags flags = m_openFolderRecursive
         ? QDirIterator::Subdirectories
         : QDirIterator::NoIteratorFlags;
 
@@ -288,4 +287,14 @@ QList<Image> Manga::getFolderImages()
         return {};
     }
     return m_images;
+}
+
+bool Manga::openFolderRecursive() const
+{
+    return m_openFolderRecursive;
+}
+
+void Manga::setOpenFolderRecursive(bool newOpenFolderRecursive)
+{
+    m_openFolderRecursive = newOpenFolderRecursive;
 }

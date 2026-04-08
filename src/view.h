@@ -27,7 +27,7 @@ public:
     View(MainWindow *parent);
     ~View();
     void reset();
-    void openManga(const QString &path);
+    void openManga(const QString &path, bool recursive);
     void loadImages();
     void goToPage(int number);
     auto imageCount() -> int;
@@ -44,7 +44,7 @@ Q_SIGNALS:
     void currentImageChanged(int number);
     void doubleClicked();
     void mouseMoved(QMouseEvent *event);
-    void addBookmark(int number);
+    void addBookmark(int number, bool recursive);
     void fileDropped(const QString &file);
 
 public Q_SLOTS:
