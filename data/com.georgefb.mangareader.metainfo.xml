@@ -27,6 +27,21 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.4.0" date="2026-04-09">
+            <description>
+                <p>Features</p>
+                <ul>
+                    <li>Go to page widget now displays the total number of pages/images</li>
+                    <li>Improved loading speed of images when dragging the scroll handle</li>
+                    <li>Improved loading archived images with wrong extension</li>
+                </ul>
+                <p>Bugfixes</p>
+                <ul>
+                    <li>Don't show manga tree when empty</li>
+                    <li>Fix tracking current page when displaying 2 pages per row</li>
+                </ul>
+            </description>
+        </release>
         <release version="2.3.0" date="2026-01-31">
             <description>
                 <p>Features</p>
