@@ -34,6 +34,7 @@ public:
     QImage image(ImageRequest *request);
     QList<Image> images() const;
     void addRequests(QList<ImageRequest *> requests);
+    void cancelArchiveProcessing();
 
     bool openFolderRecursive() const;
     void setOpenFolderRecursive(bool newOpenFolderRecursive);

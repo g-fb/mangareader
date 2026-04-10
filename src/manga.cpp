@@ -301,3 +301,11 @@ void Manga::setOpenFolderRecursive(bool newOpenFolderRecursive)
 {
     m_openFolderRecursive = newOpenFolderRecursive;
 }
+
+void Manga::cancelArchiveProcessing()
+{
+    if (m_processArchiveFuture.isRunning()) {
+        m_processArchiveFuture.cancel();
+        m_processArchiveFuture.waitForFinished();
+    }
+}
