@@ -1,0 +1,59 @@
+name: MangaReader CI
+
+on:
+  push:
+    tags:
+      - *
+
+jobs:
+  build-windows:
+    name: Windows
+    runs-on: windows-latest
+    continue-on-error: true
+    env:
+      CRAFT: /C/CraftMaster/windows-cl-msvc2022-x86_64/craft/bin/craft.py
+
+    steps:
+    - name: Check out source code
+      uses: actions/checkout@v6
+
+    - name: Clone CraftMaster
+      run: git clone --depth=1 https://invent.kde.org/packaging/craftmaster.git /C/CraftMaster/CraftMaster
+
+    - name: Configure CraftMaster
+      run: python /C/CraftMaster/CraftMaster/CraftMaster.py --config ${{ github.workspace }}/.craftsettings.ini --variables "WORKSPACE=${{ github.workspace }}"
+
+    - name: Add MangaReader blueprint
+      run: python ${{ env.CRAFT }} --add-blueprint-repository https://github.com/g-fb/craft-blueprints-gfb.git
+
+    - name: Install NSIS
+      run: python ${{ env.CRAFT }} dev-utils/nsis
+
+    - name: Install dependencies
+      run: python ${{ env.CRAFT }} --install-deps qt-apps/mangareader
+
+    - name: Build
+      run: python ${{ env.CRAFT }} --no-cache --options mangareader.srcDir=${{ github.workspace }} qt-apps/mangareader
+
+    - name: Run tests
+      run: python ${{ env.CRAFT }} --no-cache --options mangareader.srcDir=${{ github.workspace }} --test qt-apps/mangareader
+
+    - name: Package
+      run: python ${{ env.CRAFT }} --no-cache --options mangareader.srcDir=${{ github.workspace }} --package qt-apps/mangareader
+
+    - name: Rename Files
+      shell: pwsh
+      run: |
+        Move-Item -Path "packages/mangareader-*.exe" -Destination "packages/mangareader-${{ github.ref_name }}-windows_x86_64.exe"
+        Move-Item -Path "packages/mangareader-*.exe.sha256" -Destination "packages/mangareader-${{ github.ref_name }}-windows_x86_64.exe.sha256"
+        Move-Item -Path "packages/mangareader-*.7z" -Destination "packages/mangareader-${{ github.ref_name }}-windows_x86_64.7z"
+        Move-Item -Path "packages/mangareader-*.7z.sha256" -Destination "packages/mangareader-${{ github.ref_name }}-windows_x86_64.7z.sha256"
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: |
+          ${{ github.workspace }}/packages/mangareader-*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
