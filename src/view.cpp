@@ -185,6 +185,9 @@ void View::reset()
 
 void View::openManga(const QString &path, bool recursive)
 {
+    if (m_manga) {
+        m_manga->cancelArchiveProcessing();
+    }
     m_manga = std::make_unique<Manga>(path);
     m_manga->setOpenFolderRecursive(recursive);
 
