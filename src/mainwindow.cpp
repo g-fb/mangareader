@@ -553,10 +553,6 @@ void MainWindow::setupActions()
         openAdjacentArchive(OpenDirection::Next);
     });
 
-    auto goToLayout = new QHBoxLayout();
-    goToLayout->setSpacing(0);
-    auto goTowidget = new QWidget();
-    goTowidget->setLayout(goToLayout);
     auto goToSpinBox = new QSpinBox();
     auto action = new QAction();
     action->setShortcuts({Qt::Key_Enter, Qt::Key_Return});
@@ -583,16 +579,9 @@ void MainWindow::setupActions()
         goToSpinBox->blockSignals(false);
         goToSpinBox->setSuffix(i18nc("@label go to spinbox suffix; %1 is the number of images/pages", " / %1", m_view->imageCount()));
     });
-    auto goToButton = new QToolButton();
-    goToButton->setText(i18n("Go to page"));
-    connect(goToButton, &QToolButton::clicked, this, [this, goToSpinBox]() {
-        m_view->goToPage(goToSpinBox->value() - 1);
-    });
-    goToLayout->addWidget(goToButton);
-    goToLayout->addWidget(goToSpinBox);
 
     auto goToAction = new QWidgetAction(this);
-    goToAction->setDefaultWidget(goTowidget);
+    goToAction->setDefaultWidget(goToSpinBox);
     goToAction->setText(i18n("Go To Page"));
     actionCollection()->addAction(u"goToPage"_s, goToAction);
 
