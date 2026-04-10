@@ -28,6 +28,14 @@ Extractor::Extractor(QObject *parent)
     setObjectName(u"Extractor"_s);
 }
 
+Extractor::~Extractor()
+{
+    if (m_process && m_process->state() != QProcess::NotRunning) {
+        m_process->kill();
+        m_process->waitForFinished();
+    }
+}
+
 bool Extractor::open(const QString &path)
 {
     m_archive.reset();
@@ -99,19 +107,18 @@ void Extractor::extractRarArchive()
 
     QStringList args;
     args << u"e"_s << m_archiveFile << m_tmpFolder->path() << u"-o+"_s;
-    auto process = new QProcess(this);
-    process->setProgram(unrar);
-    process->setArguments(args);
-    process->start();
+    m_process = std::make_unique<QProcess>();
+    m_process->setProgram(unrar);
+    m_process->setArguments(args);
+    m_process->start();
 
-    connect(process, &QProcess::started, this, &Extractor::started);
-    connect(process, &QProcess::finished, this, &Extractor::finishedRar);
-    connect(process, &QProcess::finished, process, &QObject::deleteLater);
+    connect(m_process.get(), &QProcess::started, this, &Extractor::started);
+    connect(m_process.get(), &QProcess::finished, this, &Extractor::finishedRar);
 
-    connect(process, &QProcess::readyReadStandardOutput, this, [this, process]() {
+    connect(m_process.get(), &QProcess::readyReadStandardOutput, this, [this]() {
         static QRegularExpression re(u"(\\d+)%"_s);
-        while (process->canReadLine()) {
-            QString line = QString::fromUtf8(process->readLine());
+        while (m_process->canReadLine()) {
+            QString line = QString::fromUtf8(m_process->readLine());
             QRegularExpressionMatch match = re.match(line);
             if (match.hasMatch()) {
                 bool ok = false;
@@ -123,7 +130,7 @@ void Extractor::extractRarArchive()
         }
     });
 
-    connect(process, &QProcess::errorOccurred, this, [](QProcess::ProcessError err) {
+    connect(m_process.get(), &QProcess::errorOccurred, this, [](QProcess::ProcessError err) {
         QString errorMessage;
         switch (err) {
         case QProcess::FailedToStart:

@@ -9,6 +9,7 @@
 
 #include "image.h"
 
+class QProcess;
 class KArchiveDirectory;
 
 class Extractor : public QObject
@@ -17,6 +18,7 @@ class Extractor : public QObject
 
 public:
     explicit Extractor(QObject *parent = nullptr);
+    ~Extractor();
 
     bool open(const QString &path);
     QList<Image> filesList();
@@ -68,6 +70,7 @@ private:
     QString m_archiveFile;
     std::unique_ptr<KArchive> m_archive;
     std::unique_ptr<QTemporaryDir> m_tmpFolder;
+    std::unique_ptr<QProcess> m_process;
     QMimeType m_archiveMimeType;
 };
 
