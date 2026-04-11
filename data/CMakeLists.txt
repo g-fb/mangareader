@@ -1,7 +1,7 @@
 #
 # SPDX-FileCopyrightText: 2021 George Florea Bănuș <georgefb899@gmail.com>
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause
 #
 
 set(ICONS_FOLDER ${PROJECT_SOURCE_DIR}/data/icons)
