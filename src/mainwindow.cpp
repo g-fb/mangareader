@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     // setup toolbar
     toolBar(u"mainToolBar"_s)->setFloatable(false);
     toolBarMenuAction()->setShortcut(Qt::Key_T);
+    actionCollection()->addAction(u"toggleMainToolBar"_s, toolBarMenuAction());
     connect(toolBar(u"mainToolBar"_s), &QToolBar::visibilityChanged, this, [this](bool visible) {
         if (isFullScreen()) {
             return;
@@ -97,6 +98,8 @@ MainWindow::MainWindow(QWidget *parent)
     if (MangaReaderSettings::fullscreenOnStartup()) {
         toggleFullScreen();
     }
+
+    Q_EMIT constructorFinished();
 }
 
 MainWindow::~MainWindow()
@@ -175,6 +178,38 @@ void MainWindow::init()
     toolBar()->addAction(m_hamburgerMenu);
     m_hamburgerMenu->hideActionsOf(toolBar());
     m_hamburgerMenu->setMenuBar(menuBar());
+    m_hamburgerMenu->setMenuBarAdvertised(false);
+    connect(this, &MainWindow::constructorFinished, this, [this]() {
+        auto menu = new QMenu(this);
+        menu->addAction(actionCollection()->action(u"openMangaArchive"_s));
+        menu->addAction(actionCollection()->action(u"openMangaFolder"_s));
+        menu->addAction(actionCollection()->action(u"addMangaFolder"_s));
+        menu->addAction(actionCollection()->action(u"openPreviousArchive"_s));
+        menu->addAction(actionCollection()->action(u"openNextArchive"_s));
+        menu->addSeparator();
+        menu->addAction(actionCollection()->action(u"colorSchemeChooser"_s));
+        menu->addAction(actionCollection()->action(u"options_show_menubar"_s));
+        menu->addAction(actionCollection()->action(u"toggleMainToolBar"_s));
+        menu->addAction(actionCollection()->action(u"options_configure_toolbars"_s));
+        menu->addAction(actionCollection()->action(u"options_configure_keybinding"_s));
+        menu->addAction(actionCollection()->action(u"options_configure"_s));
+        menu->addSeparator();
+        menu->addAction(actionCollection()->action(u"fullscreen"_s));
+        menu->addAction(actionCollection()->action(u"view_zoom_in"_s));
+        menu->addAction(actionCollection()->action(u"view_zoom_out"_s));
+        menu->addAction(actionCollection()->action(u"resetZoom"_s));
+        menu->addAction(actionCollection()->action(u"fitToWidthAction"_s));
+        menu->addAction(actionCollection()->action(u"fitToHeightAction"_s));
+        menu->addAction(actionCollection()->action(u"toggleMangaTreeDockAction"_s));
+        menu->addAction(actionCollection()->action(u"toggleBookmarksDockAction"_s));
+        menu->addSeparator();
+        menu->addAction(actionCollection()->action(u"focusView"_s));
+        menu->addAction(actionCollection()->action(u"focusTree"_s));
+        menu->addAction(actionCollection()->action(u"focusBookmarksTable"_s));
+        menu->addAction(actionCollection()->action(u"file_quit"_s));
+
+        m_hamburgerMenu->setMenu(menu);
+    });
 
     // ==================================================
     // setup dock widgets
@@ -628,7 +663,6 @@ void MainWindow::setupActions()
         QDesktopServices::openUrl(QUrl(u"https://github.com/sponsors/g-fb"_s));
     }, actionCollection());
     KStandardAction::quit(QApplication::instance(), &QApplication::quit, actionCollection());
-
 
     auto *toggleFullScreenAction = new QAction();
     toggleFullScreenAction->setText(i18n("Fullscreen"));

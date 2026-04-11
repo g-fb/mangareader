@@ -53,6 +53,7 @@ public:
 
 Q_SIGNALS:
     void processArchiveRequested(const QString &path);
+    void constructorFinished();
 
 private:
     static void showError(const QString &error);
