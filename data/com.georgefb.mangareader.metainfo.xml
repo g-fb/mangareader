@@ -27,6 +27,15 @@
         <p>Configurable keyboard shortcuts.</p>
     </description>
     <releases>
+        <release version="2.5.0" date="2026-05-16">
+            <description>
+                <p>Features</p>
+                <ul>
+                    <li>Remove button from "go to page" widget</li>
+                    <li>Changed hamburger menu, now most actions are available directly in it rather than in submenus</li>
+                </ul>
+            </description>
+        </release>
         <release version="2.4.0" date="2026-04-09">
             <description>
                 <p>Features</p>
