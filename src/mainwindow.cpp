@@ -332,6 +332,7 @@ void MainWindow::setupBookmarksDockWidget()
             return;
         }
         m_currentPath = path;
+        m_view->setStartPage(m_startPage);
         if (key.startsWith(RECURSIVE_KEY_PREFIX)) {
             loadImages(path, true);
         } else {
