@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bookmarksView{ new QTableView() }
     , m_bookmarksModel{ new QStandardItemModel(0, 2, this) }
 {
+    setFocus(Qt::ActiveWindowFocusReason);
     setAcceptDrops(true);
     init();
     setupActions();
@@ -168,6 +169,9 @@ void MainWindow::init()
     });
     connect(m_view, &View::fileDropped, this, [this] (const QString &file) {
         loadImages(file, true);
+    });
+    connect(m_view, &View::imagesLoaded, this, [this]() {
+        actionCollection()->action(u"focusView"_s)->trigger();
     });
     centralWidgetLayout->addWidget(m_view);
 
@@ -501,7 +505,6 @@ void MainWindow::loadImages(const QString &path, bool recursive)
 {
     m_progressBar->setVisible(false);
     m_view->openManga(path, recursive);
-    actionCollection()->action(u"focusView"_s)->trigger();
 }
 
 void MainWindow::setupActions()
@@ -544,7 +547,7 @@ void MainWindow::setupActions()
     actionCollection()->addAction(u"focusView"_s, focusView);
     actionCollection()->setDefaultShortcuts(focusView, {Qt::Key_V, Qt::CTRL | Qt::Key_V});
     connect(focusView, &QAction::triggered, this, [this]() {
-        m_view->setFocus();
+        m_view->setFocus(Qt::OtherFocusReason);
     });
 
     auto addMangaFolderAction = new QAction(this);
