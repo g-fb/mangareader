@@ -13,7 +13,7 @@ on:
 jobs:
   build-windows:
     name: Windows
-    runs-on: windows-latest
+    runs-on: windows-2022
     continue-on-error: true
     env:
       CRAFT: /C/CraftMaster/windows-cl-msvc2022-x86_64/craft/bin/craft.py
