@@ -9,11 +9,12 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
 
 jobs:
   build-windows:
     name: Windows
-    runs-on: windows-latest
+    runs-on: windows-2022
     continue-on-error: true
     env:
       CRAFT: /C/CraftMaster/windows-cl-msvc2022-x86_64/craft/bin/craft.py
@@ -24,6 +25,24 @@ jobs:
 
     - name: Clone CraftMaster
       run: git clone --depth=1 https://invent.kde.org/packaging/craftmaster.git /C/CraftMaster/CraftMaster
+
+    - name: Check Visual Studio
+      shell: pwsh
+      run: |
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+
+        Write-Host "=== VSWhere ==="
+        & $vswhere -products '*' -format table
+
+        Write-Host "=== MSVC installation ==="
+        & $vswhere -latest -products '*' `
+          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+          -property installationPath
+
+        Write-Host "=== VC tools ==="
+        & $vswhere -latest -products '*' `
+          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+          -find 'VC\Tools\MSVC\*\bin\Hostx64\x64\cl.exe'
 
     - name: Configure CraftMaster
       run: python /C/CraftMaster/CraftMaster/CraftMaster.py --config ${{ github.workspace }}/.craftsettings.ini --variables "WORKSPACE=${{ github.workspace }}"
