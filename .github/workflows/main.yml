@@ -47,6 +47,12 @@ jobs:
     - name: Package
       run: python ${{ env.CRAFT }} --no-cache --options mangareader.srcDir=${{ github.workspace }} --package qt-apps/mangareader
 
+    - name: Upload packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: mangareader-windows
+        path: packages/*
+
     - name: Rename Files
       if: github.ref_type == 'tag'
       shell: pwsh
