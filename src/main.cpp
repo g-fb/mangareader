@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     aboutData.setCopyrightStatement(i18n("(c) 2019-2022"));
     aboutData.setHomepage(QStringLiteral("https://github.com/g-fb/mangareader"));
     aboutData.setBugAddress(QStringLiteral("https://github.com/g-fb/mangareader/issues").toUtf8());
+    aboutData.setDesktopFileName(u"com.georgefb.mangareader"_s);
     aboutData.addAuthor(
         i18n("George Florea Bănuș"),
         i18n("Developer"),
