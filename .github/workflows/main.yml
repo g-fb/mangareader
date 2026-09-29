@@ -48,6 +48,7 @@ jobs:
       run: python ${{ env.CRAFT }} --no-cache --options mangareader.srcDir=${{ github.workspace }} --package qt-apps/mangareader
 
     - name: Rename Files
+      if: github.ref_type == 'tag'
       shell: pwsh
       run: |
         Move-Item -Path "packages/mangareader-*.exe" -Destination "packages/mangareader-${{ github.ref_name }}-windows_x86_64.exe"
