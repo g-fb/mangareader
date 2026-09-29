@@ -9,6 +9,7 @@
 #include <QCollator>
 #include <QFileInfo>
 #include <QImage>
+#include <QMessageBox>
 #include <QMimeDatabase>
 #include <QProcess>
 #include <QRegularExpression>
@@ -108,15 +109,20 @@ void Extractor::extractRarArchive()
                 ? MangaReaderSettings::autoUnrarPath()
                 : MangaReaderSettings::unrarPath();
     if (unrar.isEmpty()) {
+        QMessageBox box;
+        box.setText(i18n("Can't extract rar files.\nInstall winrar or unrar and setup unrar path in the settings."));
+        box.exec();
         return;
     }
+
+    QUrl url(unrar);
+    QString program = url.isLocalFile() ? url.toLocalFile() : unrar;
 
     QStringList args;
     args << u"e"_s << m_archiveFile << m_tmpFolder->path() << u"-o+"_s;
     m_process = std::make_unique<QProcess>();
-    m_process->setProgram(unrar);
+    m_process->setProgram(program);
     m_process->setArguments(args);
-    m_process->start();
 
     connect(m_process.get(), &QProcess::started, this, &Extractor::started);
     connect(m_process.get(), &QProcess::finished, this, &Extractor::finishedRar);
@@ -160,6 +166,7 @@ void Extractor::extractRarArchive()
         qDebug() << i18n("Error: Could not open the archive. %1", errorMessage);
     });
 
+    m_process->start();
     return;
 }
 
