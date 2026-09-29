@@ -6,6 +6,7 @@
 name: MangaReader CI
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
