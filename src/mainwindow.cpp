@@ -100,11 +100,44 @@ MainWindow::MainWindow(QWidget *parent)
         toggleFullScreen();
     }
 
-    Q_EMIT constructorFinished();
+    setupHamburgerMenu();
 }
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::setupHamburgerMenu()
+{
+    auto menu = new QMenu(this);
+    menu->addAction(actionCollection()->action(u"openMangaArchive"_s));
+    menu->addAction(actionCollection()->action(u"openMangaFolder"_s));
+    menu->addAction(actionCollection()->action(u"addMangaFolder"_s));
+    menu->addAction(actionCollection()->action(u"openPreviousArchive"_s));
+    menu->addAction(actionCollection()->action(u"openNextArchive"_s));
+    menu->addSeparator();
+    menu->addAction(actionCollection()->action(u"colorSchemeChooser"_s));
+    menu->addAction(actionCollection()->action(u"options_show_menubar"_s));
+    menu->addAction(actionCollection()->action(u"toggleMainToolBar"_s));
+    menu->addAction(actionCollection()->action(u"options_configure_toolbars"_s));
+    menu->addAction(actionCollection()->action(u"options_configure_keybinding"_s));
+    menu->addAction(actionCollection()->action(u"options_configure"_s));
+    menu->addSeparator();
+    menu->addAction(actionCollection()->action(u"fullscreen"_s));
+    menu->addAction(actionCollection()->action(u"view_zoom_in"_s));
+    menu->addAction(actionCollection()->action(u"view_zoom_out"_s));
+    menu->addAction(actionCollection()->action(u"resetZoom"_s));
+    menu->addAction(actionCollection()->action(u"fitToWidthAction"_s));
+    menu->addAction(actionCollection()->action(u"fitToHeightAction"_s));
+    menu->addAction(actionCollection()->action(u"toggleMangaTreeDockAction"_s));
+    menu->addAction(actionCollection()->action(u"toggleBookmarksDockAction"_s));
+    menu->addSeparator();
+    menu->addAction(actionCollection()->action(u"focusView"_s));
+    menu->addAction(actionCollection()->action(u"focusTree"_s));
+    menu->addAction(actionCollection()->action(u"focusBookmarksTable"_s));
+    menu->addAction(actionCollection()->action(u"file_quit"_s));
+
+    m_hamburgerMenu->setMenu(menu);
 }
 
 void MainWindow::init()
@@ -183,37 +216,6 @@ void MainWindow::init()
     m_hamburgerMenu->hideActionsOf(toolBar());
     m_hamburgerMenu->setMenuBar(menuBar());
     m_hamburgerMenu->setMenuBarAdvertised(false);
-    connect(this, &MainWindow::constructorFinished, this, [this]() {
-        auto menu = new QMenu(this);
-        menu->addAction(actionCollection()->action(u"openMangaArchive"_s));
-        menu->addAction(actionCollection()->action(u"openMangaFolder"_s));
-        menu->addAction(actionCollection()->action(u"addMangaFolder"_s));
-        menu->addAction(actionCollection()->action(u"openPreviousArchive"_s));
-        menu->addAction(actionCollection()->action(u"openNextArchive"_s));
-        menu->addSeparator();
-        menu->addAction(actionCollection()->action(u"colorSchemeChooser"_s));
-        menu->addAction(actionCollection()->action(u"options_show_menubar"_s));
-        menu->addAction(actionCollection()->action(u"toggleMainToolBar"_s));
-        menu->addAction(actionCollection()->action(u"options_configure_toolbars"_s));
-        menu->addAction(actionCollection()->action(u"options_configure_keybinding"_s));
-        menu->addAction(actionCollection()->action(u"options_configure"_s));
-        menu->addSeparator();
-        menu->addAction(actionCollection()->action(u"fullscreen"_s));
-        menu->addAction(actionCollection()->action(u"view_zoom_in"_s));
-        menu->addAction(actionCollection()->action(u"view_zoom_out"_s));
-        menu->addAction(actionCollection()->action(u"resetZoom"_s));
-        menu->addAction(actionCollection()->action(u"fitToWidthAction"_s));
-        menu->addAction(actionCollection()->action(u"fitToHeightAction"_s));
-        menu->addAction(actionCollection()->action(u"toggleMangaTreeDockAction"_s));
-        menu->addAction(actionCollection()->action(u"toggleBookmarksDockAction"_s));
-        menu->addSeparator();
-        menu->addAction(actionCollection()->action(u"focusView"_s));
-        menu->addAction(actionCollection()->action(u"focusTree"_s));
-        menu->addAction(actionCollection()->action(u"focusBookmarksTable"_s));
-        menu->addAction(actionCollection()->action(u"file_quit"_s));
-
-        m_hamburgerMenu->setMenu(menu);
-    });
 
     // ==================================================
     // setup dock widgets
@@ -1046,7 +1048,8 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 
 void MainWindow::dropEvent(QDropEvent *e)
 {
-    QString fileName = e->mimeData()->urls().first().toLocalFile();
+    const auto urls = e->mimeData()->urls();
+    QString fileName = urls.first().toLocalFile();
     loadImages(fileName);
 }
 

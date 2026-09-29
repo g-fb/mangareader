@@ -217,13 +217,11 @@ void View::loadImages()
 
 void View::createPages()
 {
-    QFileInfo fi;
     QScopedPointer<QIODevice> dev;
     QImageReader imageReader;
     imageReader.setAutoTransform(true);
     int i {0};
     for (auto &_file : m_files) {
-        QFileInfo fi(_file.path);
         Page *p = new Page(_file.size);
         p->setNumber(i);
         p->setFilename(_file.path);
@@ -560,7 +558,8 @@ void View::dragEnterEvent(QDragEnterEvent *e)
 
 void View::dropEvent(QDropEvent *e)
 {
-    Q_EMIT fileDropped(e->mimeData()->urls().first().toLocalFile());
+    const auto urls = e->mimeData()->urls();
+    Q_EMIT fileDropped(urls.first().toLocalFile());
 }
 
 void View::setLoadFromMemory(bool newLoadFromMemory)

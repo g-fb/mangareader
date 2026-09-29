@@ -53,7 +53,6 @@ public:
 
 Q_SIGNALS:
     void processArchiveRequested(const QString &path);
-    void constructorFinished();
 
 private:
     static void showError(const QString &error);
@@ -112,6 +111,7 @@ private:
                                              u"application/vnd.rar"_s,
                                              u"application/vnd.comicbook-rar"_s,
                                              u"inode/directory"_s};
+    void setupHamburgerMenu();
 };
 
 #endif // MAINWINDOW_H

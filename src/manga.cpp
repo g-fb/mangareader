@@ -13,7 +13,7 @@
 #include <QMimeDatabase>
 #include <QThread>
 #include <QTimer>
-#include <QtConcurrent>
+#include <QtConcurrentRun>
 
 Manga::Manga(const QString &path, QObject *parent)
     : QObject{parent}
@@ -62,7 +62,6 @@ Manga::~Manga()
 
 void Manga::init()
 {
-    QFileInfo fi{m_path};
     QMimeDatabase db;
     m_mimeType = db.mimeTypeForFile(m_path, QMimeDatabase::MatchContent);
     if (isZip()) {
