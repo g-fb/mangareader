@@ -110,7 +110,7 @@ void Extractor::extractRarArchive()
                 : MangaReaderSettings::unrarPath();
     if (unrar.isEmpty()) {
         QMessageBox box;
-        box.setText(i18n("Can't extract rar files.\nInstall winrar or unrar and setup unrar path in the settings."));
+        box.setText(unrarNotFoundMessage());
         box.exec();
         return;
     }
@@ -275,9 +275,15 @@ QImage Extractor::extractFirstImage()
 QImage Extractor::rarExtractFirstImage()
 {
     m_tmpFolder = std::make_unique<QTemporaryDir>();
-    auto unrar = QStandardPaths::findExecutable(u"unrar"_s);
+    auto unrar = MangaReaderSettings::unrarPath().isEmpty()
+                     ? MangaReaderSettings::autoUnrarPath()
+                     : MangaReaderSettings::unrarPath();
+
     if (unrar.isEmpty()) {
-        return QImage();
+        QMessageBox box;
+        box.setText(unrarNotFoundMessage());
+        box.exec();
+        return {};
     }
 
     // get list od files in the archive
@@ -405,18 +411,18 @@ QString Extractor::extractionFolder()
 QString Extractor::unrarNotFoundMessage()
 {
 #ifdef Q_OS_WIN32
-    return u"UnRAR executable was not found.\n"
+    return i18n("UnRAR executable was not found.\n"
            "It can be installed through WinRAR or independent. "
            "When installed with WinRAR just restarting the application "
            "should be enough to find the executable.\n"
            "If installed independently you have to manually "
-           "set the path to the UnRAR executable in the settings."_s;
+           "set the path to the UnRAR executable in the settings.");
 #else
-    return u"UnRAR executable was not found.\n"
+    return i18n("UnRAR executable was not found.\n"
            "Install the unrar package and restart the application, "
            "unrar should be picked up automatically.\n"
            "If unrar is still not found you can set "
-           "the path to the unrar executable manually in the settings."_s;
+           "the path to the unrar executable manually in the settings.");
 #endif
 }
 
